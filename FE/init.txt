@@ -3,3 +3,5 @@
 2. Biến trong file .env nhớ thêm tiền tố VITE_Name
 --> https://vite.dev/guide/env-and-mode.html
 3. absolute path: @/src/*... <tùy ae thôi >__< >
+4. axios
+--> npm install axios@1.12.2 --save-exact

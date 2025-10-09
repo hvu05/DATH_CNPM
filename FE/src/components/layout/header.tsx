@@ -8,31 +8,29 @@ import { Link } from 'react-router'
 
 export const Header = () => {
     return (
-        <>
-            <header>
-                <div className="left-header">
-                    <Link to={'/'}>
-                        <div className='home'>
-                            <img src={homeIcon} alt="home" />
-                        </div>
-                    </Link>
-                    <button>
-                        <img src={menuIcon} alt="menu" />
-                        <span>Danh mục</span>
-                    </button>
-                </div>
-                <div className="input-search">
-                    <input type="text" />
-                    <img src={searchIcon} alt="search" />
-                </div>
-                <div className="right-header">
-                    <button>
-                        <img src={cartIcon} alt="cart" />
-                        <span>Giỏ hàng</span>
-                    </button>
-                    <img src={defaultAvatar} alt="avatar" className="avatar" />
-                </div>
-            </header>
-        </>
+        <header className="header">
+            <div className="header__left">
+                <Link to={'/'} className="header__home-link">
+                    <img src={homeIcon} alt="Home" />
+                </Link>
+                <button className="header__button header__button--category">
+                    <img src={menuIcon} alt="Menu" className="header__button-icon" />
+                    <span className="header__button-text">Danh mục</span>
+                </button>
+            </div>
+
+            <div className="header__search">
+                <input type="text" className="header__search-input" placeholder="Tìm kiếm sản phẩm..." />
+                <img src={searchIcon} alt="Search" className="header__search-icon" />
+            </div>
+
+            <div className="header__right">
+                <button className="header__button header__button--cart">
+                    <img src={cartIcon} alt="Cart" className="header__button-icon" />
+                    <span className="header__button-text">Giỏ hàng</span>
+                </button>
+                <img src={defaultAvatar} alt="Avatar" className="header__avatar" />
+            </div>
+        </header>
     )
 }

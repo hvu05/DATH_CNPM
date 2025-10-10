@@ -1,4 +1,5 @@
-.login-container {
+
+.auth-container {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -6,16 +7,14 @@
     min-height: calc(100vh - 85px);
 }
 
-.login {
+.auth {
     width: 100%;
     max-width: 500px;
     margin: 0 20px;
     padding: 28px 55px 42px;
     border-radius: 24px;
-
     background-color: #fff;
     border: 2px solid #d23631;
-
     display: flex;
     flex-direction: column;
     gap: 25px;
@@ -89,22 +88,29 @@
         &:hover {
             text-decoration: underline;
         }
+
+        &--black {
+            color: black;
+            &:hover {
+                cursor: pointer;
+            }
+        }
     }
 }
 
 // --- Responsive Design ---
 @media (max-width: 600px) {
-    .login {
+    .auth {
         padding: 25px 25px 35px;
         margin: 0 15px;
         gap: 20px;
     }
 
-    .login__title {
+    .auth__title {
         font-size: 28px;
     }
 
-    .login__form {
+    .auth__form {
         gap: 15px;
     }
 }

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router'
-import './confirm.scss'
+import './auth.scss'
 export const ConfirmPage = () => {
     const navigate = useNavigate();
     const onSubmit = () => {
@@ -8,14 +8,14 @@ export const ConfirmPage = () => {
     }
     return (
         <>
-            <div className="confirm-container">
-                <div className="confirm">
-                    <div className="confirm__title">
+            <div className="auth-container">
+                <div className="auth">
+                    <div className="auth__title">
                         Xác nhận tài khoản
                     </div>
-                    <form action="" className="confirm__form" onSubmit={onSubmit}>
-                        <input type="text" className="confirm__input" placeholder='Số điện thoại' />
-                        <button className="confirm__button" type='submit'>Tiếp theo</button>
+                    <form action="" className="auth__form" onSubmit={onSubmit}>
+                        <input type="text" className="auth__input" placeholder='Số điện thoại' />
+                        <button className="auth__button" type='submit'>Tiếp theo</button>
                     </form>
                 </div>
             </div>

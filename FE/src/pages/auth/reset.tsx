@@ -1,37 +1,37 @@
 import { useState } from "react";
 import { useNavigate } from "react-router"
-import './reset.scss'
+import './auth.scss'
 
 export const ResetPasswordPage = () => {
     const navigate = useNavigate();
     const [password, setPassword] = useState('')
     const onSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // navigate('/');
+        navigate('/');
         console.log(password)
     }
 
     return (
         <>
-            <div className="reset-pass-container">
-                <div className="reset-pass">
-                    <div className="reset-pass__title">
+            <div className="auth-container">
+                <div className="auth">
+                    <div className="auth__title">
                         Đặt lại mật khẩu
                     </div>
                     <form
-                        className="reset-pass__form"
+                        className="auth__form"
                         onSubmit={onSubmit}
                     >
                         <input
-                            type="password" className="reset-pass__password reset-pass__input"
+                            type="password" className="auth__input"
                             placeholder="Nhập mật khẩu mới"
                             value={password}
                         />
                         <input
-                            type="password" className="reset-pass__repass reset-pass__input" placeholder="Xác nhận mật khẩu"
+                            type="password" className="auth__input" placeholder="Xác nhận mật khẩu"
                         />
                         <button
-                            className="reset-pass__button"
+                            className="auth__button"
                             type="submit"
                         >
                             Tiếp theo

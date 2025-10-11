@@ -2,8 +2,15 @@ export { }
 
 declare global {
     // example
-    interface APIResponse<T> {
+    interface Response<T> {
         success: boolean;
-        data: T[];
+        data?: T;
+        error?: string;
+    }
+
+    interface User {
+        id: number;
+        name: string;
+        email: string;
     }
 }

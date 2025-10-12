@@ -1,37 +1,58 @@
+import { useState } from 'react'
 import './order.scss'
 import default_order from '@/assets/seller/default_order.webp'
 
+type OptionsFilter = 'all' | 'confirmed' | 'waiting' | 'rejected';
+
 export const OrderPage = () => {
+    const [filter, setFilter] = useState<OptionsFilter>('all');
+
     return (
-        <>
-            <div className="seller-order">
-                <div className="seller-order__title">
-                    Đơn hàng
-                </div>
-                <div className="seller-order__filter">
-                    <div className="seller-order__filter-option">Tất cả</div>
-                    <div className="seller-order__filter-option">Đang chờ xác nhận</div>
-                    <div className="seller-order__filter-option">Đã xác nhận</div>
-                    <div className="seller-order__filter-option">Đã từ chối xác nhận</div>
-                </div>
-                <div className="seller-order__orders">
-                    <div className="seller-order__order">
+        <div className="seller-order">
+            <h1 className="seller-order__title">Đơn hàng</h1>
+
+            <div className="seller-order__filter">
+                <button
+                    className={`seller-order__filter-option ${filter == 'all' ? 'seller-order__filter-option--active' : ''}`}
+                    onClick={() => setFilter('all')}
+                >
+                    Tất cả</button>
+                <button
+                    className={`seller-order__filter-option ${filter == 'waiting' ? 'seller-order__filter-option--active' : ''}`}
+                    onClick={() => setFilter('waiting')}
+                >
+                    Đang chờ xác nhận</button>
+                <button
+                    className={`seller-order__filter-option ${filter == 'confirmed' ? 'seller-order__filter-option--active' : ''}`}
+                    onClick={() => setFilter('confirmed')}
+                >
+                    Đã xác nhận</button>
+                <button
+                    className={`seller-order__filter-option ${filter == 'rejected' ? 'seller-order__filter-option--active' : ''}`}
+                    onClick={() => setFilter('rejected')}
+                >
+                    Đã từ chối</button>
+            </div>
+
+            <div className="seller-order__list">
+                <div className="seller-order__item">
+                    <div className="seller-order__product-info">
                         <div className="seller-order__img-container">
-                            <img className="seller-order__img" src={default_order} alt='order_img'></img>
+                            <img className="seller-order__img" src={default_order} alt='order_img' />
                         </div>
-                        <div className="seller-order__order-info">
-                            <div className="seller-order__name">Tên sản phẩm: </div>
-                            <div className="seller-order__category">Loại sản phẩm: </div>
-                            <div className="seller-order__quantity">So luong: 12</div>
+                        <div className="seller-order__details">
+                            <div className="seller-order__name">Tên sản phẩm dài để test responsive</div>
+                            <div className="seller-order__category">Loại sản phẩm: USB China</div>
+                            <div className="seller-order__quantity">Số lượng: 12</div>
                         </div>
-                        <div className="seller-order__price">Giá: 2000000</div>
-                        <div className="seller-order__actions">
-                            <div className="seller-order__status">Chớ xác nhận</div>
-                            <div className="seller-order__detail">Chi tiết đơn hàng</div>
-                        </div>
+                    </div>
+                    <div className="seller-order__price-status">
+                        <div className="seller-order__price">Giá: 2,000,000đ</div>
+                        <div className="seller-order__status">Chờ xác nhận</div>
+                        <a href="#" className="seller-order__detail-link">Chi tiết đơn hàng</a>
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     )
 }

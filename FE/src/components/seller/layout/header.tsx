@@ -4,7 +4,7 @@ import menuIcon from '@/assets/menu-icon.svg'
 import searchIcon from '@/assets/search-icon.svg'
 import cartIcon from '@/assets/cart-icon.svg'
 import defaultAvatar from '@/assets/default-avatar-icon.svg'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 
 export const Header = () => {
     return (

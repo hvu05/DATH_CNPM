@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom"
+import { Outlet } from "react-router"
 import './layout.scss'
 import { Header } from "@/components/seller/layout/header"
 import { Tab } from "@/components/seller/tab"

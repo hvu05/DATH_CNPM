@@ -1,0 +1,82 @@
+.seller-edit-profile {
+    font-family: 'Poppins', 'Inter', sans-serif;
+    padding: 16px;
+    font-size: 1rem;
+
+    button {
+        border-radius: 10px;
+        background: #DC2626;
+        color: white;
+        padding: 10px;
+        width: 100%;
+    }
+
+    input {
+        border-radius: 10px;
+        border: 1px solid #E8E9EC;
+        background: #FFF;
+        padding: 5px;
+        width: 100%;
+    }
+
+    &__title {
+        font-weight: bold;
+        font-size: 1.25rem; // 20px
+        margin-bottom: 16px;
+    }
+
+    &__card {
+        background-color: white;
+        padding: 24px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: center;
+    }
+
+    &__main {
+        width: 100%;
+        max-width: 400px;
+    }
+
+    &__avatar-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 24px;
+    }
+
+    &__avatar {
+        object-fit: cover;
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+    }
+
+    &__row {
+        display: flex;
+        justify-content: space-between;
+        flex-direction: column;
+        align-items: start;
+        padding-left: 10px;
+    }
+
+    &__row-gender {
+
+        input,
+        label {
+            margin-right: 10px;
+        }
+    }
+
+    &__input-birth-container {
+        display: grid;
+        grid-template-columns: repeat(3, 100px);
+        gap: 10px;
+        width: 100%;
+    }
+
+    &__input-female,
+    &__input-male {
+        width: 10px;
+    }
+
+}

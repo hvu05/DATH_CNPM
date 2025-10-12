@@ -5,6 +5,7 @@ import { ConfirmPage } from "@/pages/auth/confirm";
 import { OtpPage } from "@/pages/auth/otp";
 import { ResetPasswordPage } from "@/pages/auth/reset";
 import { SellerLayout } from "@/pages/seller/layout/layout";
+import { ProfilePage } from "@/pages/seller/profile/profile";
 
 export const router = createBrowserRouter([
     {
@@ -36,11 +37,11 @@ export const router = createBrowserRouter([
     // seller route 
     {
         path: '/seller',
-        element: <SellerLayout/>,
+        element: <SellerLayout />,
         children: [
             {
                 path: 'profile',
-                element: <div>This is seller profile page</div>
+                element: <ProfilePage />
             }
         ]
     }

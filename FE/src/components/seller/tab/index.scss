@@ -1,0 +1,19 @@
+.seller-tab-container {
+    background-color: white;
+    max-width: 300px;
+    border-radius: 20px;
+
+    ul {
+        li {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            padding: 10px;
+
+            &:hover {
+                cursor: pointer;
+                background-color: gray;
+            }
+        }
+    }
+}

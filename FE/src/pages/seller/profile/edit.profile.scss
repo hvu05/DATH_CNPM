@@ -3,25 +3,9 @@
     padding: 16px;
     font-size: 1rem;
 
-    button {
-        border-radius: 10px;
-        background: #DC2626;
-        color: white;
-        padding: 10px;
-        width: 100%;
-    }
-
-    input {
-        border-radius: 10px;
-        border: 1px solid #E8E9EC;
-        background: #FFF;
-        padding: 5px;
-        width: 100%;
-    }
-
     &__title {
         font-weight: bold;
-        font-size: 1.25rem; // 20px
+        font-size: 1.25rem;
         margin-bottom: 16px;
     }
 
@@ -36,12 +20,15 @@
     &__main {
         width: 100%;
         max-width: 400px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
     }
 
     &__avatar-container {
         display: flex;
         justify-content: center;
-        margin-bottom: 24px;
+        margin-bottom: 8px;
     }
 
     &__avatar {
@@ -53,30 +40,84 @@
 
     &__row {
         display: flex;
-        justify-content: space-between;
         flex-direction: column;
-        align-items: start;
-        padding-left: 10px;
-    }
+        gap: 8px;
 
-    &__row-gender {
-
-        input,
-        label {
-            margin-right: 10px;
+        .disabled {
+            border-radius: 10px;
+            border: 1px solid #E8E9EC;
+            background: #E8E9EC;
+            color: #9CA3AF;
+            font-weight: 400;
         }
     }
 
-    &__input-birth-container {
+    &__label {
+        font-weight: 500;
+        color: #374151;
+    }
+
+    &__input {
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        background: #fff;
+        padding: 10px;
+        width: 100%;
+
+        &:focus {
+            outline: none;
+            border-color: #d23631;
+            box-shadow: 0 0 0 1px #d23631;
+        }
+    }
+
+    &__gender-options {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        padding-top: 4px;
+    }
+
+    &__gender-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        label {
+            cursor: pointer;
+        }
+    }
+
+    &__radio {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+
+    &__birth-inputs {
         display: grid;
-        grid-template-columns: repeat(3, 100px);
+        grid-template-columns: repeat(3, 1fr);
         gap: 10px;
         width: 100%;
     }
 
-    &__input-female,
-    &__input-male {
-        width: 10px;
+    &__button-container {
+        margin-top: 16px;
     }
 
+    &__button {
+        border-radius: 10px;
+        background: #dc2626;
+        color: white;
+        padding: 12px;
+        width: 100%;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+            background: #b91c1c;
+        }
+    }
 }

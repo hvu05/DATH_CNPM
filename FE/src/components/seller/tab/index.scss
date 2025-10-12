@@ -3,6 +3,9 @@
     max-width: 300px;
     border-radius: 20px;
     max-height: fit-content;
+    font-family: "Poppins", 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
 
     ul {
         li {
@@ -13,8 +16,13 @@
 
             &:hover {
                 cursor: pointer;
-                background-color: gray;
+                background: linear-gradient(90deg, #FFF1F1 0%, #FFF 100%);
             }
         }
+    }
+
+    .tab--active {
+        color: #EC0D0D;
+        background: linear-gradient(90deg, #FFF1F1 0%, #FFF 100%);
     }
 }

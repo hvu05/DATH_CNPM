@@ -42,7 +42,7 @@ export const router = createBrowserRouter([
         element: <SellerLayout />,
         children: [
             {
-                path: 'profile',
+                index: true,
                 element: <ProfilePage />
             },
             {
@@ -54,8 +54,9 @@ export const router = createBrowserRouter([
                 element: <OrderPage />
             },
             {
-
-            }
+                path: 'status',
+                element: <div>Cap nhat trang thai</div>
+            },
         ]
     }
 ]);

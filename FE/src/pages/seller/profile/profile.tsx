@@ -1,7 +1,9 @@
+import { useNavigate } from 'react-router'
 import './profile.scss'
 import defaultAvatar from '@/assets/default-avatar-icon.svg'
 
 export const ProfilePage = () => {
+    const navigate = useNavigate();
     return (
         <div className='seller-profile'>
             <h1 className='seller-profile__title'>Thông tin cá nhân</h1>
@@ -26,7 +28,7 @@ export const ProfilePage = () => {
                     </div>
                     <div className='seller-profile__hr'></div>
                     <div className='seller-profile__button-container'>
-                        <button className='seller-profile__button'>Chỉnh sửa thông tin</button>
+                        <button className='seller-profile__button' onClick={() => navigate('/seller/edit-profile')}>Chỉnh sửa thông tin</button>
                     </div>
                 </div>
             </div>

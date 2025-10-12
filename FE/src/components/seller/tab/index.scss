@@ -22,6 +22,10 @@
     }
 
     .tab--active {
+        &::before {
+            content: '|';
+        }
+
         color: #EC0D0D;
         background: linear-gradient(90deg, #FFF1F1 0%, #FFF 100%);
     }

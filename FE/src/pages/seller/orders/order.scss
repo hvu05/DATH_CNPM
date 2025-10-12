@@ -1,0 +1,76 @@
+.seller-order {
+    font-family: 'Poppins', 'Inter', sans-serif;
+    padding: 16px;
+    font-size: 14px;
+
+    &__title {
+        font-weight: bold;
+        font-size: 1.25rem; // 20px
+        margin-bottom: 16px;
+    }
+
+    &__filter {
+        display: flex;
+        padding: 20px;
+        justify-content: space-between;
+        background-color: white;
+        border-radius: 10px;
+    }
+
+    &__filter-option {
+        padding: 10px;
+        color: #A2A9B4;
+        font-weight: 500;
+
+        &:hover {
+            cursor: pointer;
+            color: #DC2626;
+        }
+    }
+
+    &__orders {
+        margin-top: 50px;
+    }
+
+    &__order {
+        background-color: white;
+        padding: 30px;
+        border-radius: 10px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    &__img-container {
+        width: 100px;
+        height: 100px;
+    }
+
+    &__img {
+        object-fit: contain;
+    }
+
+    &__name,
+    &__price {
+        font-weight: 500;
+    }
+
+    &__order-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    &__actions {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    &__status {
+        border-radius: 10px;
+        background: #DC2626;
+        padding: 10px;
+        color: white;
+        font-weight: 500;
+    }
+}

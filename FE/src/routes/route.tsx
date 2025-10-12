@@ -7,6 +7,7 @@ import { ResetPasswordPage } from "@/pages/auth/reset";
 import { SellerLayout } from "@/pages/seller/layout/layout";
 import { ProfilePage } from "@/pages/seller/profile/profile";
 import { EditProfilePage } from "@/pages/seller/profile/edit.profile";
+import { OrderPage } from "@/pages/seller/orders/order";
 
 export const router = createBrowserRouter([
     {
@@ -47,6 +48,13 @@ export const router = createBrowserRouter([
             {
                 path: 'edit-profile',
                 element: <EditProfilePage />
+            },
+            {
+                path: 'orders',
+                element: <OrderPage />
+            },
+            {
+
             }
         ]
     }

@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import './order.scss'
 import default_order from '@/assets/seller/default_order.webp'
+import { useNavigate } from 'react-router';
 
 type OptionsFilter = 'all' | 'confirmed' | 'waiting' | 'rejected';
 
 export const OrderPage = () => {
     const [filter, setFilter] = useState<OptionsFilter>('all');
+    const navigate = useNavigate();
 
     return (
         <div className="seller-order">
@@ -49,7 +51,7 @@ export const OrderPage = () => {
                     <div className="seller-order__price-status">
                         <div className="seller-order__price">Giá: 2,000,000đ</div>
                         <div className="seller-order__status">Chờ xác nhận</div>
-                        <a href="#" className="seller-order__detail-link">Chi tiết đơn hàng</a>
+                        <button onClick={() => navigate('/seller/order/1')} className="seller-order__detail-link">Chi tiết đơn hàng</button>
                     </div>
                 </div>
             </div>

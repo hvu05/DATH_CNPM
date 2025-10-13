@@ -3,6 +3,7 @@ import { UserResponse } from "./user.response";
 
 export const toUserResponse = (user : User) : UserResponse => {
   return {
+    id : user.id,
     full_name: user.full_name,
     email: user.email,
     phone: user.phone,

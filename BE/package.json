@@ -1,23 +1,23 @@
 {
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/node": "^24.7.2",
-    "dotenv": "^17.2.3",
     "eslint": "^9.37.0",
-    "install": "^0.13.0",
     "nodemon": "^3.1.10",
-    "npm": "^11.6.2",
     "prettier": "^3.6.2",
     "prisma": "^6.17.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "express": "^5.1.0",
     "@prisma/client": "^6.17.1",
-    "@types/bcrypt": "^6.0.0",
-    "bcrypt": "^6.0.0",
-    "bcrypt-ts": "^7.1.0"
+    "bcrypt-ts": "^7.1.0",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "zod": "^4.1.12"
   },
   "scripts": {
     "prisma:generate": "prisma generate",

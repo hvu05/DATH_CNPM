@@ -5,6 +5,8 @@ import { AppError } from '../exeptions/app-error';
 import { ErrorCode } from '../exeptions/error-status';
 const prisma = new PrismaClient();
 
+// how about class ??? 
+
 export const createUser = async (
   data : UserCreateRequest
 ): Promise<UserResponse> => {

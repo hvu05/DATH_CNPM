@@ -1,4 +1,4 @@
-.seller-order {
+.seller-status {
     font-family: 'Poppins', 'Inter', sans-serif;
     padding: 16px;
     font-size: 14px;
@@ -128,7 +128,7 @@
 
 // Responsive adjustments
 @media (max-width: 768px) {
-    .seller-order {
+    .seller-status {
         &__item {
             flex-direction: column;
             align-items: stretch;
@@ -148,7 +148,7 @@
 }
 
 @media (max-width: 576px) {
-    .seller-order {
+    .seller-status {
         padding: 8px;
 
         &__filter {

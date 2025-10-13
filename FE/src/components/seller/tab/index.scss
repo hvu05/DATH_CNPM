@@ -1,32 +1,41 @@
 .seller-tab-container {
     background-color: white;
     max-width: 300px;
-    border-radius: 20px;
+    border-radius: 10px;
     max-height: fit-content;
     font-family: "Poppins", 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 500;
+    // overflow: hidden;
 
     ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
         li {
             display: flex;
-            gap: 5px;
+            gap: 10px;
             align-items: center;
-            padding: 10px;
+            padding: 12px 16px;
+            border-left: 1px solid transparent;
+            transition: all 0.2s ease-in-out;
 
             &:hover {
                 cursor: pointer;
                 background: linear-gradient(90deg, #FFF1F1 0%, #FFF 100%);
             }
+
+            span {
+                display: flex;
+                align-items: center;
+            }
         }
     }
 
     .tab--active {
-        &::before {
-            content: '|';
-        }
-
         color: #EC0D0D;
         background: linear-gradient(90deg, #FFF1F1 0%, #FFF 100%);
+        border-left-color: #EC0D0D; // Active indicator
     }
 }

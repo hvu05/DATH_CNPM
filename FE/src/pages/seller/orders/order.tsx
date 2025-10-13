@@ -32,7 +32,7 @@ export const OrderPage = () => {
                     onClick={() => setFilter('rejected')}
                 >
                     Đã từ chối</button>
-            </div>
+            </div >
 
             <div className="seller-order__list">
                 <div className="seller-order__item">
@@ -53,6 +53,6 @@ export const OrderPage = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     )
 }

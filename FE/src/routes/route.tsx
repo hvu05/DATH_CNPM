@@ -8,6 +8,8 @@ import { SellerLayout } from "@/pages/seller/layout/layout";
 import { ProfilePage } from "@/pages/seller/profile/profile";
 import { EditProfilePage } from "@/pages/seller/profile/edit.profile";
 import { OrderPage } from "@/pages/seller/orders/order";
+import { StatusPage } from "@/pages/seller/status/status";
+import { DetailPage } from "@/pages/seller/detail/detail";
 
 export const router = createBrowserRouter([
     {
@@ -16,7 +18,7 @@ export const router = createBrowserRouter([
         children: [
             {
                 index: true,
-                element: <div>This is homepage</div>
+                element: <div className="h-screen">This is homepage</div>
             },
             {
                 path: '/login',
@@ -33,6 +35,10 @@ export const router = createBrowserRouter([
             {
                 path: '/reset-pass',
                 element: <ResetPasswordPage />
+            },
+            {
+                path: '/seller/order/:id',
+                element: <DetailPage />
             },
         ]
     },
@@ -55,8 +61,9 @@ export const router = createBrowserRouter([
             },
             {
                 path: 'status',
-                element: <div>Cap nhat trang thai</div>
+                element: <StatusPage />
             },
         ]
-    }
+    },
+    // common ? 
 ]);

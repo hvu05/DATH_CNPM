@@ -1,0 +1,12 @@
+model User{
+  id String @id @default(uuid())
+  full_name String
+  email String @unique
+  password String 
+  phone String? 
+  role_id Int @default(1)
+  is_active Boolean @default(true)
+  avatar Bytes?
+  create_at DateTime @default(now())
+  update_at DateTime @updatedAt
+}

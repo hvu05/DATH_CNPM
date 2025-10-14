@@ -1,0 +1,33 @@
+.client-tab-container{
+  background: #fff;
+  //display: inline-block;
+  max-width: 300px;
+  //margin: 20px;
+  padding: 20px 0;
+  height: fit-content;
+  font-family: "Poppins", 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 10px;
+  li {
+    display: flex;
+    padding: 10px 20px;
+    //margin: 0 20px;
+    transition: all 0.2s ease-in-out;
+    img {
+      padding-right: 10px;
+    }
+    &:hover {
+      cursor: pointer;
+      background: linear-gradient(90deg, #FFF1F1 0%, #FFF 100%);
+    }
+  }
+  .tab--active {
+    color: #EC0D0D;
+    background: linear-gradient(90deg, #FFF1F1 0%, #FFF 100%);
+    border-left: 1px solid #EC0D0D;
+    img {
+      filter: invert(18%) sepia(78%) saturate(3333%) hue-rotate(357deg) brightness(92%) contrast(122%)
+    }
+  }
+}

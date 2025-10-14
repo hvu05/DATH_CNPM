@@ -10,6 +10,12 @@ import { EditProfilePage } from "@/pages/seller/profile/edit.profile";
 import { OrderPage } from "@/pages/seller/orders/order";
 import { StatusPage } from "@/pages/seller/status/status";
 import { DetailPage } from "@/pages/seller/detail/detail";
+import {ClientLayout} from "@/pages/client/layout/layout.tsx";
+import {ClientOrder} from "@/pages/client/orders/orders.tsx";
+import {ClientAddress} from "@/pages/client/address";
+import {ClientHistory} from "@/pages/client/history";
+import {ProfilePageClient} from "@/pages/client/profile/client.profile.tsx";
+import {EditProfileClient} from "@/pages/client/profile/edit.profile.tsx";
 
 export const router = createBrowserRouter([
     {
@@ -65,5 +71,32 @@ export const router = createBrowserRouter([
             },
         ]
     },
+    {
+        path: '/client',
+        element: <ClientLayout />,
+        children: [
+            {
+                index: true,
+                element: <ProfilePageClient />
+            },
+            {
+                path: 'edit-profile',
+                element: <EditProfileClient />
+            },
+            {
+                path: 'orders',
+                element: <ClientOrder />
+            },
+            {
+                path: 'address',
+                element: <ClientAddress />
+            },
+            {
+                path: 'history',
+                element: <ClientHistory />
+            }
+        ]
+        
+    }
     // common ? 
 ]);

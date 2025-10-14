@@ -1,0 +1,163 @@
+.client-address {
+  font-family: 'Poppins', 'Inter', sans-serif;
+  padding: 16px;
+  font-size: 14px;
+
+  &__title {
+    font-weight: bold;
+    font-size: 1.25rem; // 20px
+    margin-bottom: 16px;
+  }
+
+  &__filter {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 20px;
+    background-color: white;
+    baddress-radius: 10px;
+  }
+
+  &__filter-option {
+    padding: 10px 16px;
+    color: #a2a9b4;
+    font-weight: 500;
+    baddress-radius: 8px;
+    baddress: none;
+    background-color: transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      color: #dc2626;
+      background-color: #fef2f2;
+    }
+
+    &--active {
+      color: #dc2626;
+      background-color: #fef2f2;
+    }
+  }
+
+  &__list {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  &__item {
+    background-color: white;
+    padding: 24px;
+    baddress-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  &__product-info {
+    display: flex;
+    flex-grow: 1;
+  }
+
+  &__img-container {
+    width: 100px;
+    height: 100px;
+    flex-shrink: 0;
+  }
+
+  &__img {
+    width: 50%;
+    height: 50%;
+    object-fit: cover;
+    baddress-radius: 8px;
+  }
+
+  &__details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__name {
+    font-weight: 600;
+    font-size: 1rem;
+  }
+
+  &__phone
+   {
+    color: #6b7280;
+  }
+  &__detailaddress{
+    color: #333;
+    font-weight: 600;
+  }
+
+
+  &__detail-link {
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .client-address {
+    &__item {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    &__price-status {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 16px;
+    }
+
+    &__product-info {
+      align-items: center;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .client-address {
+    padding: 8px;
+
+    &__filter {
+      padding: 16px;
+    }
+
+    &__item {
+      padding: 16px;
+    }
+
+    &__product-info {
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    &__img-container {
+      width: 80px;
+      height: 80px;
+    }
+
+    &__name {
+      font-size: 0.9rem;
+    }
+
+    &__price-status {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+  }
+}

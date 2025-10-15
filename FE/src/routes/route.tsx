@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Navigate } from "react-router";
 import { AppLayout } from "@/layout";
 import { LoginPage } from "@/pages/auth/login";
 import { ConfirmPage } from "@/pages/auth/confirm";
@@ -10,12 +10,16 @@ import { EditProfilePage } from "@/pages/seller/profile/edit.profile";
 import { OrderPage } from "@/pages/seller/orders/order";
 import { StatusPage } from "@/pages/seller/status/status";
 import { DetailPage } from "@/pages/seller/detail/detail";
-import {ClientLayout} from "@/pages/client/layout/layout.tsx";
-import {ClientOrder} from "@/pages/client/orders/orders.tsx";
-import {ClientAddress} from "@/pages/client/address";
-import {ClientHistory} from "@/pages/client/history";
-import {ProfilePageClient} from "@/pages/client/profile/client.profile.tsx";
-import {EditProfileClient} from "@/pages/client/profile/edit.profile.tsx";
+import { ClientLayout } from "@/pages/client/layout/layout.tsx";
+import { ClientOrder } from "@/pages/client/orders/orders.tsx";
+import { ClientAddress } from "@/pages/client/address";
+import { ClientHistory } from "@/pages/client/history";
+import { ProfilePageClient } from "@/pages/client/profile/client.profile.tsx";
+import { EditProfileClient } from "@/pages/client/profile/edit.profile.tsx";
+import { AdminLayout } from "@/pages/admin/admin.layout";
+import { DashboardPage } from "@/pages/admin/admin.dashboard";
+import { ProductPage } from "@/pages/admin/admin.products";
+import { UsersPage } from "@/pages/admin/admin.users";
 
 export const router = createBrowserRouter([
     {
@@ -96,7 +100,29 @@ export const router = createBrowserRouter([
                 element: <ClientHistory />
             }
         ]
-        
+
+    },
+    // admin 
+    {
+        path: '/admin',
+        element: <AdminLayout />,
+        children: [
+            {
+                index: true,
+                element: <Navigate to={'/admin/dashboard'} replace />
+            },
+            {
+                path: 'dashboard',
+                element: <DashboardPage />
+            },
+            {
+                path: 'products',
+                element: <ProductPage />
+            },
+            {
+                path: 'users',
+                element: <UsersPage />
+            }
+        ]
     }
-    // common ? 
 ]);

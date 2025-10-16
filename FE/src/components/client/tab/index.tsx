@@ -14,7 +14,7 @@ export const TabClient = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const isActiveLink = (path: PathName):boolean => {
+    const isActiveLink = (path: PathName): boolean => {
         if (path === 'client') {
             return location.pathname.slice(1) === path || location.pathname.includes('profile');
         }
@@ -22,34 +22,38 @@ export const TabClient = () => {
     }
     return (
         <>
-            <div className='client-tab-container'>
+            <div className="client-tab-container">
                 <ul>
-                    <li className={`${isActiveLink('client') ? 'tab--active' : ''}`} onClick={() => navigate('/client')}>
+                    <li className={`${isActiveLink('client') ? 'tab--active' : ''}`}
+                        onClick={() => navigate('/client')}>
                         <span>
-                            <img src={ClientAvtImage} alt='client avt logo' />
+                            <img src={ClientAvtImage} alt="client avt logo"/>
                         </span>
                         <span>Xem hồ sơ</span></li>
-                    <li className={`${isActiveLink('orders') ? 'tab--active' : ''}`} onClick={() => navigate('/client/orders')}>
+                    <li className={`${isActiveLink('orders') ? 'tab--active' : ''}`}
+                        onClick={() => navigate('/client/my-orders')}>
                         <span>
-                            <img src={MyOrderImage} alt='client orders logo' />
+                            <img src={MyOrderImage} alt="client orders logo"/>
                         </span>
                         <span>Đơn hàng của tôi</span>
                     </li>
-                    <li className={`${isActiveLink('history') ? 'tab--active' : ''}`} onClick={() => navigate('/client/history')}>
+                    <li className={`${isActiveLink('history') ? 'tab--active' : ''}`}
+                        onClick={() => navigate('/client/history')}>
                         <span>
-                            <img src={HistoryImage} alt='client history logo' />
+                            <img src={HistoryImage} alt="client history logo"/>
                         </span>
                         <span>Lịch sử đặt hàng</span>
                     </li>
-                    <li className={`${isActiveLink('address') ? 'tab--active' : ''}`} onClick={() => navigate('/client/address')}>
+                    <li className={`${isActiveLink('address') ? 'tab--active' : ''}`}
+                        onClick={() => navigate('/client/address')}>
                         <span>
-                            <img src={AddressImage} alt='client address logo' />
+                            <img src={AddressImage} alt="client address logo"/>
                         </span>
                         <span>Địa chỉ nhận hàng</span>
                     </li>
                     <li>
                         <span>
-                            <img src={LogoutImage} alt='client logout logo' />
+                            <img src={LogoutImage} alt="client logout logo"/>
                         </span>
                         <span>Đăng xuất</span>
                     </li>

@@ -10,3 +10,64 @@ body{
     background: #F3F4F6;
     font-size: 1rem;
 }
+
+/*Css for button*/
+/*************************************************************************************/
+.btn-processing {
+    border-radius: 10px;
+    background: #fef2f2;
+    padding: 6px 12px;
+    color: #dc2626;
+    font-weight: 500;
+}
+
+.btn-shipping {
+    border-radius: 10px;
+    background: #f2f4fe;
+    padding: 6px 12px;
+    color: blue;
+    font-weight: 500;
+}
+
+.btn-success {
+    border-radius: 10px;
+    background: #f5fef2;
+    padding: 6px 12px;
+    color: #32a82c;
+    font-weight: 500;
+}
+
+.btn-rebuy {
+    border-radius: 10px;
+    background: #dc2626;
+    padding: 6px 12px;
+    color: #fff;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: center;
+
+    &:hover {
+        background: #b91c1c;
+        cursor: pointer;
+    }
+}
+
+.btn-evaluate {
+    border-radius: 10px;
+    background: #fef2f2;
+    padding: 6px 12px;
+    color: #dc2626;
+    font-weight: 500;
+    border: 2px solid #dc2626;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: #dc2626;
+        color: #fff;
+        cursor: pointer;
+    }
+}
+
+/*************************************************************************************/
+/*End Css for button*/

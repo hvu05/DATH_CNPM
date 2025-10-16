@@ -8,7 +8,7 @@ import { Link } from 'react-router'
 
 export const Header = () => {
     return (
-        <header className="seller-header">
+        <header className="seller-header" style={{'zIndex': '100'}}>
             <div className="seller-header__left">
                 <Link to={'/'} className="seller-header__home-link">
                     <img src={homeIcon} alt="Home" />

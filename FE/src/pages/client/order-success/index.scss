@@ -1,0 +1,42 @@
+.order-success-container{
+  background-color: #fff;
+  width: 600px;
+  border-radius: 20px;
+  margin: 50px auto;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  h1{
+    font-size: 20px;
+    font-weight: bold;
+    padding: 20px;
+  }
+  p{
+    width: 80%;
+    padding-bottom: 20px;
+  }
+  &__btn {
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .order-success-container {
+    width: 400px;
+    img{
+      width: 150px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .order-success-container {
+    width: 300px;
+    img{
+      width: 100px;
+    }
+  }
+}

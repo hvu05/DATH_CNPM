@@ -1,7 +1,11 @@
 import default_address from "@/assets/client/home.svg";
 import './index.scss'
+import {useState} from "react";
+import {AddAddress} from "@/components/client/addAddress";
 
 export const ClientAddress = () => {
+    const [isAddresses, setIsAddresses] = useState<boolean>(false)
+
     return (
         <div className="client-address__list">
             <div className="client-address__item">
@@ -38,8 +42,11 @@ export const ClientAddress = () => {
                                        border-2
                                        border-red-500
                                        hover:border-transparent
-                                       rounded-xl">
+                                       rounded-xl"
+                    onClick={() => setIsAddresses(true)}
+            >
                 Thêm địa chỉ</button>
+            {isAddresses && <AddAddress setIsAddresses={setIsAddresses} />}
         </div>
     )
 }

@@ -25,10 +25,10 @@ export const Header = () => {
             </div>
 
             <div className="seller-header__right">
-                <button className="seller-header__button seller-header__button--cart">
+                {/* <button className="seller-header__button seller-header__button--cart">
                     <img src={cartIcon} alt="Cart" className="seller-header__button-icon" />
                     <span className="seller-header__button-text">Giỏ hàng</span>
-                </button>
+                </button> */}
                 <img src={defaultAvatar} alt="Avatar" className="seller-header__avatar" />
             </div>
         </header>

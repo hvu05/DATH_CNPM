@@ -7,6 +7,27 @@
 PORT=8080
 DATABASE_URL=mysql://<user>:<password>@<port>/<your-db-name>
 CLOUDINARY_URL=cloudinary://<your_api_key>:<your_api_secret>@<your-cloud-name>
+IMAGE_SIZE = 5
+MAIL_USER = <your-email>
+MAIL_PASS = 
 ```
-
+### Cách lấy `CLOUDINARY_URL`  
+```
+[→](https://cloudinary.com/documentation/developer_onboarding_faq_find_credentials)
+```
+### Cách lấy `MAIL_PASS` 
+```
+1. Manage your Google Account → Security → 2-Step Verification → Enable
+2. Truy cập (https://myaccount.google.com/apppasswords)
+3. Chọn email --- nên dùng email ít sử dụng
+4. Nhập Appname
+5. Copy password và paste vào `MAIL_PASS`
+```
+## 2️⃣ Cho lần đầu chạy 
+```bash
+  npm install
+  npm run prisma:remigrate
+  npm run db:seed
+  npm run dev
+```
 

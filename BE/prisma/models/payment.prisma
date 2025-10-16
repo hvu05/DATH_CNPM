@@ -1,0 +1,12 @@
+model Payment{
+  id String @id @default(uuid())
+  order_id String @unique
+  amount BigInt
+  method String
+  payment_status String
+  transaction_code String?
+  create_at DateTime @default(now())
+  update_at DateTime @updatedAt
+
+  order Order @relation(fields: [order_id], references: [id])
+}

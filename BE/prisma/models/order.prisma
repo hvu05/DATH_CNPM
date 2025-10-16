@@ -1,0 +1,16 @@
+model Order{
+  id String @id @unique
+  user_id String 
+  total Int
+  status String @default("PENDING")
+  create_at DateTime @default(now())
+  shipping_at DateTime?
+  provine String
+  ward String 
+  detail String
+  note String? @db.TinyText
+
+  user User @relation(fields: [user_id], references: [id])
+  order_items OrderItem[]
+  payment Payment?
+}

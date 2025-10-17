@@ -1,7 +1,7 @@
 model Address{
   id Int
   user_id String
-  provine String
+  province String
   ward String
   detail String
 

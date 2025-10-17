@@ -11,11 +11,14 @@ import { OrderPage } from "@/pages/seller/orders/order";
 import { StatusPage } from "@/pages/seller/status/status";
 import { DetailPage } from "@/pages/seller/detail/detail";
 import {ClientLayout} from "@/pages/client/layout/layout.tsx";
-import {ClientOrder} from "@/pages/client/orders/orders.tsx";
+import {ClientOrder} from "@/pages/client/myOrders/orders.tsx";
 import {ClientAddress} from "@/pages/client/address";
 import {ClientHistory} from "@/pages/client/history";
 import {ProfilePageClient} from "@/pages/client/profile/client.profile.tsx";
 import {EditProfileClient} from "@/pages/client/profile/edit.profile.tsx";
+import {OrderClient} from "@/pages/client/order";
+import {PaymentClient} from "@/pages/client/payment";
+import {OrderSuccess} from "@/pages/client/order-success";
 
 export const router = createBrowserRouter([
     {
@@ -46,6 +49,18 @@ export const router = createBrowserRouter([
                 path: '/seller/order/:id',
                 element: <DetailPage />
             },
+            {
+                path: '/client/order/:id',
+                element: <OrderClient />
+            },
+            {
+                path: '/client/order/payment',
+                element: <PaymentClient />
+            },
+            {
+                path: '/client/order/success',
+                element: <OrderSuccess />
+            }
         ]
     },
     // seller route 
@@ -62,7 +77,7 @@ export const router = createBrowserRouter([
                 element: <EditProfilePage />
             },
             {
-                path: 'orders',
+                path: 'myOrders',
                 element: <OrderPage />
             },
             {
@@ -84,7 +99,7 @@ export const router = createBrowserRouter([
                 element: <EditProfileClient />
             },
             {
-                path: 'orders',
+                path: 'my-orders',
                 element: <ClientOrder />
             },
             {
@@ -94,7 +109,8 @@ export const router = createBrowserRouter([
             {
                 path: 'history',
                 element: <ClientHistory />
-            }
+            },
+
         ]
         
     }

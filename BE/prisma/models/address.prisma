@@ -1,0 +1,10 @@
+model Address{
+  id Int
+  user_id String
+  provine String
+  ward String
+  detail String
+
+  @@id([id,user_id])
+  user User @relation(fields: [user_id],references: [id])
+}

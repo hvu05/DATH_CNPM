@@ -1,0 +1,9 @@
+model InventoryLog{
+  id Int @id @default(autoincrement())
+  product_id Int
+  type String
+  quantity Int
+  reason String @db.Text
+
+  product Product @relation(fields: [product_id], references: [id])
+}

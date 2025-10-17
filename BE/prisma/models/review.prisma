@@ -1,0 +1,15 @@
+model Review{
+  id Int
+  product_id Int
+  vote Int 
+  comment String @db.Text
+  user_id String
+  parent_id Int? 
+
+  @@id(name: "review_id",[id, product_id])
+
+  parent Review? @relation(name: "ReviewRelation",fields: [id,parent_id], references: [id,product_id])
+  children Review[] @relation(name: "ReviewRelation")
+  product Product @relation(fields: [product_id], references: [id])
+  user User @relation(fields: [user_id],references: [id])
+}

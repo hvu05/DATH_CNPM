@@ -1,7 +1,8 @@
 import { Router } from 'express'
-import { createUserHandler } from '../controllers/user.controller'
-
+import { loginHandler, registerHandler, sendOtpForRegisterHandler } from '../controllers/auth.controller'
 const router = Router()
 
-router.post('/login', createUserHandler)
+router.post('/login', loginHandler)
+router.post('/send-otp', sendOtpForRegisterHandler)
+router.post('/register', registerHandler)
 export default router

@@ -1,0 +1,11 @@
+model Brand{
+  id Int @id @default(autoincrement())
+  name String @unique
+  description String @db.Text
+  image_url String?
+  category_id Int
+
+  category Category @relation(fields: [category_id], references: [id])
+  series Series[]
+  product Product[]
+}

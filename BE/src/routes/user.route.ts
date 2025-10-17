@@ -1,7 +1,9 @@
 import { Router } from 'express'
-import { createUserHandler } from '../controllers/user.controller'
-
+import { createUserHandler, getProfileHandler } from '../controllers/user.controller'
+import { authenticateHandler } from '../middlewares/authenticate.middleware'
+import { checkRole } from '../middlewares/check-role.middleware'
 const router = Router()
 
-router.post('/', createUserHandler)
+router.post('/', authenticateHandler, checkRole("ADMIN"), createUserHandler)
+router.get('/profile',authenticateHandler, getProfileHandler)
 export default router

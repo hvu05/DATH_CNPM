@@ -5,7 +5,8 @@ export const errorHanler = (err : Error, req: Request, res: Response<ApiResponse
  if (err instanceof AppError) {
     return res.status(err.statusCode).json({
       success: false,
-      error: err.message
+      message : err.message,
+      error: err.stack
     });
   }
 

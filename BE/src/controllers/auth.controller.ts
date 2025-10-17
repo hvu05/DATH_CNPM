@@ -1,22 +1,22 @@
 import { NextFunction, Request, Response } from "express";
 
-import { login, sendOtpForRegister, register } from "../services/auth.service";
+import * as authService from "../services/auth.service";
+import * as authDto from "../dtos/auth";
 import { ApiResponse } from "../types/api-response";
-import { LoginRequest, loginSchema, LoginResponse, RegisterSchema, RegisterRequest } from "../dtos/auth";
 import { UserResponse } from "../dtos/users";
 
 
-export const loginHandler = async (req: Request, res: Response<ApiResponse<LoginResponse>>, next: NextFunction) => {
-  const parsed = loginSchema.safeParse(req.body);
+export const loginHandler = async (req: Request, res: Response<ApiResponse<authDto.LoginResponse>>, next: NextFunction) => {
+  const parsed = authDto.loginSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({
       success: false,
       error: parsed.error.issues[0].message,
     });
   }
-  const data: LoginRequest = parsed.data;
+  const data: authDto.LoginRequest = parsed.data;
   try {
-    const response :LoginResponse = await login(data);
+    const response : authDto.LoginResponse = await authService.login(data);
     res.json({
       success: true,
       data: response,
@@ -30,7 +30,7 @@ export const loginHandler = async (req: Request, res: Response<ApiResponse<Login
 export const sendOtpForRegisterHandler = async (req: Request, res: Response<ApiResponse<string>>, next: NextFunction) => {
   const { email } = req.body;
   try {
-    await sendOtpForRegister(email);
+    await authService.sendOtpForRegister(email);
     res.json({
       success: true,
       message: "OTP sent successfully",
@@ -40,23 +40,23 @@ export const sendOtpForRegisterHandler = async (req: Request, res: Response<ApiR
   }
 }
 
-export const registerHandler = async (req: Request, res: Response<ApiResponse<{token: LoginResponse, user : UserResponse}>>, next: NextFunction) => {
+export const registerHandler = async (req: Request, res: Response<ApiResponse<{token: authDto.LoginResponse, user : UserResponse}>>, next: NextFunction) => {
    // validation
-    const parsed = RegisterSchema.safeParse(req.body);
+    const parsed = authDto.RegisterSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({
         success: false,
         error: parsed.error.issues[0].message
       });
     }
-    const data : RegisterRequest = parsed.data;
-    data.role = "Customer";
+    const data : authDto.RegisterRequest = parsed.data;
+    data.role = "CUSTOMER";
     try{
-      const response : ApiResponse<{token: LoginResponse, user : UserResponse}> = { 
+      const response : ApiResponse<{token: authDto.LoginResponse, user : UserResponse}> = { 
         success: true,
         data: {
-          user : await register(data),
-          token : await login(data)
+          user : await authService.register(data),
+          token : await authService.login(data)
         }
        };
       res.status(200).json(response);

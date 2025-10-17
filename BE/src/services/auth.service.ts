@@ -1,21 +1,22 @@
 import { prisma } from '../config/prisma.config';
 import { compareSync } from 'bcrypt-ts' ;
-import { LoginRequest, LoginResponse, RegisterRequest } from '../dtos/auth';
+import { JwtPayload } from 'jsonwebtoken';
+
+import * as authDto from '../dtos/auth';
 import { AppError } from '../exeptions/app-error';
 import { ErrorCode } from '../exeptions/error-status';
 import { generateToken } from '../utils/jwt.utils';
-import { JwtPayload } from 'jsonwebtoken';
-import { UserResponse } from '../dtos/users';
 import { generateOTP } from '../utils/otp.utils';
 import { transporter } from '../config/nodemailer.config';
 import { createUser } from './user.service';
+import { UserResponse } from '../dtos/users';
 
 /**
  * Đăng nhập với email và password
  * @param data LoginRequest { email : string, password : string}
  * @returns LoginResponse { access_token : string, refresh_token : string}
  */
-export const login = async (data : LoginRequest) : Promise<LoginResponse> => {
+export const login = async (data : authDto.LoginRequest) : Promise<authDto.LoginResponse> => {
   const user = await prisma.user.findUnique({
     where: {
       email: data.email,
@@ -43,7 +44,7 @@ export const login = async (data : LoginRequest) : Promise<LoginResponse> => {
  * @param data RegisterRequest
  * @returns UserResponse
 */
-export const register = async (data : RegisterRequest) : Promise<UserResponse>=> {
+export const register = async (data : authDto.RegisterRequest) : Promise<UserResponse>=> {
   const {otp_code, ...userData} = data;
   const otpEntity = await prisma.otp.findUnique({
     where: {

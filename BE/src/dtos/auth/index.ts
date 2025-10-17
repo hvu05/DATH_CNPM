@@ -1,5 +1,3 @@
-import { LoginRequest, loginSchema } from "./login.request";
-import { LoginResponse } from "./login.response";
-import { RegisterRequest, RegisterSchema } from "./register.request";
-
-export { LoginRequest, LoginResponse, loginSchema, RegisterRequest, RegisterSchema };
+export * from "./login.request";
+export * from "./login.response";
+export * from "./register.request";

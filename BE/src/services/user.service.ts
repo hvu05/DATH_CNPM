@@ -1,12 +1,12 @@
 import { genSalt, hashSync, compareSync } from 'bcrypt-ts' ;
-import { UserCreateRequest, UserResponse, toUserResponse } from '../dtos/users';
+import * as userDto from '../dtos/users';
 import { AppError } from '../exeptions/app-error';
 import { ErrorCode } from '../exeptions/error-status';
 import {prisma} from '../config/prisma.config';
 
 export const createUser = async (
-  data : UserCreateRequest
-): Promise<UserResponse> => {
+  data : userDto.UserCreateRequest
+): Promise<userDto.UserResponse> => {
   const user = await prisma.user.findUnique({
     where: {
       email: data.email,
@@ -39,9 +39,15 @@ export const createUser = async (
       role: true
     }
   });
-  return toUserResponse(created, created.role.name);
+  return userDto.toUserResponse(created, created.role.name);
 };
-export const getProfile = async (id?: string) : Promise<UserResponse> => {
+
+/**
+ * Lấy thông tin cơ bản của user
+ * @param id id của user cần lấy
+ * @returns 
+ */
+export const getUserInfo = async (id?: string) : Promise<userDto.UserResponse> => {
   const user = await prisma.user.findUnique(
     {
       where: {id},
@@ -50,10 +56,28 @@ export const getProfile = async (id?: string) : Promise<UserResponse> => {
       }
     })
   if(!user) throw new AppError(ErrorCode.NOT_FOUND, "Không tìm thấy User")
-  return toUserResponse(user, user.role.name);
+  return userDto.toUserResponse(user, user.role.name);
 }
 
+export const updateUser = async (data: userDto.UserUpdateRequest, id?: string) : Promise<userDto.UserResponse> => {
+  const user = await prisma.user.findUnique({where: {id}}) ;
+  if(!user) throw new AppError(ErrorCode.NOT_FOUND, "Không tìm thấy User");
+  if(data.password) data.password = await hashPassword(data.password);
+  const updated = await prisma.user.update(
+    {where: {id},
+     data,
+     include: {
+       role: true
+     }
+    });
+  return userDto.toUserResponse(updated, updated.role.name);
+}
 
+/**
+ * Hash password sử dụng thuật toán bcrypt
+ * @param password 
+ * @returns 
+ */
 const hashPassword = async (password: string): Promise<string> => {
   const salt = await genSalt(10);
   return hashSync(password, salt);

@@ -1,0 +1,66 @@
+.change-address-container{
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.2);
+
+  .bgr-opacity {
+    width: 100vw;
+    height: 100vh;
+
+  }
+
+  .change-address {
+    background: #fff;
+    position: fixed;
+    right: 0;
+    top: 0;
+    z-index: 500;
+    height: 100%;
+    animation: slideIn 0.3s ease forwards;
+    width: 500px;
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      padding: 20px 20px;
+    }
+    &__btn-cancel, &__btn-save {
+      display: flex;
+      justify-content: center;
+      margin: 10px 20px;
+      //padding: 10px 20px;
+    }
+    li {
+      padding: 20px 20px;
+    }
+  }
+}
+
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .change-address-container {
+    .change-address {
+      width: 400px;
+    }
+  }
+}
+@media (max-width: 480px) {
+  .change-address-container {
+    .change-address {
+      width: 300px;
+    }
+  }
+}

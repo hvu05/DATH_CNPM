@@ -1,14 +1,30 @@
 import {useState} from "react";
-import {useNavigate} from "react-router";
-import default_order from "@/assets/seller/default_order.webp";
-import '@/pages/client/orders/index.scss'
+import '@/pages/client/myOrders/index.scss'
+import {AllOrders} from "@/components/client/statusOrder/allOrders";
+import {PendingPay} from "@/components/client/statusOrder/pendingPay";
+import {ShippingOrder} from "@/components/client/statusOrder/shippingOrder";
+import {ProcessingOrder} from "@/components/client/statusOrder/processingOrder";
+import {SuccessOrder} from "@/components/client/statusOrder/successOrder";
+import {CancelOrders} from "@/components/client/statusOrder/cancelOrder";
+import {ReturnOrder} from "@/components/client/statusOrder/returnOrder";
 
-type OptionsFilter = 'all' | 'waitingpay' | 'shipping' | 'processing' | 'succeeded' | 'return' | 'cancelled'
+type OptionsFilter = 'all' | 'pending_pay' | 'shipping' | 'processing' | 'succeeded' | 'return' | 'cancelled'
 
 export const ClientOrder = () => {
-    const [filter, setFilter] = useState<OptionsFilter>('all');
-    const navigate = useNavigate();
+    const [filter, setFilter] = useState<OptionsFilter>('all')
 
+    const renderFillter = () => {
+        switch(filter){
+            case 'pending_pay': return <PendingPay />;
+            case 'shipping': return <ShippingOrder />;
+            case 'processing': return <ProcessingOrder />;
+            case 'succeeded': return <SuccessOrder />;
+            case 'return': return <ReturnOrder />;
+            case 'cancelled': return <CancelOrders />;
+            default: return <AllOrders />;
+        }
+    }
+    // @ts-ignore
     return (
         <div className="client-order">
             <h1 className="client-order__title">Đơn hàng</h1>
@@ -20,8 +36,8 @@ export const ClientOrder = () => {
                 >
                     Tất cả</button>
                 <button
-                    className={`client-order__filter-option ${filter == 'waitingpay' ? 'client-order__filter-option--active' : ''}`}
-                    onClick={() => setFilter('waitingpay')}
+                    className={`client-order__filter-option ${filter == 'pending_pay' ? 'client-order__filter-option--active' : ''}`}
+                    onClick={() => setFilter('pending_pay')}
                 >
                     Đang chờ thanh toán</button>
                 <button
@@ -48,28 +64,11 @@ export const ClientOrder = () => {
                     className={`client-order__filter-option ${filter == 'cancelled' ? 'client-order__filter-option--active' : ''}`}
                     onClick={() => setFilter('cancelled')}
                 >
-                    Trả hàng</button>
+                    Hủy hàng</button>
+
             </div >
 
-            <div className="client-order__list">
-                <div className="client-order__item">
-                    <div className="client-order__product-info">
-                        <div className="client-order__img-container">
-                            <img className="client-order__img" src={default_order} alt='order_img' />
-                        </div>
-                        <div className="client-order__details">
-                            <div className="client-order__name">Tên sản phẩm dài để test responsive</div>
-                            <div className="client-order__category">Loại sản phẩm: USB China</div>
-                            <div className="client-order__quantity">Số lượng: 12</div>
-                        </div>
-                    </div>
-                    <div className="client-order__price-status">
-                        <div className="client-order__price">Giá: 2,000,000đ</div>
-                        <div className="client-order__status">Chờ xác nhận</div>
-                        <button onClick={() => navigate('/client/order/1')} className="client-order__detail-link">Chi tiết đơn hàng</button>
-                    </div>
-                </div>
-            </div>
+            {renderFillter()}
         </div >
     )
 }

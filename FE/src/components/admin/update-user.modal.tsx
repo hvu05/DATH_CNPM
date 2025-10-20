@@ -1,13 +1,14 @@
 import { updateUserByID, type IUser, type TRole } from "@/services/test/api";
 import { FormOutlined, UserOutlined, MailOutlined, SettingOutlined } from "@ant-design/icons";
-import { Form, Input, message, Modal, Select, type FormProps, Switch } from "antd";
-import { useEffect, useCallback } from "react";
+import { Form, Input, message, Modal, Select, Switch } from "antd";
+import { useEffect } from "react";
 
 interface IUpdateUserModalProps {
     user: IUser | null;
     isOpen: boolean;
     setIsOpen: (isOpen: boolean) => void;
     setCurrentUser: (user: IUser | null) => void;
+    refreshUsers: () => void;
 }
 
 interface IUpdateUserForm {
@@ -24,8 +25,9 @@ const ROLE_OPTIONS = [
     { label: 'Customer', value: 'customer' }
 ];
 
-const useUpdateUserModal = (user: IUser | null, isOpen: boolean, setIsOpen: (isOpen: boolean) => void, setCurrentUser: (user: IUser | null) => void) => {
+export const UpdateUserModal = (props: IUpdateUserModalProps) => {
     const [form] = Form.useForm<IUpdateUserForm>();
+    const { user, isOpen, setIsOpen, setCurrentUser, refreshUsers } = props;
 
     const resetForm = () => {
         form.resetFields();
@@ -42,6 +44,7 @@ const useUpdateUserModal = (user: IUser | null, isOpen: boolean, setIsOpen: (isO
             if (result.data) {
                 message.success('Cập nhật thông tin người dùng thành công!');
                 resetForm();
+                refreshUsers();
             } else {
                 message.error(result.message || 'Cập nhật thất bại');
             }
@@ -60,19 +63,10 @@ const useUpdateUserModal = (user: IUser | null, isOpen: boolean, setIsOpen: (isO
         message.error('Vui lòng kiểm tra lại thông tin nhập vào');
     }
 
-    return {
-        form,
-        handleSubmit,
-        handleCancel,
-        handleFormFailed
-    };
-};
-
-export const UpdateUserModal = ({ user, isOpen, setIsOpen, setCurrentUser }: IUpdateUserModalProps) => {
-    const { form, handleSubmit, handleCancel, handleFormFailed } = useUpdateUserModal(user, isOpen, setIsOpen, setCurrentUser);
-
     useEffect(() => {
         if (isOpen && user) {
+            console.log('Set field')
+            console.log({ user })
             form.setFieldsValue({
                 _id: user._id,
                 fullName: user.fullName,
@@ -81,7 +75,7 @@ export const UpdateUserModal = ({ user, isOpen, setIsOpen, setCurrentUser }: IUp
                 role: user.role,
             });
         }
-    }, [isOpen, user]);
+    }, [user, isOpen]);
 
     return (
         <Modal
@@ -103,8 +97,6 @@ export const UpdateUserModal = ({ user, isOpen, setIsOpen, setCurrentUser }: IUp
                 layout="vertical"
                 onFinish={handleSubmit}
                 onFinishFailed={handleFormFailed}
-                autoComplete="off"
-                preserve={false}
             >
                 <Form.Item<IUpdateUserForm>
                     label="ID người dùng"

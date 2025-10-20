@@ -1,5 +1,5 @@
 import { EditOutlined, StopOutlined, UserOutlined, SearchOutlined, ReloadOutlined, TeamOutlined, CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons"
-import { Card, Space, Table, Tag, type TableProps, Row, Col, Statistic, Input, Button, Tooltip, Avatar } from "antd"
+import { Card, Space, Table, Tag, type TableProps, Row, Col, Statistic, Input, Button, Tooltip, Avatar, Empty } from "antd"
 import { useEffect, useState, useCallback } from "react";
 import { type IUser } from '@/services/test/api'
 import { getAllUsers } from "@/services/test/api";
@@ -27,11 +27,6 @@ const useUsersPage = () => {
     const handleEditUser = useCallback((record: IUser) => {
         setCurrentUser(record);
         setIsOpenUpdateModal(true);
-    }, []);
-
-    const handleCloseModal = useCallback(() => {
-        setIsOpenUpdateModal(false);
-        setCurrentUser(null);
     }, []);
 
     const refreshUsers = useCallback(async () => {
@@ -77,7 +72,6 @@ const useUsersPage = () => {
         isOpenUpdateModal,
         searchText,
         handleEditUser,
-        handleCloseModal,
         setCurrentUser,
         setIsOpenUpdateModal,
         handleSearch,
@@ -184,13 +178,6 @@ const createTableColumns = (onEdit: (record: IUser) => void): TableProps<IUser>[
                         onClick={() => onEdit(record)}
                     />
                 </Tooltip>
-                <Tooltip title="Khóa/mở tài khoản">
-                    <Button
-                        type="text"
-                        icon={<StopOutlined />}
-                        className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                    />
-                </Tooltip>
             </Space>
         ),
     }
@@ -203,7 +190,6 @@ export const UsersPage = () => {
         isOpenUpdateModal,
         searchText,
         handleEditUser,
-        handleCloseModal,
         setCurrentUser,
         setIsOpenUpdateModal,
         handleSearch,
@@ -325,6 +311,20 @@ export const UsersPage = () => {
                         pageSizeOptions: ['10', '20', '50', '100']
                     }}
                     scroll={{ x: 1000 }}
+                    locale={
+                        {
+                            emptyText: (
+                                <Empty
+                                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                    description={
+                                        <span>
+                                            Không tìm thấy kết quả nào.
+                                        </span>
+                                    }
+                                />
+                            ),
+                        }
+                    }
                 />
             </Card>
 
@@ -333,6 +333,7 @@ export const UsersPage = () => {
                 setIsOpen={setIsOpenUpdateModal}
                 user={currentUser}
                 setCurrentUser={setCurrentUser}
+                refreshUsers={refreshUsers}
             />
         </div>
     );

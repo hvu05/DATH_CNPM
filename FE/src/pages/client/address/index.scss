@@ -16,14 +16,14 @@
     gap: 12px;
     padding: 20px;
     background-color: white;
-    baddress-radius: 10px;
+    border-radius: 10px;
   }
 
   &__filter-option {
     padding: 10px 16px;
     color: #a2a9b4;
     font-weight: 500;
-    baddress-radius: 8px;
+    border-radius: 8px;
     baddress: none;
     background-color: transparent;
     cursor: pointer;
@@ -50,7 +50,7 @@
   &__item {
     background-color: white;
     padding: 24px;
-    baddress-radius: 10px;
+    border-radius: 10px;
     display: flex;
     justify-content: space-between;
     gap: 20px;
@@ -71,7 +71,7 @@
     width: 50%;
     height: 50%;
     object-fit: cover;
-    baddress-radius: 8px;
+    border-radius: 8px;
   }
 
   &__details {
@@ -85,11 +85,11 @@
     font-size: 1rem;
   }
 
-  &__phone
-   {
+  &__phone {
     color: #6b7280;
   }
-  &__detailaddress{
+
+  &__detailaddress {
     color: #333;
     font-weight: 600;
   }

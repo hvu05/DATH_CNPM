@@ -1,9 +1,9 @@
-import {useNavigate} from "react-router"
+import { useNavigate } from "react-router"
 import defaultAvatar from "@/assets/default-avatar-icon.svg"
 import '@/pages/client/profile/index.scss'
 
 
-export const ProfilePageClient = ()=> {
+export const ProfilePageClient = () => {
     const navigate = useNavigate();
     return (
         <div className='client-profile'>

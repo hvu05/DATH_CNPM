@@ -1,6 +1,6 @@
 export interface ApiResponse<T> {
   success: boolean;
-  message? :string;
+  message? :string; // Thông báo 
   data?: T;
-  error?: string;
+  error?: string; // Stack error
 }

@@ -1,0 +1,9 @@
+model Series{
+  id Int
+  brand_id Int
+
+  @@id(name : "series_id", [id, brand_id])
+
+  brand Brand @relation(fields: [brand_id], references: [id])
+  product Product[]
+}

@@ -1,0 +1,13 @@
+model CartItem{
+  id Int
+  user_id String
+  product_id Int
+  product_variant_id Int
+  quantity Int
+  thumbnail_id Int
+
+  @@id([id, user_id])
+  user User @relation(fields: [user_id],references: [id])
+  product_variant ProductVariant @relation(fields: [product_variant_id, product_id], references: [id, product_id])
+
+}

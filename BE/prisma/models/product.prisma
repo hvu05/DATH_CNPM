@@ -1,0 +1,23 @@
+model Product {
+  id Int @id @default(autoincrement())
+  name String
+  description String @db.MediumText
+  quantity Int
+  brand_id Int
+  is_active Boolean @default(true)
+  series_id Int
+  category_id Int
+  create_at DateTime @default(now())
+  update_at DateTime @updatedAt
+
+  order_items OrderItem[]
+  brand Brand @relation(fields: [brand_id], references: [id])
+  product_image ProductImage[]
+  reviews Review[]
+  inventory_logs InventoryLog[]
+  series Series @relation(fields: [series_id, brand_id],references: [id, brand_id])
+  category Category @relation(fields: [category_id],references: [id])
+  product_variants ProductVariant[]
+  product_specs ProductSpec[]
+
+}

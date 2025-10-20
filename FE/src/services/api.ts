@@ -1,6 +1,6 @@
 import axios from './axios.customize'
 
 export const getUsersAPI = async () => {
-    const result = await axios.get<Response<User[]>>(`${import.meta.env.VITE_BACKEND_URL}/users`);
+    const result = await axios.get<ApiResponse<IUser[]>>('/users');
     return result.data;
 }

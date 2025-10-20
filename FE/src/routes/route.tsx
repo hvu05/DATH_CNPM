@@ -10,15 +10,16 @@ import { EditProfilePage } from "@/pages/seller/profile/edit.profile";
 import { OrderPage } from "@/pages/seller/orders/order";
 import { StatusPage } from "@/pages/seller/status/status";
 import { DetailPage } from "@/pages/seller/detail/detail";
-import {ClientLayout} from "@/pages/client/layout/layout.tsx";
-import {ClientOrder} from "@/pages/client/myOrders/orders.tsx";
-import {ClientAddress} from "@/pages/client/address";
-import {ClientHistory} from "@/pages/client/history";
-import {ProfilePageClient} from "@/pages/client/profile/client.profile.tsx";
-import {EditProfileClient} from "@/pages/client/profile/edit.profile.tsx";
-import {OrderClient} from "@/pages/client/order";
-import {PaymentClient} from "@/pages/client/payment";
-import {OrderSuccess} from "@/pages/client/order-success";
+import { ClientLayout } from "@/pages/client/layout/layout.tsx";
+import { ClientOrder } from "@/pages/client/myOrders/orders.tsx";
+import { ClientAddress } from "@/pages/client/address";
+import { ClientHistory } from "@/pages/client/history";
+import { ProfilePageClient } from "@/pages/client/profile/client.profile.tsx";
+import { EditProfileClient } from "@/pages/client/profile/edit.profile.tsx";
+import { OrderClient } from "@/pages/client/order";
+import { PaymentClient } from "@/pages/client/payment";
+import { OrderSuccess } from "@/pages/client/order-success";
+import { RegisterPage } from "@/pages/auth/register";
 
 export const router = createBrowserRouter([
     {
@@ -60,6 +61,10 @@ export const router = createBrowserRouter([
             {
                 path: '/client/order/success',
                 element: <OrderSuccess />
+            },
+            {
+                path: '/register',
+                element: <RegisterPage />
             }
         ]
     },
@@ -112,7 +117,7 @@ export const router = createBrowserRouter([
             },
 
         ]
-        
+
     }
     // common ? 
 ]);

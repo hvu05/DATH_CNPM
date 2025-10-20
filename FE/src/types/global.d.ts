@@ -1,16 +1,15 @@
 export { }
 
 declare global {
-    // example
-    interface Response<T> {
+
+    interface ApiResponse<T> {
         success: boolean;
+        message?: string;
         data?: T;
         error?: string;
     }
 
-    interface User {
-        id: number;
-        name: string;
-        email: string;
+    interface IUser {
+
     }
 }

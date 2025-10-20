@@ -1,22 +1,54 @@
 import { Link, useNavigate } from 'react-router'
+import { useState } from 'react'
+import { authAPI, setTokens } from '@/services/auth/auth.service'
 import './auth.scss'
 
 export const LoginPage = () => {
     const navigate = useNavigate();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    const onSubmitForm = () => {
-        // post.... 
-        navigate('/');
+    const onSubmitForm = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
+        setLoading(true);
+
+        try {
+            const response = await authAPI.login({ email, password });
+            setTokens(response);
+            navigate('/');
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Đăng nhập thất bại');
+        } finally {
+            setLoading(false);
+        }
     }
     return (
         <div className="auth-container">
             <div className="auth">
                 <h1 className="auth__title">Đăng nhập</h1>
+                {error && <div className="auth__error">{error}</div>}
                 <form className="auth__form" onSubmit={onSubmitForm}>
-                    <input type="text" className="auth__input" placeholder="Số điện thoại" />
-                    <input type="password" className="auth__input" placeholder="Mật khẩu" />
-                    <button type="submit" className="auth__button">
-                        Đăng nhập
+                    <input
+                        type="email"
+                        className="auth__input"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+                    <input
+                        type="password"
+                        className="auth__input"
+                        placeholder="Mật khẩu"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
+                    <button type="submit" className="auth__button" disabled={loading}>
+                        {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
                     </button>
                 </form>
                 <div className="auth__footer">

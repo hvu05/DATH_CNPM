@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from "react-router";
+import { createBrowserRouter, Navigate, type RouteObject } from "react-router";
 import { AppLayout } from "@/layout";
 import { LoginPage } from "@/pages/auth/login";
 import { ConfirmPage } from "@/pages/auth/confirm";
@@ -24,58 +24,41 @@ import { OrderClient } from "@/pages/client/order";
 import { PaymentClient } from "@/pages/client/payment";
 import { OrderSuccess } from "@/pages/client/order-success";
 import { RegisterPage } from "@/pages/auth/register";
+import { ProtectedRoute } from "./protected.route";
 
-export const router = createBrowserRouter([
+const authRoutes: RouteObject[] = [
     {
-        path: "/",
-        element: <AppLayout />,
+        path: '/',
+        element: <ProtectedRoute restrictedForAuthenticated={true}><AppLayout /></ProtectedRoute>,
         children: [
-            {
-                index: true,
-                element: <div className="h-screen">This is homepage</div>
-            },
             {
                 path: '/login',
                 element: <LoginPage />
             },
             {
-                path: '/user-confirm',
+                path: 'register',
+                element: <RegisterPage />
+            },
+            {
+                path: 'user-confirm',
                 element: <ConfirmPage />
             },
             {
-                path: '/otp',
+                path: 'otp',
                 element: <OtpPage />
             },
             {
-                path: '/reset-pass',
+                path: 'reset-pass',
                 element: <ResetPasswordPage />
             },
-            {
-                path: '/seller/order/:id',
-                element: <DetailPage />
-            },
-            {
-                path: '/client/order/:id',
-                element: <OrderClient />
-            },
-            {
-                path: '/client/order/payment',
-                element: <PaymentClient />
-            },
-            {
-                path: '/client/order/success',
-                element: <OrderSuccess />
-            },
-            {
-                path: '/register',
-                element: <RegisterPage />
-            }
         ]
-    },
-    // seller route 
+    }
+]
+
+const sellerRoutes: RouteObject[] = [
     {
         path: '/seller',
-        element: <SellerLayout />,
+        element: <ProtectedRoute allow="STAFF"><SellerLayout /></ProtectedRoute>,
         children: [
             {
                 index: true,
@@ -95,9 +78,12 @@ export const router = createBrowserRouter([
             },
         ]
     },
+]
+
+const clientRoutes: RouteObject[] = [
     {
         path: '/client',
-        element: <ClientLayout />,
+        element: <ProtectedRoute allow={'CUSTOMER'}><ClientLayout /></ProtectedRoute>,
         children: [
             {
                 index: true,
@@ -122,11 +108,13 @@ export const router = createBrowserRouter([
 
         ]
 
-    },
-    // admin
+    }
+]
+
+const adminRoutes: RouteObject[] = [
     {
         path: '/admin',
-        element: <AdminLayout />,
+        element: <ProtectedRoute allow="ADMIN"><AdminLayout /></ProtectedRoute>,
         children: [
             {
                 index: true,
@@ -146,4 +134,38 @@ export const router = createBrowserRouter([
             }
         ]
     }
+]
+
+export const router = createBrowserRouter([
+    {
+        path: "/",
+        element: <AppLayout />,
+        children: [
+            {
+                index: true,
+                element: <div className="h-screen">This is homepage</div>
+            },
+            {
+                path: '/seller/order/:id',
+                element: <DetailPage />
+            },
+            {
+                path: '/client/order/:id',
+                element: <OrderClient />
+            },
+            {
+                path: '/client/order/payment',
+                element: <PaymentClient />
+            },
+            {
+                path: '/client/order/success',
+                element: <OrderSuccess />
+            },
+
+        ]
+    },
+    ...authRoutes,
+    ...sellerRoutes,
+    ...clientRoutes,
+    ...adminRoutes,
 ]);

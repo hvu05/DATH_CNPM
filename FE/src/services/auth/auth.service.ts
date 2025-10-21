@@ -30,8 +30,9 @@ export const authAPI = {
         return response.data.data;
     },
 
-    sendOtp: async (data: SendOtpRequest): Promise<void> => {
-        await axios.post('/auth/send-otp', data);
+    sendOtp: async (data: SendOtpRequest) => {
+        const result = await axios.post<ApiResponse<any>>('/auth/send-otp', data);
+        return result.data;
     }
 };
 

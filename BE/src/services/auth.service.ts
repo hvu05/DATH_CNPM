@@ -36,7 +36,13 @@ export const login = async (data: authDto.LoginRequest): Promise<authDto.LoginRe
   };
   const access_token = generateToken(payload);
   const refresh_token = generateToken({ id: user.id }, "7d");
-  return { access_token: access_token, refresh_token: refresh_token };
+  return {
+    data: user,
+    tokens: {
+      access_token: access_token,
+      refresh_token: refresh_token
+    }
+  };
 }
 
 /**

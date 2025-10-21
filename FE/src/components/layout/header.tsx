@@ -5,8 +5,8 @@ import searchIcon from '@/assets/search-icon.svg'
 import cartIcon from '@/assets/cart-icon.svg'
 import defaultAvatar from '@/assets/default-avatar-icon.svg'
 import { Link, useNavigate } from 'react-router'
-import { Button, Dropdown, Avatar } from 'antd'
-import { UserOutlined, LogoutOutlined, LoginOutlined } from '@ant-design/icons'
+import { Dropdown, Avatar } from 'antd'
+import { UserOutlined, LogoutOutlined } from '@ant-design/icons'
 import { useAuthContext } from '@/contexts/AuthContext'
 import { removeTokens } from '@/services/auth/auth.service'
 
@@ -85,14 +85,12 @@ export const Header = () => {
                         />
                     </Dropdown>
                 ) : (
-                    <Button
-                        type="primary"
-                        icon={<LoginOutlined />}
+                    <button
                         onClick={() => window.location.href = '/login'}
-                        className="header__login-btn"
+                        className="header__button"
                     >
                         Đăng nhập
-                    </Button>
+                    </button>
                 )}
             </div>
         </header>

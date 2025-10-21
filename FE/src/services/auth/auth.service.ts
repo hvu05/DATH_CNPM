@@ -1,8 +1,8 @@
 import axios from '@/services/axios.customize';
 import {
+    type IToken,
     type LoginRequest,
     type LoginResponse,
-    type RefreshTokenRequest,
     type RefreshTokenResponse,
     type RegisterRequest,
     type RegisterResponse,
@@ -10,8 +10,8 @@ import {
 } from '@/types/auth/auth.types';
 
 export const authAPI = {
-    login: async (data: LoginRequest): Promise<LoginResponse> => {
-        const response = await axios.post('/auth/login', data);
+    login: async (data: LoginRequest) => {
+        const response = await axios.post<ApiResponse<LoginResponse>>('/auth/login', data);
         return response.data;
     },
 
@@ -36,11 +36,13 @@ export const authAPI = {
     }
 };
 
-export const setTokens = (tokens: LoginResponse) => {
+
+export const setTokens = (tokens: IToken) => {
+    console.log('settoken method', tokens)
     localStorage.setItem('tokens', JSON.stringify(tokens));
 };
 
-export const getTokens = (): LoginResponse | null => {
+export const getTokens = (): IToken | null => {
     const tokens = localStorage.getItem('tokens');
     return tokens ? JSON.parse(tokens) : null;
 };

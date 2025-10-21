@@ -4,10 +4,13 @@ import { errorHanler } from './middlewares/error.middleware';
 import config from './config/config';
 import cors from "cors";
 const app = express();
-const port = config.port ; // default port to listen
+const port = config.port; // default port to listen
 
+// init middleware 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.use(router);
 
 

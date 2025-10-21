@@ -1,6 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { isAuthenticated } from '@/services/auth/auth.service';
-import { type UserContext, type User } from '@/types/user/user.types';
+import { getProfileAPI } from '@/services/global';
+
+export interface UserContext {
+  user: IUser | null;
+  setUser: (v: IUser | null) => void;
+  isLoggedIn: boolean;
+  setIsLoggedIn: (v: boolean) => void;
+  updateUser: (user: Partial<IUser>) => void;
+}
 
 const AuthContext = createContext<UserContext | undefined>(undefined);
 
@@ -9,16 +17,22 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<IUser | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const authenticated = isAuthenticated();
     setIsLoggedIn(authenticated);
-    // Khi có API /me thì gọi ở đây để set user
+    const loadUsers = async () => {
+      const result = await getProfileAPI();
+      if (result.data) {
+        setUser(result.data);
+      }
+    }
+    loadUsers();
   }, []);
 
-  const updateUser = (userData: Partial<User>) => {
+  const updateUser = (userData: Partial<IUser>) => {
     if (user) {
       setUser({ ...user, ...userData });
     }

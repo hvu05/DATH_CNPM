@@ -2,9 +2,11 @@ import { Link, useNavigate } from 'react-router'
 import { useState } from 'react'
 import { authAPI, setTokens } from '@/services/auth/auth.service'
 import './auth.scss'
+import { useAuthContext } from '@/contexts/AuthContext'
 
 export const LoginPage = () => {
     const navigate = useNavigate();
+    const { setUser, setIsLoggedIn } = useAuthContext();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -17,7 +19,11 @@ export const LoginPage = () => {
 
         try {
             const response = await authAPI.login({ email, password });
-            setTokens(response);
+            if (response && response.data) {
+                setTokens(response.data.tokens);
+                setUser(response.data.data);
+                setIsLoggedIn(true);
+            }
             navigate('/');
         } catch (err: any) {
             setError(err.response?.data?.message || 'Đăng nhập thất bại');
@@ -52,9 +58,13 @@ export const LoginPage = () => {
                     </button>
                 </form>
                 <div className="auth__footer">
-                    <span className="auth__footer-text">Bạn quên mật khẩu?</span>
+                    <span className="auth__footer-text">Bạn quên mật khẩu ?</span>
                     <Link to="/user-confirm" className="auth__footer-link">
                         Đặt lại mật khẩu
+                    </Link>
+                    <span className="auth__footer-text">Bạn chưa có tài khoản ?</span>
+                    <Link to="/register" className="auth__footer-link">
+                        Đăng kí
                     </Link>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router";
 import { useState } from "react";
-import { authAPI, setTokens } from "@/services/auth/auth.service";
+import { authAPI } from "@/services/auth/auth.service";
 import { StepOneForm } from "@/components/auth/register/step.one";
 import { StepTwoForm } from "@/components/auth/register/step.two";
 import { type RegisterRequest } from '@/types/auth/auth.types'
@@ -95,10 +95,9 @@ export const RegisterPage = () => {
                 otp_code: otpCode
             };
 
-            const response = await authAPI.register(registerData);
-            setTokens(response.token);
-            setSuccess('Đăng ký thành công! Đang chuyển hướng...');
-            setTimeout(() => navigate('/'), 1500);
+            await authAPI.register(registerData);
+            setSuccess('Đăng ký thành công! Đang chuyển hướng đến trang đăng nhập...');
+            setTimeout(() => navigate('/login'), 1000);
         } catch (err: any) {
             setError(err.response?.data?.error || 'Đăng ký thất bại');
         } finally {

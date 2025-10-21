@@ -2,11 +2,9 @@ import { Link, useNavigate } from 'react-router'
 import { useState } from 'react'
 import { authAPI, setTokens } from '@/services/auth/auth.service'
 import './auth.scss'
-import { useAuthContext } from '@/contexts/AuthContext'
 
 export const LoginPage = () => {
     const navigate = useNavigate();
-    const { setUser, setIsLoggedIn } = useAuthContext();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -20,11 +18,9 @@ export const LoginPage = () => {
         try {
             const response = await authAPI.login({ email, password });
             if (response && response.data) {
-                setTokens(response.data.tokens);
-                setUser(response.data.data);
-                setIsLoggedIn(true);
+                setTokens(response.data);
             }
-            navigate('/');
+            window.location.href = '/';
         } catch (err: any) {
             setError(err.response?.data?.message || 'Đăng nhập thất bại');
         } finally {

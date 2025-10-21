@@ -22,14 +22,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   useEffect(() => {
     const authenticated = isAuthenticated();
-    setIsLoggedIn(authenticated);
-    const loadUsers = async () => {
-      const result = await getProfileAPI();
-      if (result.data) {
-        setUser(result.data);
+    if (authenticated) {
+      setIsLoggedIn(authenticated);
+      const loadUsers = async () => {
+        const result = await getProfileAPI();
+        if (result.data) {
+          setUser(result.data);
+        }
       }
+      loadUsers();
     }
-    loadUsers();
   }, []);
 
   const updateUser = (userData: Partial<IUser>) => {

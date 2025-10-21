@@ -1,6 +1,5 @@
 import axios from '@/services/axios.customize';
 import {
-    type IToken,
     type LoginRequest,
     type LoginResponse,
     type RefreshTokenResponse,
@@ -37,12 +36,12 @@ export const authAPI = {
 };
 
 
-export const setTokens = (tokens: IToken) => {
+export const setTokens = (tokens: LoginResponse) => {
     console.log('settoken method', tokens)
     localStorage.setItem('tokens', JSON.stringify(tokens));
 };
 
-export const getTokens = (): IToken | null => {
+export const getTokens = (): LoginResponse | null => {
     const tokens = localStorage.getItem('tokens');
     return tokens ? JSON.parse(tokens) : null;
 };

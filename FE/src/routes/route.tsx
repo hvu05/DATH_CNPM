@@ -23,6 +23,7 @@ import { UsersPage } from "@/pages/admin/admin.users";
 import { OrderClient } from "@/pages/client/order";
 import { PaymentClient } from "@/pages/client/payment";
 import { OrderSuccess } from "@/pages/client/order-success";
+import { RegisterPage } from "@/pages/auth/register";
 
 export const router = createBrowserRouter([
     {
@@ -64,6 +65,10 @@ export const router = createBrowserRouter([
             {
                 path: '/client/order/success',
                 element: <OrderSuccess />
+            },
+            {
+                path: '/register',
+                element: <RegisterPage />
             }
         ]
     },
@@ -118,7 +123,7 @@ export const router = createBrowserRouter([
         ]
 
     },
-    // admin 
+    // admin
     {
         path: '/admin',
         element: <AdminLayout />,

@@ -6,7 +6,7 @@ import cartIcon from '@/assets/cart-icon.svg'
 import defaultAvatar from '@/assets/default-avatar-icon.svg'
 import { Link, useNavigate } from 'react-router'
 import { Dropdown, Avatar } from 'antd'
-import { UserOutlined, LogoutOutlined } from '@ant-design/icons'
+import { UserOutlined, LogoutOutlined, SettingOutlined } from '@ant-design/icons'
 import { useAuthContext } from '@/contexts/AuthContext'
 import { removeTokens } from '@/services/auth/auth.service'
 
@@ -25,15 +25,32 @@ export const Header = () => {
             logout();
         } else if (key === 'profile') {
             // Navigate to profile page
+            navigate('/client')
+        }
+        else if (key === 'adminpage') {
+            navigate('/admin');
+        }
+        else if (key === 'sellerpage') {
+            navigate('/seller')
         }
     };
 
     const menuItems = [
-        {
+        ...(user && user.role === 'CUSTOMER' ? [{
             key: 'profile',
             label: 'Thông tin cá nhân',
             icon: <UserOutlined />
-        },
+        }] : []),
+        ...(user && user.role === 'ADMIN' ? [{
+            key: 'adminpage',
+            label: 'Quản trị viên',
+            icon: <SettingOutlined />
+        }] : []),
+        ...(user && user.role === 'STAFF' ? [{
+            key: 'sellerpage',
+            label: 'Nhân viên',
+            icon: <SettingOutlined />
+        }] : []),
         {
             type: 'divider' as const,
         },
@@ -42,7 +59,8 @@ export const Header = () => {
             label: 'Đăng xuất',
             icon: <LogoutOutlined />,
             danger: true
-        }
+        },
+
     ];
 
     return (

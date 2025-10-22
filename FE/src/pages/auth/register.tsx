@@ -75,7 +75,7 @@ export const RegisterPage = () => {
             setStep(2);
             setSuccess('OTP đã được gửi đến email của bạn');
         } catch (err: any) {
-            setError(err.response?.data?.error || 'Gửi OTP thất bại');
+            setError(err.response.data.message || 'Gửi OTP thất bại');
         } finally {
             setLoading(false);
         }
@@ -99,7 +99,7 @@ export const RegisterPage = () => {
             setSuccess('Đăng ký thành công! Đang chuyển hướng đến trang đăng nhập...');
             setTimeout(() => navigate('/login'), 1000);
         } catch (err: any) {
-            setError(err.response?.data?.error || 'Đăng ký thất bại');
+            setError(err.response.data.message || 'Đăng ký thất bại');
         } finally {
             setLoading(false);
         }
@@ -113,7 +113,7 @@ export const RegisterPage = () => {
             await authAPI.sendOtp({ email: emailForOtp });
             setSuccess('OTP đã được gửi lại');
         } catch (err: any) {
-            setError(err.response?.data?.error || 'Gửi OTP thất bại');
+            setError(err.response.data.message || 'Gửi OTP thất bại');
         } finally {
             setLoading(false);
         }

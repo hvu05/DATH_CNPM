@@ -75,7 +75,7 @@ export const register = async (data : authDto.RegisterRequest) : Promise<UserRes
     throw new AppError(ErrorCode.BAD_REQUEST, "OTP không hợp lệ");
   }
 
-  if(otpEntity.expire_at.getTime() > Date.now()){
+  if(otpEntity.expire_at.getTime() < Date.now()){
     await prisma.otp.delete({
       where: {
         id: otpEntity.id

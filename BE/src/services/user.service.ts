@@ -75,9 +75,42 @@ export const updateUser = async (data: userDto.UserUpdateRequest, id?: string): 
 }
 
 /**
+ * Lấy danh sách tất cả users (chỉ admin mới được quyền)
+ * @param page số trang (mặc định 1)
+ * @param limit số lượng user mỗi trang (mặc định 10)
+ * @returns danh sách users và tổng số
+ */
+export const getAllUsers = async (page: number = 1, limit: number = 10): Promise<userDto.UserListResponse> => {
+  const skip = (page - 1) * limit;
+
+  const [users, total] = await Promise.all([
+    prisma.user.findMany({
+      skip,
+      take: limit,
+      include: {
+        role: true
+      },
+      orderBy: {
+        create_at: 'desc'
+      }
+    }),
+    prisma.user.count()
+  ]);
+
+  const userResponses = users.map(user => userDto.toUserResponse(user, user.role.name));
+
+  return {
+    users: userResponses,
+    total,
+    page,
+    limit
+  };
+};
+
+/**
  * Hash password sử dụng thuật toán bcrypt
- * @param password 
- * @returns 
+ * @param password
+ * @returns
  */
 const hashPassword = async (password: string): Promise<string> => {
   const salt = await genSalt(10);

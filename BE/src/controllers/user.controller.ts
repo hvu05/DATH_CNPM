@@ -59,6 +59,32 @@ export const updateProfileHandler = async (req : Request, res: Response<ApiRespo
   }
 }
 
+export const getAllUsersHandler = async (req : Request, res: Response<ApiResponse<userDto.UserListResponse>>, next: NextFunction) => {
+  try {
+    // Lấy query parameters với giá trị mặc định
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    // Validate page và limit
+    if (page < 1 || limit < 1 || limit > 100) {
+      return res.status(400).json({
+        success: false,
+        error: "Page phải >= 1 và limit phải trong khoảng 1-100"
+      });
+    }
+
+    const usersList = await userService.getAllUsers(page, limit);
+    const response: ApiResponse<userDto.UserListResponse> = {
+      success: true,
+      data: usersList
+    };
+    res.status(200).json(response);
+  }
+  catch (error : Error | any) {
+    next(error);
+  }
+}
+
 export const createAddressHandler = async (req : Request, res: Response<ApiResponse<userDto.AddressListResponse>>, next: NextFunction) => {
   const parsed = userDto.AddressCreateSchema.safeParse(req.body);
   if(!parsed.success){
@@ -70,7 +96,7 @@ export const createAddressHandler = async (req : Request, res: Response<ApiRespo
   const data : userDto.AddressCreateRequest = parsed.data;
   try{
     const user = req.user ;
-    const profile  = await addressService.createAddress(data, user?.id); 
+    const profile  = await addressService.createAddress(data, user?.id);
     const response = { success: true, data: profile };
     res.status(200).json(response);
   }

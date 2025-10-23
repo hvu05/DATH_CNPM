@@ -13,7 +13,7 @@ import { DetailPage } from "@/pages/seller/detail/detail";
 import { ClientLayout } from "@/pages/client/layout/layout.tsx";
 import { ClientOrder } from "@/pages/client/myOrders/orders.tsx";
 import { ClientAddress } from "@/pages/client/address";
-import { ClientHistory } from "@/pages/client/history";
+// import { ClientHistory } from "@/pages/client/history";
 import { ProfilePageClient } from "@/pages/client/profile/client.profile.tsx";
 import { EditProfileClient } from "@/pages/client/profile/edit.profile.tsx";
 import { AdminLayout } from "@/pages/admin/admin.layout";
@@ -101,10 +101,10 @@ const clientRoutes: RouteObject[] = [
                 path: 'address',
                 element: <ClientAddress />
             },
-            {
-                path: 'history',
-                element: <ClientHistory />
-            },
+            // {
+            //     path: 'history',
+            //     element: <ClientHistory />
+            // },
 
         ]
 

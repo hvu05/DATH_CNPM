@@ -13,7 +13,7 @@ import { DetailPage } from "@/pages/seller/detail/detail";
 import {ClientLayout} from "@/pages/client/layout/layout.tsx";
 import {ClientOrder} from "@/pages/client/myOrders/orders.tsx";
 import {ClientAddress} from "@/pages/client/address";
-import {ClientHistory} from "@/pages/client/history";
+// import {ClientHistory} from "@/pages/client/history";
 import {ProfilePageClient} from "@/pages/client/profile/client.profile.tsx";
 import {EditProfileClient} from "@/pages/client/profile/edit.profile.tsx";
 import {OrderClient} from "@/pages/client/order";
@@ -106,10 +106,10 @@ export const router = createBrowserRouter([
                 path: 'address',
                 element: <ClientAddress />
             },
-            {
-                path: 'history',
-                element: <ClientHistory />
-            },
+            // {
+            //     path: 'history',
+            //     element: <ClientHistory />
+            // },
 
         ]
         

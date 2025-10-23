@@ -76,25 +76,57 @@ export const updateUser = async (data: userDto.UserUpdateRequest, id?: string): 
 
 /**
  * Lấy danh sách tất cả users (chỉ admin mới được quyền)
- * @param page số trang (mặc định 1)
- * @param limit số lượng user mỗi trang (mặc định 10)
+ * @param options các tùy chọn filter và sort
  * @returns danh sách users và tổng số
  */
-export const getAllUsers = async (page: number = 1, limit: number = 10): Promise<userDto.UserListResponse> => {
+export const getAllUsers = async (options: userDto.UserListQueryRequest): Promise<userDto.UserListResponse> => {
+  const { page, limit, sortBy = 'create_at', sortOrder = 'desc', roles, isActive, search } = options;
   const skip = (page - 1) * limit;
+
+  // Build where clause for filtering
+  const where: any = {};
+
+  // Filter by multiple roles
+  if (roles && roles.length > 0) {
+    where.role = {
+      name: {
+        in: roles
+      }
+    };
+  }
+
+  // Filter by active status
+  if (isActive && isActive.length > 0) {
+    // If only filtering for true or false
+    if (isActive.length === 1) {
+      where.is_active = isActive[0];
+    }
+    // If filtering for both true and false, no need to filter
+    // else: don't add is_active filter (returns all)
+  }
+
+  // Search by name or email
+  if (search) {
+    where.OR = [
+      { full_name: { contains: search } },
+      { email: { contains: search } }
+    ];
+  }
+
+  // Build orderBy clause - sort by create_at only
+  const orderBy: any = { create_at: sortOrder };
 
   const [users, total] = await Promise.all([
     prisma.user.findMany({
       skip,
       take: limit,
+      where,
       include: {
         role: true
       },
-      orderBy: {
-        create_at: 'desc'
-      }
+      orderBy
     }),
-    prisma.user.count()
+    prisma.user.count({ where })
   ]);
 
   const userResponses = users.map(user => userDto.toUserResponse(user, user.role.name));
@@ -103,7 +135,14 @@ export const getAllUsers = async (page: number = 1, limit: number = 10): Promise
     users: userResponses,
     total,
     page,
-    limit
+    limit,
+    filters: {
+      sortBy,
+      sortOrder,
+      roles,
+      isActive,
+      search
+    }
   };
 };
 

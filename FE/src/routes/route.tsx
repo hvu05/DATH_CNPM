@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Navigate, type RouteObject } from "react-router";
 import { AppLayout } from "@/layout";
 import { LoginPage } from "@/pages/auth/login";
 import { ConfirmPage } from "@/pages/auth/confirm";
@@ -10,63 +10,55 @@ import { EditProfilePage } from "@/pages/seller/profile/edit.profile";
 import { OrderPage } from "@/pages/seller/orders/order";
 import { StatusPage } from "@/pages/seller/status/status";
 import { DetailPage } from "@/pages/seller/detail/detail";
-import {ClientLayout} from "@/pages/client/layout/layout.tsx";
-import {ClientOrder} from "@/pages/client/myOrders/orders.tsx";
-import {ClientAddress} from "@/pages/client/address";
-import {ClientHistory} from "@/pages/client/history";
-import {ProfilePageClient} from "@/pages/client/profile/client.profile.tsx";
-import {EditProfileClient} from "@/pages/client/profile/edit.profile.tsx";
-import {OrderClient} from "@/pages/client/order";
-import {PaymentClient} from "@/pages/client/payment";
-import {OrderSuccess} from "@/pages/client/order-success";
+import { ClientLayout } from "@/pages/client/layout/layout.tsx";
+import { ClientOrder } from "@/pages/client/myOrders/orders.tsx";
+import { ClientAddress } from "@/pages/client/address";
+// import { ClientHistory } from "@/pages/client/history";
+import { ProfilePageClient } from "@/pages/client/profile/client.profile.tsx";
+import { EditProfileClient } from "@/pages/client/profile/edit.profile.tsx";
+import { AdminLayout } from "@/pages/admin/admin.layout";
+import { DashboardPage } from "@/pages/admin/admin.dashboard";
+import { ProductPage } from "@/pages/admin/admin.products";
+import { UsersPage } from "@/pages/admin/admin.users";
+import { OrderClient } from "@/pages/client/order";
+import { PaymentClient } from "@/pages/client/payment";
+import { OrderSuccess } from "@/pages/client/order-success";
+import { RegisterPage } from "@/pages/auth/register";
+import { ProtectedRoute } from "./protected.route";
 
-export const router = createBrowserRouter([
+const authRoutes: RouteObject[] = [
     {
-        path: "/",
-        element: <AppLayout />,
+        path: '/',
+        element: <ProtectedRoute restrictedForAuthenticated={true}><AppLayout /></ProtectedRoute>,
         children: [
-            {
-                index: true,
-                element: <div className="h-screen">This is homepage</div>
-            },
             {
                 path: '/login',
                 element: <LoginPage />
             },
             {
-                path: '/user-confirm',
+                path: 'register',
+                element: <RegisterPage />
+            },
+            {
+                path: 'user-confirm',
                 element: <ConfirmPage />
             },
             {
-                path: '/otp',
+                path: 'otp',
                 element: <OtpPage />
             },
             {
-                path: '/reset-pass',
+                path: 'reset-pass',
                 element: <ResetPasswordPage />
             },
-            {
-                path: '/seller/order/:id',
-                element: <DetailPage />
-            },
-            {
-                path: '/client/order/:id',
-                element: <OrderClient />
-            },
-            {
-                path: '/client/order/payment',
-                element: <PaymentClient />
-            },
-            {
-                path: '/client/order/success',
-                element: <OrderSuccess />
-            }
         ]
-    },
-    // seller route 
+    }
+]
+
+const sellerRoutes: RouteObject[] = [
     {
         path: '/seller',
-        element: <SellerLayout />,
+        element: <ProtectedRoute allow="STAFF"><SellerLayout /></ProtectedRoute>,
         children: [
             {
                 index: true,
@@ -86,8 +78,12 @@ export const router = createBrowserRouter([
             },
         ]
     },
+]
+
+const clientRoutes: RouteObject[] = [
     {
         path: '/client',
+        // element: <ProtectedRoute allow={'CUSTOMER'}><ClientLayout /></ProtectedRoute>,
         element: <ClientLayout />,
         children: [
             {
@@ -106,13 +102,71 @@ export const router = createBrowserRouter([
                 path: 'address',
                 element: <ClientAddress />
             },
+            // {
+            //     path: 'history',
+            //     element: <ClientHistory />
+            // },
+
+        ]
+
+    }
+]
+
+const adminRoutes: RouteObject[] = [
+    {
+        path: '/admin',
+        element: <ProtectedRoute allow="ADMIN"><AdminLayout /></ProtectedRoute>,
+        children: [
             {
-                path: 'history',
-                element: <ClientHistory />
+                index: true,
+                element: <Navigate to={'/admin/dashboard'} replace />
+            },
+            {
+                path: 'dashboard',
+                element: <DashboardPage />
+            },
+            {
+                path: 'products',
+                element: <ProductPage />
+            },
+            {
+                path: 'users',
+                element: <UsersPage />
+            }
+        ]
+    }
+]
+
+export const router = createBrowserRouter([
+    {
+        path: "/",
+        element: <AppLayout />,
+        children: [
+            {
+                index: true,
+                element: <div className="h-screen">This is homepage</div>
+            },
+            {
+                path: '/seller/order/:id',
+                element: <DetailPage />
+            },
+            {
+                path: '/client/order/:id',
+                element: <OrderClient />
+            },
+            {
+                path: '/client/order/payment',
+                element: <PaymentClient />
+            },
+            {
+                path: '/client/order/success',
+                element: <OrderSuccess />
             },
 
         ]
-        
-    }
-    // common ? 
+    },
+    ...authRoutes,
+    ...sellerRoutes,
+    ...clientRoutes,
+    ...adminRoutes,
 ]);

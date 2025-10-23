@@ -4,9 +4,65 @@ import menuIcon from '@/assets/menu-icon.svg'
 import searchIcon from '@/assets/search-icon.svg'
 import cartIcon from '@/assets/cart-icon.svg'
 import defaultAvatar from '@/assets/default-avatar-icon.svg'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
+import { Dropdown, Avatar } from 'antd'
+import { UserOutlined, LogoutOutlined, SettingOutlined } from '@ant-design/icons'
+import { useAuthContext } from '@/contexts/AuthContext'
+import { removeTokens } from '@/services/auth/auth.service'
 
 export const Header = () => {
+    const navigate = useNavigate();
+    const { user, setUser, isLoggedIn, setIsLoggedIn } = useAuthContext();
+
+    const logout = () => {
+        removeTokens();
+        setUser(null);
+        setIsLoggedIn(false);
+        navigate('/login');
+    }
+    const handleMenuClick = (key: string) => {
+        if (key === 'logout') {
+            logout();
+        } else if (key === 'profile') {
+            // Navigate to profile page
+            navigate('/client')
+        }
+        else if (key === 'adminpage') {
+            navigate('/admin');
+        }
+        else if (key === 'sellerpage') {
+            navigate('/seller')
+        }
+    };
+
+    const menuItems = [
+        ...(user && user.role === 'CUSTOMER' ? [{
+            key: 'profile',
+            label: 'Thông tin cá nhân',
+            icon: <UserOutlined />
+        }] : []),
+        ...(user && user.role === 'ADMIN' ? [{
+            key: 'adminpage',
+            label: 'Quản trị viên',
+            icon: <SettingOutlined />
+        }] : []),
+        ...(user && user.role === 'STAFF' ? [{
+            key: 'sellerpage',
+            label: 'Nhân viên',
+            icon: <SettingOutlined />
+        }] : []),
+        {
+            type: 'divider' as const,
+        },
+        {
+            key: 'logout',
+            label: 'Đăng xuất',
+            icon: <LogoutOutlined />,
+            danger: true
+        },
+
+    ];
+
     return (
         <header className="header">
             <div className="header__left">
@@ -29,7 +85,31 @@ export const Header = () => {
                     <img src={cartIcon} alt="Cart" className="header__button-icon" />
                     <span className="header__button-text">Giỏ hàng</span>
                 </button>
-                <img src={defaultAvatar} alt="Avatar" className="header__avatar" />
+
+                {isLoggedIn ? (
+                    <Dropdown
+                        menu={{
+                            items: menuItems,
+                            onClick: ({ key }) => handleMenuClick(key)
+                        }}
+                        placement="bottomRight"
+                        trigger={['click']}
+                    >
+                        <Avatar
+                            src={user?.avatar || defaultAvatar}
+                            className="header__avatar cursor-pointer"
+                            size={40}
+                            style={{ cursor: 'pointer' }}
+                        />
+                    </Dropdown>
+                ) : (
+                    <button
+                        onClick={() => window.location.href = '/login'}
+                        className="header__button"
+                    >
+                        Đăng nhập
+                    </button>
+                )}
             </div>
         </header>
     )

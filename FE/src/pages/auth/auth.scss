@@ -1,4 +1,3 @@
-
 .auth-container {
     display: flex;
     align-items: center;
@@ -60,11 +59,73 @@
         cursor: pointer;
         font-weight: 500;
         font-size: 16px;
-        transition: opacity 0.3s ease;
+        transition: all 0.3s ease;
 
         &:hover {
             opacity: 0.9;
         }
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        &--secondary {
+            background: #6c757d;
+            border-color: #6c757d;
+
+            &:hover {
+                opacity: 0.8;
+            }
+        }
+
+        &--back {
+            background: transparent;
+            color: #007bff;
+            border-color: #007bff;
+
+            &:hover {
+                background: #007bff;
+                color: white;
+            }
+        }
+    }
+
+    &__otp-verification {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        width: 100%;
+        text-align: center;
+
+        p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+    }
+
+    &__error {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        background-color: #fee;
+        border: 1px solid #fcc;
+        color: #c33;
+        font-size: 14px;
+        text-align: center;
+    }
+
+    &__success {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        background-color: #efe;
+        border: 1px solid #cfc;
+        color: #3c3;
+        font-size: 14px;
+        text-align: center;
     }
 
     &__footer {
@@ -91,11 +152,21 @@
 
         &--black {
             color: black;
+
             &:hover {
                 cursor: pointer;
             }
         }
     }
+}
+
+// register page  CSS
+.auth-register__btn {
+    width: 100%;
+}
+
+.auth__title--register {
+    text-align: start;
 }
 
 // --- Responsive Design ---

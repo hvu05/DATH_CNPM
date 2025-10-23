@@ -7,9 +7,18 @@ import {useState} from "react";
 import {ChangeAddressPage} from "@/components/client/ChangeAddress";
 import {useNavigate} from "react-router";
 
+type OptionsPayment = 'cod' | 'card'
+
 export const OrderClient = () => {
     const [formChangeAddress, setFormChangeAddress] = useState<boolean>(false);
     const navigate = useNavigate();
+
+    const [statusPayment, setStatusPayment] = useState<OptionsPayment>('cod');
+
+    const HandleOrder = () => {
+        if(statusPayment === 'card') {navigate('/client/order/payment')}
+        else navigate('/client/order/success');
+    }
     return (
         <div className="client-order-detail">
             <div className="client-order-detail__main">
@@ -62,14 +71,16 @@ export const OrderClient = () => {
                 <div className="client-order-detail__card">
                     <h2 className="client-order-detail__card-title">Phương thức thanh toán</h2>
                     <div className="client-order-detail__payment-options">
-                        <div className="client-order-detail__payment-option">
+                        <div className="client-order-detail__payment-option"
+                            onClick={() => setStatusPayment('cod')}>
                             <input type="radio" name='payment' id='payment-cash' defaultChecked />
                             <label htmlFor='payment-cash'>
                                 <img src={carIcon} alt="Cash payment" />
                                 <span>Thanh toán khi nhận hàng</span>
                             </label>
                         </div>
-                        <div className="client-order-detail__payment-option">
+                        <div className="client-order-detail__payment-option"
+                            onClick={() => setStatusPayment('card')}>
                             <input type="radio" name='payment' id='payment-qrcode' />
                             <label htmlFor='payment-qrcode'>
                                 <img src={qrcodeIcon} alt="QR Code payment" />
@@ -97,7 +108,7 @@ export const OrderClient = () => {
                         <span className="client-order-detail__summary-price--final">200.000VND</span>
                     </div>
                 </div>
-                <div className='btn-rebuy client-order-detail__checkout' onClick={() => navigate('/client/order/payment')}>Đặt hàng</div>
+                <div className='btn-rebuy client-order-detail__checkout' onClick={HandleOrder}>Đặt hàng</div>
 
             </div>
             {formChangeAddress && (<ChangeAddressPage setFormChangeAddress={setFormChangeAddress} />)}

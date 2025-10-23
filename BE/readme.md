@@ -23,11 +23,30 @@ MAIL_PASS =
 4. Nhập Appname
 5. Copy password và paste vào `MAIL_PASS`
 ```
-## 2️⃣ Cho lần đầu chạy 
+## 2️⃣ Cho lần đầu chạy
+
+### Cách 1: Sử dụng script tự động (Linux mới chơi được) 
+```bash
+# Chạy script setup một lần
+./setup.sh
+
+# Khởi động server
+./start.sh
+```
+
+### Cách 2: Thủ công
 ```bash
   npm install
   npm run prisma:remigrate
   npm run db:seed
   npm run dev
+```
+
+## 3️⃣ Các lần chạy tiếp theo
+```bash
+# Khởi động server development
+./start.sh
+# hoặc
+npm run dev
 ```
 

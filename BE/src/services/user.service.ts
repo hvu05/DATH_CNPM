@@ -74,7 +74,7 @@ export const updateUser = async (data: userDto.UserUpdateRequest, id?: string): 
   return userDto.toUserResponse(updated, updated.role.name);
 }
 
-export const getUsers = async () : 
+export const getUsers = async (){} 
 
 /**
  * Hash password sử dụng thuật toán bcrypt

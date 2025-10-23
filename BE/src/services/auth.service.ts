@@ -55,7 +55,7 @@ export const register = async (data: authDto.RegisterRequest): Promise<UserRespo
     }
   })
   if (!otpEntity) throw new AppError(ErrorCode.NOT_FOUND, "Không tìm thấy OTP");
-  
+
   if (otpEntity.code !== otp_code) {
     const newLimit = otpEntity.limit - 1;
     if (newLimit <= 0) {
@@ -86,7 +86,7 @@ export const register = async (data: authDto.RegisterRequest): Promise<UserRespo
     })
     throw new AppError(ErrorCode.BAD_REQUEST, "OTP đã hết hạn sử dụng");
   }
-  const user : UserResponse = await createUser(userData);
+  const user: UserResponse = await createUser(userData);
   return user;
 }
 
@@ -94,19 +94,19 @@ export const register = async (data: authDto.RegisterRequest): Promise<UserRespo
  * 
  * @param email
  */
-export const sendOtpForRegister = async (email : string) : Promise<void> => {
+export const sendOtpForRegister = async (email: string): Promise<void> => {
   const user = await prisma.user.findUnique({
     where: {
       email: email
     }
   })
-  if(user) throw new AppError(ErrorCode.CONFLICT,'User already exists');
+  if (user) throw new AppError(ErrorCode.CONFLICT, 'User already exists');
   const otpCode = generateOTP();
   const otp = await prisma.otp.create({
     data: {
       email: email,
       code: otpCode,
-      expire_at : new Date(Date.now() + 5 * 60 * 1000)
+      expire_at: new Date(Date.now() + 5 * 60 * 1000)
     }
   })
 
@@ -114,11 +114,17 @@ export const sendOtpForRegister = async (email : string) : Promise<void> => {
   const mailOptions = {
     to: email, //? Có thể sẽ kiểm tra xem email có tồn tại không
     subject: "OTP Verification",
-    text: `Your OTP for verification is ${otpCode}`,  
+    text: `Your OTP for verification is ${otpCode}`,
   };
   console.log(`[OTP] OTP sẽ được gửi tới email ${email} với mã : [ ${otpCode} ]`);
 
   //? Không chờ gửi mail thành công / Gửi mail bất đồng bộ
-  transporter.sendMail(mailOptions);
+  transporter.sendMail(mailOptions)
+    .then(() => {
+      console.log(`✅ [OTP] Email sent successfully to ${email}`);
+    })
+    .catch((error: any) => {
+      console.error(`❌ [OTP] Failed to send email:`, error);
+    });
 
 }

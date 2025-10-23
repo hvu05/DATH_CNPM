@@ -83,7 +83,8 @@ const sellerRoutes: RouteObject[] = [
 const clientRoutes: RouteObject[] = [
     {
         path: '/client',
-        element: <ProtectedRoute allow={'CUSTOMER'}><ClientLayout /></ProtectedRoute>,
+        // element: <ProtectedRoute allow={'CUSTOMER'}><ClientLayout /></ProtectedRoute>,
+        element: <ClientLayout />,
         children: [
             {
                 index: true,

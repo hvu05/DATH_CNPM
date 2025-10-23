@@ -3,7 +3,7 @@ import './index.scss'
 // BEGIN import image
 import AddressImage from '@/assets/client/tab/address.svg'
 import ClientAvtImage from '@/assets/client/tab/client-avt.svg'
-import HistoryImage from '@/assets/client/tab/history.svg'
+// import HistoryImage from '@/assets/client/tab/history.svg'
 import LogoutImage from '@/assets/client/tab/logout.svg'
 import MyOrderImage from '@/assets/client/tab/myorder.svg'
 import {useLocation, useNavigate} from "react-router";
@@ -37,13 +37,13 @@ export const TabClient = () => {
                         </span>
                         <span>Đơn hàng của tôi</span>
                     </li>
-                    <li className={`${isActiveLink('history') ? 'tab--active' : ''}`}
-                        onClick={() => navigate('/client/history')}>
-                        <span>
-                            <img src={HistoryImage} alt="client history logo"/>
-                        </span>
-                        <span>Lịch sử đặt hàng</span>
-                    </li>
+                    {/*<li className={`${isActiveLink('history') ? 'tab--active' : ''}`}*/}
+                    {/*    onClick={() => navigate('/client/history')}>*/}
+                    {/*    <span>*/}
+                    {/*        <img src={HistoryImage} alt="client history logo"/>*/}
+                    {/*    </span>*/}
+                    {/*    <span>Lịch sử đặt hàng</span>*/}
+                    {/*</li>*/}
                     <li className={`${isActiveLink('address') ? 'tab--active' : ''}`}
                         onClick={() => navigate('/client/address')}>
                         <span>

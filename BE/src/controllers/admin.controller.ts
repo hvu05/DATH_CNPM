@@ -59,3 +59,27 @@ export const getAllRolesHandler = async (req: Request, res: Response<ApiResponse
     next(error);
   }
 }
+
+export const updateUserByAdminHandler = async (req: Request, res: Response<ApiResponse<any>>, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+
+    // Validate request body
+    const parsed = adminDto.UserUpdateAdminSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        success: false,
+        error: parsed.error.issues[0].message
+      });
+    }
+
+    const updateData: adminDto.UserUpdateAdminRequest = parsed.data;
+    const updatedUser = await adminService.updateUserByAdmin(id, updateData);
+
+    const response = { success: true, data: updatedUser };
+    res.status(200).json(response);
+  }
+  catch (error: Error | any) {
+    next(error);
+  }
+}

@@ -150,3 +150,44 @@ export const getAllRoles = async (): Promise<adminDto.RoleResponse[]> => {
 
   return roles;
 }
+
+export const updateUserByAdmin = async (userId: string, data: adminDto.UserUpdateAdminRequest) => {
+  // Check if user exists
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  // Validate role_id if provided
+  if (data.role_id !== undefined) {
+    const role = await prisma.role.findUnique({ where: { id: data.role_id } });
+    if (!role) {
+      throw new Error('Invalid role_id');
+    }
+  }
+
+  // Update user
+  const updatedUser = await prisma.user.update({
+    where: { id: userId },
+    data: {
+      ...(data.role_id !== undefined && { role_id: data.role_id }),
+      ...(data.is_active !== undefined && { is_active: data.is_active }),
+      ...(data.full_name && { full_name: data.full_name })
+    },
+    include: {
+      role: true
+    }
+  });
+
+  return {
+    id: updatedUser.id,
+    full_name: updatedUser.full_name,
+    email: updatedUser.email,
+    phone: updatedUser.phone,
+    avatar: updatedUser.avatar,
+    is_active: updatedUser.is_active,
+    role: updatedUser.role.name,
+    create_at: updatedUser.create_at,
+    update_at: updatedUser.update_at
+  };
+}

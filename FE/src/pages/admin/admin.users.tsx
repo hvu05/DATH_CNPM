@@ -21,7 +21,7 @@ const useUsersPage = () => {
     const [dataTable, setDataTable] = useState<IUser[]>([]);
     const [currentUser, setCurrentUser] = useState<IUser | null>(null);
     const [isOpenUpdateModal, setIsOpenUpdateModal] = useState<boolean>(false);
-    const [userRole, setUserRole] = useState<{ roleID: number, role: Role }[]>([]);
+    const [userRole, setUserRole] = useState<{ id: number, name: string }[]>([]);
     const [filters, setFilters] = useState<IGetUsersParams>({
         page: 1,
         limit: 10,
@@ -137,6 +137,7 @@ const useUsersPage = () => {
         statistics,
         meta,
         handleTableChange,
+        userRole,
     };
 };
 
@@ -155,6 +156,7 @@ export const UsersPage = () => {
         statistics,
         meta,
         handleTableChange,
+        userRole,
     } = useUsersPage();
 
     const createTableColumns = (onEdit: (record: IUser) => void): TableProps<IUser>['columns'] => [
@@ -399,6 +401,12 @@ export const UsersPage = () => {
                 user={currentUser}
                 setCurrentUser={setCurrentUser}
                 refreshUsers={refreshUsers}
+                roles={userRole.map((value) => {
+                    return {
+                        label: value.name,
+                        value: value.id,
+                    }
+                })}
             />
         </div>
     );

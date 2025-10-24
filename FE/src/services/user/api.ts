@@ -39,17 +39,31 @@ export const getAllUsersAPI = async (params: IGetUsersParams = {}) => {
     if (search) queryParams.append('search', search);
     console.log({ queryParams })
     const result = await axios.get<ApiResponse<IUsersPagination>>(
-        `${import.meta.env.VITE_BACKEND_URL}/users?${queryParams.toString()}`
+        `${import.meta.env.VITE_BACKEND_URL}/admin/users?${queryParams.toString()}`
     );
     return result.data;
 }
 
 export const getUserStaticsAPI = async () => {
-    const result = await axios.get<ApiResponse<IUserStatics>>(`${import.meta.env.VITE_BACKEND_URL}/users/static`);
+    const result = await axios.get<ApiResponse<IUserStatics>>(`${import.meta.env.VITE_BACKEND_URL}/admin/users/static`);
     return result.data;
 }
 
 export const getUserRoles = async () => {
-    const result = await axios.get<ApiResponse<{ roleID: number, role: Role }[]>>(`${import.meta.env.VITE_BACKEND_URL}/users/roles`);
+    const result = await axios.get<ApiResponse<{ id: number, name: Role }[]>>(`${import.meta.env.VITE_BACKEND_URL}/admin/users/roles`);
+    return result.data;
+}
+
+export interface IUpdateUserParams {
+    full_name: string;
+    role_id: number;
+    is_active: boolean;
+}
+
+export const updateUserAPI = async (userId: string, params: IUpdateUserParams) => {
+    const result = await axios.put<ApiResponse<IUser>>(
+        `${import.meta.env.VITE_BACKEND_URL}/admin/users/${userId}`,
+        params
+    );
     return result.data;
 }

@@ -1,7 +1,7 @@
-import { updateUserByID, type IUser, type TRole } from "@/services/test/api";
+import { updateUserAPI } from "@/services/user/api";
 import { FormOutlined, UserOutlined, MailOutlined, SettingOutlined } from "@ant-design/icons";
 import { Form, Input, message, Modal, Select, Switch } from "antd";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface IUpdateUserModalProps {
     user: IUser | null;
@@ -9,25 +9,21 @@ interface IUpdateUserModalProps {
     setIsOpen: (isOpen: boolean) => void;
     setCurrentUser: (user: IUser | null) => void;
     refreshUsers: () => void;
+    roles: { label: string, value: number }[]
 }
 
 interface IUpdateUserForm {
-    _id: string;
-    fullName: string;
+    id: string;
+    full_name: string;
     email: string;
-    role: TRole;
-    isActive: boolean;
+    role: number;
+    is_active: boolean;
 }
-
-const ROLE_OPTIONS = [
-    { label: 'Admin', value: 'admin' },
-    { label: 'Seller', value: 'seller' },
-    { label: 'Customer', value: 'customer' }
-];
 
 export const UpdateUserModal = (props: IUpdateUserModalProps) => {
     const [form] = Form.useForm<IUpdateUserForm>();
-    const { user, isOpen, setIsOpen, setCurrentUser, refreshUsers } = props;
+    const [loading, setLoading] = useState(false);
+    const { user, isOpen, setIsOpen, setCurrentUser, refreshUsers, roles } = props;
 
     const resetForm = () => {
         form.resetFields();
@@ -36,11 +32,15 @@ export const UpdateUserModal = (props: IUpdateUserModalProps) => {
     }
 
     const handleSubmit = async (values: IUpdateUserForm) => {
+        setLoading(true);
         try {
-            const { _id, email, fullName, isActive, role } = values;
+            const { id, full_name, role, is_active } = values;
 
-            const result = await updateUserByID(_id, fullName, email, role, isActive);
-
+            const result = await updateUserAPI(id, {
+                full_name: full_name,
+                role_id: role,
+                is_active: is_active
+            });
             if (result.data) {
                 message.success('Cập nhật thông tin người dùng thành công!');
                 resetForm();
@@ -48,9 +48,11 @@ export const UpdateUserModal = (props: IUpdateUserModalProps) => {
             } else {
                 message.error(result.message || 'Cập nhật thất bại');
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Update user error:', error);
-            message.error('Đã xảy ra lỗi khi cập nhật thông tin người dùng');
+            message.error(error.response?.data?.message || 'Đã xảy ra lỗi khi cập nhật thông tin người dùng');
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -65,17 +67,15 @@ export const UpdateUserModal = (props: IUpdateUserModalProps) => {
 
     useEffect(() => {
         if (isOpen && user) {
-            console.log('Set field')
-            console.log({ user })
             form.setFieldsValue({
-                _id: user._id,
-                fullName: user.fullName,
+                id: user.id,
+                full_name: user.full_name,
                 email: user.email,
-                isActive: user.isActive,
-                role: user.role,
+                is_active: user.is_active,
+                role: roles.find(item => item.label === user.role)?.value ?? -1,
             });
         }
-    }, [user, isOpen]);
+    }, [user, isOpen, form]);
 
     return (
         <Modal
@@ -91,6 +91,7 @@ export const UpdateUserModal = (props: IUpdateUserModalProps) => {
             okText="Cập nhật"
             cancelText="Hủy"
             width={600}
+            confirmLoading={loading}
         >
             <Form<IUpdateUserForm>
                 form={form}
@@ -100,7 +101,7 @@ export const UpdateUserModal = (props: IUpdateUserModalProps) => {
             >
                 <Form.Item<IUpdateUserForm>
                     label="ID người dùng"
-                    name="_id"
+                    name="id"
                 >
                     <Input
                         prefix={<UserOutlined />}
@@ -111,7 +112,7 @@ export const UpdateUserModal = (props: IUpdateUserModalProps) => {
 
                 <Form.Item<IUpdateUserForm>
                     label="Họ và tên"
-                    name="fullName"
+                    name="full_name"
                     rules={[
                         { required: true, message: 'Vui lòng nhập họ và tên' },
                         { min: 2, message: 'Họ và tên phải có ít nhất 2 ký tự' },
@@ -142,13 +143,13 @@ export const UpdateUserModal = (props: IUpdateUserModalProps) => {
                 >
                     <Select
                         placeholder="Chọn vai trò"
-                        options={ROLE_OPTIONS}
+                        options={roles}
                     />
                 </Form.Item>
 
                 <Form.Item<IUpdateUserForm>
                     label="Trạng thái tài khoản"
-                    name="isActive"
+                    name="is_active"
                     valuePropName="checked"
                 >
                     <Switch

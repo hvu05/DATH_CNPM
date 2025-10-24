@@ -1,11 +1,10 @@
-import * as userDto from "../dtos/users"; //? i don't know this feature
+import * as userDto from "../dtos/users";
 import * as userService from "../services/user.service";
 import * as addressService from "../services/address.service";
 import { NextFunction, Request, Response } from "express";
 import { ApiResponse } from "../types/api-response";
 
-
-/* 
+/*
   * Sẽ loại bỏ api này trong tương lai
 */
 export const createUserHandler = async (req: Request, res: Response<ApiResponse<userDto.UserResponse>>, next: NextFunction) => {
@@ -52,40 +51,6 @@ export const updateProfileHandler = async (req: Request, res: Response<ApiRespon
     const user = req.user;
     const profile: userDto.UserResponse = await userService.updateUser(data, user?.id);
     const response: ApiResponse<userDto.UserResponse> = { success: true, data: profile };
-    res.status(200).json(response);
-  }
-  catch (error: Error | any) {
-    next(error);
-  }
-}
-
-export const getAllUsersHandler = async (req: Request, res: Response<ApiResponse<userDto.UserListResponse>>, next: NextFunction) => {
-  // Validate query parameters với Zod
-  const parsed = userDto.UserListQuerySchema.safeParse(req.query);
-  if (!parsed.success) {
-    return res.status(400).json({
-      success: false,
-      error: parsed.error.issues[0].message
-    });
-  }
-
-  const queryData: userDto.UserListQueryRequest = parsed.data;
-
-  try {
-    const usersList = await userService.getAllUsers({
-      page: queryData.page,
-      limit: queryData.limit,
-      sortBy: queryData.sortBy,
-      sortOrder: queryData.sortOrder,
-      roles: queryData.roles,
-      isActive: queryData.isActive,
-      search: queryData.search
-    });
-
-    const response: ApiResponse<userDto.UserListResponse> = {
-      success: true,
-      data: usersList
-    };
     res.status(200).json(response);
   }
   catch (error: Error | any) {

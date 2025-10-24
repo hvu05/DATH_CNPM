@@ -5,7 +5,7 @@ import { authenticateHandler } from '../middlewares/authenticate.middleware'
 import { checkRole } from '../middlewares/check-role.middleware'
 const router = Router()
 
-router.get('/', authenticateHandler, checkRole(["ADMIN"]), userController.getAllUsersHandler)
+router.post('/', authenticateHandler, checkRole(["ADMIN"]), userController.createAddressHandler)
 router.get('/profile', authenticateHandler, userController.getProfileHandler)
 router.put('/profile', authenticateHandler, userController.updateProfileHandler)
 

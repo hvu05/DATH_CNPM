@@ -1,4 +1,4 @@
-import { UserResponse } from "./user.response";
+import { UserResponse } from "../users";
 
 export interface UserListResponse {
   users: UserResponse[];

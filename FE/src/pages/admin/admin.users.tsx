@@ -1,10 +1,10 @@
-import { EditOutlined, StopOutlined, UserOutlined, SearchOutlined, ReloadOutlined, TeamOutlined, CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons"
-import { Card, Space, Table, Tag, type TableProps, Row, Col, Statistic, Input, Button, Tooltip, Avatar, Empty } from "antd"
+import { EditOutlined, UserOutlined, SearchOutlined, ReloadOutlined, TeamOutlined, CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons"
+import { Card, Space, Table, Tag, type TableProps, Row, Col, Statistic, Input, Button, Tooltip, Avatar, Empty, type TablePaginationConfig } from "antd"
 import { useEffect, useState, useCallback } from "react";
-import { type IUser } from '@/services/test/api'
-import { getAllUsers } from "@/services/test/api";
 import dayjs from "dayjs";
 import { UpdateUserModal } from "@/components/admin/update-user.modal";
+import { getAllUsersAPI, getUserRoles, getUserStaticsAPI, type IGetUsersParams, type IUserStatics } from "@/services/user/api";
+import type { FilterValue, TableCurrentDataSource } from "antd/es/table/interface";
 
 const USER_STATUS = {
     ACTIVE: { color: 'success', text: 'Hoạt động' },
@@ -12,192 +12,254 @@ const USER_STATUS = {
 } as const;
 
 const USER_ROLES = {
-    ADMIN: { color: 'orange', text: 'admin' },
-    SELLER: { color: 'pink', text: 'seller' },
-    CUSTOMER: { color: 'green', text: 'customer' }
+    ADMIN: { color: 'orange', text: 'ADMIN' },
+    STAFF: { color: 'pink', text: 'STAFF' },
+    CUSTOMER: { color: 'green', text: 'CUSTOMER' }
 } as const;
 
 const useUsersPage = () => {
     const [dataTable, setDataTable] = useState<IUser[]>([]);
-    const [filteredData, setFilteredData] = useState<IUser[]>([]);
     const [currentUser, setCurrentUser] = useState<IUser | null>(null);
     const [isOpenUpdateModal, setIsOpenUpdateModal] = useState<boolean>(false);
-    const [searchText, setSearchText] = useState<string>('');
+    const [userRole, setUserRole] = useState<{ roleID: number, role: Role }[]>([]);
+    const [filters, setFilters] = useState<IGetUsersParams>({
+        page: 1,
+        limit: 10,
+        sortBy: 'create_at',
+        sortOrder: 'desc',
+    });
+    const [meta, setMeta] = useState<{ total: number, page: number, limit: number } | null>(null);
+    const [statistics, setStatistics] = useState<IUserStatics>({
+        totalUsers: 0,
+        activeUsers: 0,
+        customerUsers: 0,
+        staffUsers: 0,
+    });
 
-    const handleEditUser = useCallback((record: IUser) => {
+    const handleEditUser = (record: IUser) => {
         setCurrentUser(record);
         setIsOpenUpdateModal(true);
-    }, []);
+    };
 
-    const refreshUsers = useCallback(async () => {
+    const loadUserRole = async () => {
         try {
-            const result = await getAllUsers();
+            const result = await getUserRoles();
             if (result.data) {
-                setDataTable(result.data);
-                setFilteredData(result.data);
+                setUserRole(result.data);
+            }
+        } catch (error) {
+            console.error('Failed to get user roles', error);
+        }
+    }
+
+    const loadUsers = useCallback(async (params?: IGetUsersParams) => {
+        try {
+            const queryParams = params || filters;
+            const result = await getAllUsersAPI(queryParams);
+            if (result.data) {
+                setDataTable(result.data.users);
+                setMeta({
+                    total: result.data.total,
+                    page: result.data.page,
+                    limit: result.data.limit
+                });
             }
         } catch (error) {
             console.error('Failed to load users:', error);
         }
+    }, [filters]);
+
+    const getUsersStatic = useCallback(async () => {
+        try {
+            const result = await getUserStaticsAPI();
+            if (result.data) {
+                setStatistics({
+                    totalUsers: result.data.totalUsers,
+                    activeUsers: result.data.activeUsers,
+                    customerUsers: result.data.customerUsers,
+                    staffUsers: result.data.staffUsers,
+                });
+            }
+        } catch (error: any) {
+            console.error('Failed to load user statistics:', error);
+        }
     }, []);
 
+    const refreshUsers = useCallback(async () => {
+        await loadUsers();
+        await getUsersStatic();
+    }, [loadUsers, getUsersStatic]);
+
     const handleSearch = useCallback((value: string) => {
-        setSearchText(value);
-        const filtered = dataTable.filter(user =>
-            user.fullName.toLowerCase().includes(value.toLowerCase()) ||
-            user.email.toLowerCase().includes(value.toLowerCase()) ||
-            user.role.toLowerCase().includes(value.toLowerCase())
-        );
-        setFilteredData(filtered);
-    }, [dataTable]);
+        const newFilters = { ...filters, search: value || undefined, page: 1 };
+        setFilters(newFilters);
+        loadUsers(newFilters);
+    }, [filters, loadUsers]);
 
-    const getStatistics = useCallback(() => {
-        const totalUsers = dataTable.length;
-        const activeUsers = dataTable.filter(user => user.isActive).length;
-        const adminUsers = dataTable.filter(user => user.role === 'admin').length;
-        const customerUsers = dataTable.filter(user => user.role === 'customer').length;
-        const sellerUsers = dataTable.filter(user => user.role === 'seller').length;
+    const handleTableChange = useCallback(async (
+        pagination: TablePaginationConfig,
+        tableFilters: Record<string, FilterValue | null>,
+        sorter: any,
+        extra: TableCurrentDataSource<IUser>
+    ) => {
+        const { current, pageSize } = pagination;
+        const newFilters: IGetUsersParams = {
+            role: tableFilters.role as string[] | null,
+            isActive: tableFilters.is_active as boolean[] | null,
+            page: current,
+            limit: pageSize,
+        };
 
-        return { totalUsers, activeUsers, adminUsers, customerUsers, sellerUsers };
-    }, [dataTable]);
+        if (sorter.field && sorter.order) {
+            newFilters.sortBy = sorter.field;
+            newFilters.sortOrder = sorter.order === 'ascend' ? 'asc' : 'desc';
+        }
+        setFilters(newFilters);
+        await loadUsers(newFilters);
+    }, [loadUsers]);
 
     useEffect(() => {
-        refreshUsers();
-    }, [refreshUsers]);
+        loadUsers();
+        getUsersStatic();
+        loadUserRole();
+    }, []);
 
     return {
         dataTable,
-        filteredData,
         currentUser,
         isOpenUpdateModal,
-        searchText,
+        filters,
         handleEditUser,
         setCurrentUser,
         setIsOpenUpdateModal,
         handleSearch,
         refreshUsers,
-        getStatistics
+        statistics,
+        meta,
+        handleTableChange,
     };
 };
 
-const createTableColumns = (onEdit: (record: IUser) => void): TableProps<IUser>['columns'] => [
-    {
-        title: 'STT',
-        key: 'STT',
-        width: 60,
-        align: 'center',
-        render: (_, __, index) => <span className="font-medium">{index + 1}</span>,
-    },
-    {
-        title: 'Thông tin người dùng',
-        dataIndex: 'fullName',
-        sorter: (a, b) => a.fullName.localeCompare(b.fullName),
-        render: (_, record) => (
-            <div className="flex items-center gap-3">
-                <Avatar size={40} icon={<UserOutlined />} className="bg-blue-500" />
-                <div>
-                    <div className="font-semibold text-gray-900">{record.fullName}</div>
-                    <div className="text-sm text-gray-500">{record.email}</div>
-                </div>
-            </div>
-        ),
-    },
-    {
-        title: 'Trạng thái',
-        dataIndex: 'isActive',
-        width: 120,
-        align: 'center',
-        render: (_, record) => {
-            const status = record.isActive ? USER_STATUS.ACTIVE : USER_STATUS.INACTIVE;
-            return (
-                <Tag
-                    color={status.color}
-                    icon={record.isActive ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
-                    className="font-medium"
-                >
-                    {status.text}
-                </Tag>
-            );
-        },
-        filters: [
-            {
-                text: <Tag color={USER_STATUS.ACTIVE.color}>{USER_STATUS.ACTIVE.text}</Tag>,
-                value: true,
-            },
-            {
-                text: <Tag color={USER_STATUS.INACTIVE.color}>{USER_STATUS.INACTIVE.text}</Tag>,
-                value: false,
-            }
-        ],
-        onFilter: (value, record) => record.isActive === value,
-    },
-    {
-        title: 'Vai trò',
-        dataIndex: 'role',
-        width: 100,
-        align: 'center',
-        render: (_, record) => {
-            const roleConfig = USER_ROLES[record.role.toUpperCase() as keyof typeof USER_ROLES] || USER_ROLES.CUSTOMER;
-            return (
-                <Tag color={roleConfig.color} className="font-medium">
-                    {roleConfig.text}
-                </Tag>
-            );
-        },
-        filters: Object.values(USER_ROLES).map(role => ({
-            text: <Tag color={role.color}>{role.text}</Tag>,
-            value: role.text,
-        })),
-        onFilter: (value, record) => record.role === value,
-    },
-    {
-        title: 'Ngày tham gia',
-        dataIndex: 'createdAt',
-        width: 120,
-        align: 'center',
-        render: (_, record) => (
-            <div className="text-sm">
-                <div className="font-medium">{dayjs(record.createdAt).format('DD-MM-YYYY')}</div>
-                <div className="text-gray-500">{dayjs(record.createdAt).format('HH:mm')}</div>
-            </div>
-        ),
-        sorter: (a, b) => dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
-    },
-    {
-        title: 'Thao tác',
-        key: 'actions',
-        width: 120,
-        align: 'center',
-        render: (_, record) => (
-            <Space>
-                <Tooltip title="Chỉnh sửa thông tin">
-                    <Button
-                        type="text"
-                        icon={<EditOutlined />}
-                        className="text-blue-500 hover:text-blue-600 hover:bg-blue-50"
-                        onClick={() => onEdit(record)}
-                    />
-                </Tooltip>
-            </Space>
-        ),
-    }
-];
 
 export const UsersPage = () => {
     const {
-        filteredData,
+        dataTable,
         currentUser,
         isOpenUpdateModal,
-        searchText,
+        filters,
         handleEditUser,
         setCurrentUser,
         setIsOpenUpdateModal,
         handleSearch,
         refreshUsers,
-        getStatistics
+        statistics,
+        meta,
+        handleTableChange,
     } = useUsersPage();
 
-    const { totalUsers, activeUsers, sellerUsers, customerUsers } = getStatistics();
+    const createTableColumns = (onEdit: (record: IUser) => void): TableProps<IUser>['columns'] => [
+        {
+            title: 'STT',
+            key: 'STT',
+            width: 60,
+            align: 'center',
+            render: (_, __, index) => <span className="font-medium">{((filters.page ?? 1) - 1) * (filters.limit ?? 10) + index + 1}</span>,
+        },
+        {
+            title: 'Thông tin người dùng',
+            dataIndex: 'full_name',
+            render: (_, record) => (
+                <div className="flex items-center gap-3">
+                    <Avatar size={40} icon={<UserOutlined />} className="bg-blue-500" />
+                    <div>
+                        <div className="font-semibold text-gray-900">{record.full_name}</div>
+                        <div className="text-sm text-gray-500">{record.email}</div>
+                    </div>
+                </div>
+            ),
+        },
+        {
+            title: 'Trạng thái',
+            dataIndex: 'is_active',
+            width: 120,
+            align: 'center',
+            render: (_, record) => {
+                const status = record.is_active ? USER_STATUS.ACTIVE : USER_STATUS.INACTIVE;
+                return (
+                    <Tag
+                        color={status.color}
+                        icon={record.is_active ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
+                        className="font-medium"
+                    >
+                        {status.text}
+                    </Tag>
+                );
+            },
+            filters: [
+                {
+                    text: <Tag color={USER_STATUS.ACTIVE.color}>{USER_STATUS.ACTIVE.text}</Tag>,
+                    value: true,
+                },
+                {
+                    text: <Tag color={USER_STATUS.INACTIVE.color}>{USER_STATUS.INACTIVE.text}</Tag>,
+                    value: false,
+                }
+            ],
+        },
+        {
+            title: 'Vai trò',
+            dataIndex: 'role',
+            width: 100,
+            align: 'center',
+            render: (_, record) => {
+                const roleConfig = USER_ROLES[record.role.toUpperCase() as keyof typeof USER_ROLES] || USER_ROLES.CUSTOMER;
+                return (
+                    <Tag color={roleConfig.color} className="font-medium">
+                        {roleConfig.text}
+                    </Tag>
+                );
+            },
+            filters: Object.values(USER_ROLES).map(role => ({
+                text: <Tag color={role.color}>{role.text}</Tag>,
+                value: role.text,
+            })),
+            onFilter: (value, record) => record.role === value,
+        },
+        {
+            title: 'Ngày tham gia',
+            dataIndex: 'create_at',
+            width: 120,
+            align: 'center',
+            render: (_, record) => (
+                <div className="text-sm">
+                    <div className="font-medium">{dayjs(record.create_at).format('DD-MM-YYYY')}</div>
+                    <div className="text-gray-500">{dayjs(record.create_at).format('HH:mm')}</div>
+                </div>
+            ),
+            sorter: true,
+            sortDirections: ['ascend', 'descend']
+        },
+        {
+            title: 'Thao tác',
+            key: 'actions',
+            width: 120,
+            align: 'center',
+            render: (_, record) => (
+                <Space>
+                    <Tooltip title="Chỉnh sửa thông tin">
+                        <Button
+                            type="text"
+                            icon={<EditOutlined />}
+                            className="text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                            onClick={() => onEdit(record)}
+                        />
+                    </Tooltip>
+                </Space>
+            ),
+        }
+    ];
+
+    const { totalUsers, activeUsers, staffUsers, customerUsers } = statistics;
     const columns = createTableColumns(handleEditUser);
 
     return (
@@ -251,7 +313,7 @@ export const UsersPage = () => {
                     <Card className="text-center shadow-sm border-0">
                         <Statistic
                             title={<span className="text-gray-600 font-medium">Nhân viên</span>}
-                            value={sellerUsers}
+                            value={staffUsers}
                             prefix={<UserOutlined className="text-orange-500" />}
                             valueStyle={{ color: '#F97316', fontSize: '2rem', fontWeight: 'bold' }}
                         />
@@ -280,12 +342,12 @@ export const UsersPage = () => {
                         </span>
                         <div className="flex items-center gap-4">
                             <Input.Search
-                                placeholder="Tìm kiếm theo tên, email, vai trò..."
+                                placeholder="Tìm kiếm theo tên, email"
                                 allowClear
                                 enterButton={<SearchOutlined />}
                                 size="large"
                                 style={{ width: 300 }}
-                                value={searchText}
+                                value={filters.search || ''}
                                 onChange={(e) => handleSearch(e.target.value)}
                                 onSearch={handleSearch}
                             />
@@ -294,22 +356,25 @@ export const UsersPage = () => {
                 }
             >
                 <Table
-                    dataSource={filteredData}
+                    dataSource={dataTable}
                     columns={columns}
                     rowKey="_id"
                     size="middle"
                     className="custom-table"
                     pagination={{
-                        pageSize: 10,
+                        current: meta?.page || 1,
+                        pageSize: meta?.limit || 10,
+                        total: meta?.total || 0,
                         showSizeChanger: true,
                         showQuickJumper: true,
                         showTotal: (total, range) => (
                             <span className="text-gray-600">
-                                Hiển thị {range[0]}-{range[1]} của {total} người dùng
+                                Hiển thị {range[0]}-{range[1]} của {meta?.total ?? 0} người dùng
                             </span>
                         ),
-                        pageSizeOptions: ['10', '20', '50', '100']
+                        pageSizeOptions: ['5', '10', '20', '50', '100']
                     }}
+                    onChange={handleTableChange}
                     scroll={{ x: 1000 }}
                     locale={
                         {

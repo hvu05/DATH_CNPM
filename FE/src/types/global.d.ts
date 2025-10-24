@@ -18,8 +18,15 @@ declare global {
         "phone": string,
         "role": Role,
         "is_active": boolean,
-        "avatar": string,
+        "avatar": string | null,
         "create_at": Date,
         "update_at": Date
+    }
+
+    interface IUsersPagination {
+        users: IUser[]
+        total: number
+        page: number
+        limit: number
     }
 }

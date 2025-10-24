@@ -74,10 +74,11 @@ export const updateUser = async (data: userDto.UserUpdateRequest, id?: string): 
   return userDto.toUserResponse(updated, updated.role.name);
 }
 
+
 /**
  * Hash password sử dụng thuật toán bcrypt
- * @param password 
- * @returns 
+ * @param password
+ * @returns
  */
 const hashPassword = async (password: string): Promise<string> => {
   const salt = await genSalt(10);

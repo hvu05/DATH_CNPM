@@ -1,6 +1,7 @@
 import { updateUserAPI } from "@/services/user/api";
 import { FormOutlined, UserOutlined, MailOutlined, SettingOutlined } from "@ant-design/icons";
-import { Form, Input, message, Modal, Select, Switch } from "antd";
+import { Form, Input, Modal, Select, Switch } from "antd";
+import useApp from "antd/es/app/useApp";
 import { useEffect, useState } from "react";
 
 interface IUpdateUserModalProps {
@@ -24,6 +25,7 @@ export const UpdateUserModal = (props: IUpdateUserModalProps) => {
     const [form] = Form.useForm<IUpdateUserForm>();
     const [loading, setLoading] = useState(false);
     const { user, isOpen, setIsOpen, setCurrentUser, refreshUsers, roles } = props;
+    const { message } = useApp();
 
     const resetForm = () => {
         form.resetFields();

@@ -161,6 +161,12 @@ export const UsersPage = () => {
 
     const createTableColumns = (onEdit: (record: IUser) => void): TableProps<IUser>['columns'] => [
         {
+            title: 'ID',
+            key: 'id',
+            dataIndex: 'id',
+            hidden: true,
+        },
+        {
             title: 'STT',
             key: 'STT',
             width: 60,
@@ -360,7 +366,7 @@ export const UsersPage = () => {
                 <Table
                     dataSource={dataTable}
                     columns={columns}
-                    rowKey="_id"
+                    rowKey="id"
                     size="middle"
                     className="custom-table"
                     pagination={{

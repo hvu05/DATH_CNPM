@@ -8,6 +8,7 @@ export interface UserContext {
   isLoggedIn: boolean;
   setIsLoggedIn: (v: boolean) => void;
   updateUser: (user: Partial<IUser>) => void;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<UserContext | undefined>(undefined);
@@ -19,19 +20,28 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<IUser | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const authenticated = isAuthenticated();
-    if (authenticated) {
-      setIsLoggedIn(authenticated);
-      const loadUsers = async () => {
-        const result = await getProfileAPI();
-        if (result.data) {
-          setUser(result.data);
+    const initializeAuth = async () => {
+      const authenticated = isAuthenticated();
+      if (authenticated) {
+        setIsLoggedIn(authenticated);
+        try {
+          const result = await getProfileAPI();
+          if (result.data) {
+            setUser(result.data);
+          }
+        } catch (error) {
+          console.error('Failed to load user profile:', error);
+          // If we can't get the profile, log out the user
+          setIsLoggedIn(false);
         }
       }
-      loadUsers();
-    }
+      setIsLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
   const updateUser = (userData: Partial<IUser>) => {
@@ -44,7 +54,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     <AuthContext.Provider value={{
       user, setUser,
       isLoggedIn, setIsLoggedIn,
-      updateUser
+      updateUser, isLoading
     }}>
       {children}
     </AuthContext.Provider>

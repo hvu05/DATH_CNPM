@@ -115,7 +115,7 @@ const clientRoutes: RouteObject[] = [
 const adminRoutes: RouteObject[] = [
     {
         path: '/admin',
-        element: <ProtectedRoute allow="ADMIN"><AdminLayout /></ProtectedRoute>,
+        element: <ProtectedRoute allow={'ADMIN'}><AdminLayout /></ProtectedRoute>,
         children: [
             {
                 index: true,

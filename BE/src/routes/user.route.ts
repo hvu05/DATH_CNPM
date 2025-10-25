@@ -6,8 +6,7 @@ import { checkRole } from '../middlewares/check-role.middleware'
 const router = Router()
 
 router.post('/', authenticateHandler, checkRole("CUSTOMER"), userController.createAddressHandler)
-router.get('/profile',authenticateHandler, userController.getProfileHandler)
+router.get('/profile', authenticateHandler, userController.getProfileHandler)
 router.put('/profile', authenticateHandler, userController.updateProfileHandler)
-
 router.post('/address', authenticateHandler, userController.createAddressHandler)
 export default router

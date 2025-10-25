@@ -12,9 +12,27 @@ export const ProtectedRoute = ({
     allow = null,
     restrictedForAuthenticated = false
 }: IProps): React.ReactNode => {
-    const { user, isLoggedIn } = useAuthContext();
-    if ((restrictedForAuthenticated && isLoggedIn) || (isLoggedIn && user && user.role !== allow) || !isLoggedIn && allow) {
-        return <Navigate to={'/'} replace />
+    const { user, isLoggedIn, isLoading } = useAuthContext();
+
+    // If still loading authentication state, show loading or nothing
+    if (isLoading) {
+        return <div className="flex items-center justify-center min-h-screen">
+            <div className="text-lg">Loading...</div>
+        </div>;
     }
-    return <>{children} </>
+
+    // Check access conditions after loading is complete
+    const hasAccess =
+        // If route is restricted for authenticated users and user is logged in
+        (restrictedForAuthenticated && isLoggedIn) ||
+        // If route requires specific role and user doesn't have that role
+        (isLoggedIn && user && user.role !== allow) ||
+        // If route requires authentication but user is not logged in
+        (!isLoggedIn && allow);
+
+    if (hasAccess) {
+        return <Navigate to={'/'} replace />;
+    }
+
+    return <>{children}</>;
 }

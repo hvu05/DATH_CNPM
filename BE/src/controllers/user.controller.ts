@@ -27,16 +27,6 @@ export const createUserHandler = async (req : Request, res: Response<ApiResponse
   }
 };
 
-export const getUsersHandler = async (req : Request, res: Response<ApiResponse<userDto.UserListResponse>>, next: NextFunction) => {
-  try{
-    const users : userDto.UserListResponse = await userService.getUsers();
-    const response : ApiResponse<userDto.UserListResponse> = { success: true, data: users };
-    res.status(200).json(response);
-  }
-  catch (error : Error | any) {
-    next(error);
-  }
-}
 
 export const getProfileHandler = async (req : Request, res: Response<ApiResponse<userDto.UserResponse>>, next: NextFunction) => {
   try{

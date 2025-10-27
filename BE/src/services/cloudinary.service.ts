@@ -20,9 +20,10 @@ import { ErrorCode } from "../exeptions/error-status";
 export const uploadFile = async (fileBuffer: Buffer, public_id: string, folder: string = "uploads") => {
   return new Promise<{ url: string; public_id: string }>((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
-      { folder, 
+      {
+        folder,
         resource_type: "auto",
-        public_id: public_id 
+        public_id: public_id
       },
       (error, result) => {
         if (error || !result) return reject(error);
@@ -44,14 +45,20 @@ export const uploadFile = async (fileBuffer: Buffer, public_id: string, folder: 
  * @param imageUrl URL hình anh (VD: 'https://res.cloudinary.com/...') 
  * @returns Promise<void>
  */
-export const deleteFile = async (fileUrl: string) : Promise<void> => {
-  const publicId : string = getPublicIdFromUrl(fileUrl);
+export const deleteFile = async (fileUrl: string): Promise<void> => {
   try {
-    await cloudinary.uploader.destroy(publicId);
+    const publicId = getPublicIdFromUrl(fileUrl);
+    const result = await cloudinary.uploader.destroy(publicId);
+
+    // Optional: check if deletion actually succeeded
+    if (result.result !== "ok") {
+      throw new AppError(ErrorCode.NOT_FOUND, `❌ Image not found or could not be deleted: ${publicId}`);
+    }
   } catch (error) {
-    throw new AppError(ErrorCode.BAD_REQUEST,`❌ Failed to delete image (${publicId})`);
+    if (error instanceof AppError) throw error;
+    throw new AppError(ErrorCode.BAD_REQUEST, `❌ Failed to delete image: ${error}`);
   }
-}
+};
 
 // /**
 //  * Update ảnh: xóa ảnh cũ (nếu có), rồi upload ảnh mới
@@ -77,7 +84,26 @@ export const deleteFile = async (fileUrl: string) : Promise<void> => {
 //   return await uploadImage(fileBuffer, folder);
 // }
 
-const getPublicIdFromUrl = (url: string) => {
-  const parts = url.split("/");
-  return parts[parts.length - 1].split(".")[0];
+const getPublicIdFromUrl = (url: string): string => {
+  try {
+    // Step 1: Find the segment after "/upload/"
+    const uploadIndex = url.indexOf('/upload/');
+    if (uploadIndex === -1) {
+      throw new Error('Missing "/upload/" in URL');
+    }
+
+    // Step 2: Extract everything after "/upload/"
+    const afterUpload = url.substring(uploadIndex + '/upload/'.length);
+
+    // Step 3: Remove file extension (everything after the last dot)
+    const lastDotIndex = afterUpload.lastIndexOf('.');
+    if (lastDotIndex === -1) {
+      // No extension? Return as-is (rare, but safe)
+      return afterUpload;
+    }
+
+    return afterUpload.substring(0, lastDotIndex);
+  } catch (err) {
+    throw new AppError(ErrorCode.BAD_REQUEST, `❌ Invalid Cloudinary URL: ${url}`);
+  }
 };

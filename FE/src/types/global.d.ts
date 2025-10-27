@@ -29,4 +29,17 @@ declare global {
         page: number
         limit: number
     }
+
+    interface UploadImgResponse {
+        url: string;
+        public_id: string;
+    }
+
+    interface DeleteImgReq {
+        imageUrl: string;
+    }
+
+    interface DeleteImgRep {
+        message: string;
+    }
 }

@@ -17,6 +17,13 @@ export interface IUserStatics {
     customerUsers: number
 }
 
+export interface IUpdateUserParams {
+    full_name: string;
+    role_id: number;
+    is_active: boolean;
+    avatar: string;
+}
+
 export const getAllUsersAPI = async (params: IGetUsersParams = {}) => {
     const {
         page = 1,
@@ -52,12 +59,6 @@ export const getUserStaticsAPI = async () => {
 export const getUserRoles = async () => {
     const result = await axios.get<ApiResponse<{ id: number, name: Role }[]>>(`${import.meta.env.VITE_BACKEND_URL}/admin/users/roles`);
     return result.data;
-}
-
-export interface IUpdateUserParams {
-    full_name: string;
-    role_id: number;
-    is_active: boolean;
 }
 
 export const updateUserAPI = async (userId: string, params: IUpdateUserParams) => {

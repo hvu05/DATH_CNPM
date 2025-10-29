@@ -8,6 +8,7 @@ interface ViteTypeOptions {
 
 interface ImportMetaEnv {
     readonly VITE_BACKEND_URL: string
+    readonly VITE_CLOUDINARY_NAME: string
     // more env variables...
 }
 

@@ -129,6 +129,7 @@ const useUsersPage = () => {
         currentUser,
         isOpenUpdateModal,
         filters,
+        setFilters,
         handleEditUser,
         setCurrentUser,
         setIsOpenUpdateModal,
@@ -148,6 +149,7 @@ export const UsersPage = () => {
         currentUser,
         isOpenUpdateModal,
         filters,
+        setFilters,
         handleEditUser,
         setCurrentUser,
         setIsOpenUpdateModal,
@@ -178,7 +180,7 @@ export const UsersPage = () => {
             dataIndex: 'full_name',
             render: (_, record) => (
                 <div className="flex items-center gap-3">
-                    <Avatar size={40} icon={<UserOutlined />} className="bg-blue-500" />
+                    <Avatar size={40} icon={<UserOutlined />} className="bg-blue-500" src={`${import.meta.env.VITE_CLOUDINARY_NAME}/${record.avatar}`} />
                     <div>
                         <div className="font-semibold text-gray-900">{record.full_name}</div>
                         <div className="text-sm text-gray-500">{record.email}</div>
@@ -284,14 +286,6 @@ export const UsersPage = () => {
                             <p className="text-gray-600 mt-1">Quản lý thông tin và trạng thái tài khoản người dùng</p>
                         </div>
                     </div>
-                    <Button
-                        type="primary"
-                        icon={<ReloadOutlined />}
-                        onClick={refreshUsers}
-                        className="bg-blue-500 hover:bg-blue-600"
-                    >
-                        Tải lại
-                    </Button>
                 </div>
             </div>
 
@@ -348,17 +342,19 @@ export const UsersPage = () => {
                             <UserOutlined className="mr-2" />
                             Danh sách người dùng
                         </span>
-                        <div className="flex items-center gap-4">
-                            <Input.Search
-                                placeholder="Tìm kiếm theo tên, email"
-                                allowClear
-                                enterButton={<SearchOutlined />}
-                                size="large"
-                                style={{ width: 300 }}
-                                value={filters.search || ''}
-                                onChange={(e) => handleSearch(e.target.value)}
-                                onSearch={handleSearch}
-                            />
+                        <div className="flex gap-2 items-center">
+                            <div className="flex items-center gap-4">
+                                <Input.Search
+                                    placeholder="Tìm kiếm theo tên, email"
+                                    allowClear
+                                    enterButton={<SearchOutlined />}
+                                    size="large"
+                                    style={{ width: 300 }}
+                                    value={filters.search || ''}
+                                    onChange={(e) => handleSearch(e.target.value)}
+                                    onSearch={handleSearch}
+                                />
+                            </div>
                         </div>
                     </div>
                 }

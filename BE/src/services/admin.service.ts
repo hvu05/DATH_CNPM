@@ -172,7 +172,8 @@ export const updateUserByAdmin = async (userId: string, data: adminDto.UserUpdat
     data: {
       ...(data.role_id !== undefined && { role_id: data.role_id }),
       ...(data.is_active !== undefined && { is_active: data.is_active }),
-      ...(data.full_name && { full_name: data.full_name })
+      ...(data.full_name && { full_name: data.full_name }),
+      ...(data.avatar !== undefined && { avatar: data.avatar }),
     },
     include: {
       role: true

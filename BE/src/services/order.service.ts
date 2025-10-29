@@ -72,13 +72,12 @@ export const getOrdersOfUser = async (user_id: string) => {
     },
     include: {
       order_items: true,
-      payment: true,
     },
   });
 };
 
 /**
- * generate order_id theo định dạng 'ORD-yyymmdd-HCM-123456'o
+ * generate order_id theo định dạng 'ORD-yyymmdd-HCM-123456'
  * @param province 
  * @returns 
  */

@@ -4,7 +4,7 @@ model Payment{
   amount BigInt
   method String
   payment_status String
-  transaction_code String?
+  transaction_code String? @unique
   create_at DateTime @default(now())
   update_at DateTime @updatedAt
   user_id String

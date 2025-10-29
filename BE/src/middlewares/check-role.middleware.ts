@@ -1,13 +1,28 @@
 import { Request, Response, NextFunction } from "express";
 import { AppError, ErrorCode } from "../exeptions";
 
-export const checkRole = (requiredRoles: string[]) => {
+type RoleInput = string | string[];
+
+export const checkRole = (roles: RoleInput) => {
+  const requiredRoles = Array.isArray(roles) ? roles : [roles];
+
   return (req: Request, res: Response, next: NextFunction) => {
-    for(const requiredRole of requiredRoles){
-      if(req.user?.role?.toUpperCase() === requiredRole.toUpperCase()) return next();
+    const userRole = req.user?.role?.toUpperCase();
+    if (!userRole) {
+      throw new AppError(ErrorCode.UNAUTHORIZED, "Người dùng chưa đăng nhập");
     }
-    throw new AppError(ErrorCode.FORBIDDEN, "Bạn không có quyền truy cập chức năng này");
+
+    const isAllowed = requiredRoles.some(
+      (role) => userRole === role.toUpperCase()
+    );
+
+    if (!isAllowed) {
+      throw new AppError(ErrorCode.FORBIDDEN, "Bạn không có quyền truy cập chức năng này");
+    }
+
+    next();
   };
 };
+
 
 

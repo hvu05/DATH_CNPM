@@ -355,6 +355,7 @@ export const UsersPage = () => {
                                     onSearch={handleSearch}
                                 />
                             </div>
+                            <ReloadOutlined className="p-4 hover:cursor-pointer hover:text-red-600" onClick={() => window.location.reload()} />
                         </div>
                     </div>
                 }

@@ -15,6 +15,13 @@ router.post(
   uploadController.uploadImageHandler,
 );
 
+// upload multiple image
+router.post(
+  '/multiple',
+  multerConfig.array('images'),
+  uploadController.uploadMultipleImageHandler,
+)
+
 // Delete image endpoint
 router.delete('/', uploadController.deleteImageHandler);
 

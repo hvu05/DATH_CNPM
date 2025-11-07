@@ -20,6 +20,7 @@ export const Header = () => {
         setIsLoggedIn(false);
         navigate('/login');
     }
+
     const handleMenuClick = (key: string) => {
         if (key === 'logout') {
             logout();

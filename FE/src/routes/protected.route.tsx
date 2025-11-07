@@ -1,24 +1,26 @@
-import { useAuthContext } from "@/contexts/AuthContext"
-import { Navigate } from "react-router"
+import { useAuthContext } from '@/contexts/AuthContext';
+import { Navigate } from 'react-router';
 
 interface IProps {
-    children: React.ReactNode
-    allow?: Role | null
-    restrictedForAuthenticated?: boolean
+    children: React.ReactNode;
+    allow?: Role | null;
+    restrictedForAuthenticated?: boolean;
 }
 
 export const ProtectedRoute = ({
     children,
     allow = null,
-    restrictedForAuthenticated = false
+    restrictedForAuthenticated = false,
 }: IProps): React.ReactNode => {
     const { user, isLoggedIn, isLoading } = useAuthContext();
 
     // If still loading authentication state, show loading or nothing
     if (isLoading) {
-        return <div className="flex items-center justify-center min-h-screen">
-            <div className="text-lg">Loading...</div>
-        </div>;
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-lg">Loading...</div>
+            </div>
+        );
     }
 
     // Check access conditions after loading is complete
@@ -35,4 +37,4 @@ export const ProtectedRoute = ({
     }
 
     return <>{children}</>;
-}
+};

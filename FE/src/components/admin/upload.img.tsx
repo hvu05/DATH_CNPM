@@ -2,7 +2,12 @@ import { useState } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
 import { App, Image, Upload } from 'antd';
 import type { GetProp, UploadFile, UploadProps } from 'antd';
-import type { RcFile as OriRcFile, UploadRequestOption as RcCustomRequestOptions, UploadProps as RcUploadProps, UploadRequestOption } from 'rc-upload/lib/interface';
+import type {
+    RcFile as OriRcFile,
+    UploadRequestOption as RcCustomRequestOptions,
+    UploadProps as RcUploadProps,
+    UploadRequestOption,
+} from 'rc-upload/lib/interface';
 
 interface IProps {
     maxImage: number;
@@ -17,17 +22,16 @@ const getBase64 = (file: FileType): Promise<string> =>
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = () => resolve(reader.result as string);
-        reader.onerror = (error) => reject(error);
+        reader.onerror = error => reject(error);
     });
 
 const dummyRequest = ({ file, onSuccess }: UploadRequestOption) => {
     setTimeout(() => {
         if (onSuccess) {
-            onSuccess("ok");
+            onSuccess('ok');
         }
     }, 0);
 };
-
 
 export const UploadImage = (props: IProps) => {
     const { maxImage, fileList, setFileList } = props;
@@ -60,14 +64,16 @@ export const UploadImage = (props: IProps) => {
         let isJpgOrPng = true;
         let isLt2M = true;
         const fileList = newFileList.filter(item => {
-            if ((item.type === 'image/jpeg' || item.type === 'image/png') && (item.size! / 1024 / 1024 < 2)) {
+            if (
+                (item.type === 'image/jpeg' || item.type === 'image/png') &&
+                item.size! / 1024 / 1024 < 2
+            ) {
                 return item;
-            }
-            else {
+            } else {
                 isJpgOrPng = item.type! === 'image/jpeg' || item.type! === 'image/png';
                 isLt2M = item.size! / 1024 / 1024 < 2;
             }
-        })
+        });
         if (!isJpgOrPng) {
             message.error('You can only upload JPG/PNG file!');
         }
@@ -75,8 +81,7 @@ export const UploadImage = (props: IProps) => {
             message.error('Image must smaller than 2MB!');
         }
         setFileList(fileList);
-    }
-
+    };
 
     const uploadButton = (
         <button style={{ border: 0, background: 'none' }} type="button">
@@ -101,8 +106,8 @@ export const UploadImage = (props: IProps) => {
                     wrapperStyle={{ display: 'none' }}
                     preview={{
                         visible: previewOpen,
-                        onVisibleChange: (visible) => setPreviewOpen(visible),
-                        afterOpenChange: (visible) => !visible && setPreviewImage(''),
+                        onVisibleChange: visible => setPreviewOpen(visible),
+                        afterOpenChange: visible => !visible && setPreviewImage(''),
                     }}
                     src={previewImage}
                 />

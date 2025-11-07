@@ -1,19 +1,19 @@
-import { createBrowserRouter, type RouteObject } from "react-router";
-import { AppLayout } from "@/layout";
-import { DetailPage } from "@/pages/seller/detail/detail";
-import { ClientLayout } from "@/pages/client/layout/layout.tsx";
-import { ClientOrder } from "@/pages/client/myOrders/orders.tsx";
-import { ClientAddress } from "@/pages/client/address";
+import { createBrowserRouter, type RouteObject } from 'react-router';
+import { AppLayout } from '@/layout';
+import { DetailPage } from '@/pages/seller/detail/detail';
+import { ClientLayout } from '@/pages/client/layout/layout.tsx';
+import { ClientOrder } from '@/pages/client/myOrders/orders.tsx';
+import { ClientAddress } from '@/pages/client/address';
 // import { ClientHistory } from "@/pages/client/history";
-import { ProfilePageClient } from "@/pages/client/profile/client.profile.tsx";
-import { EditProfileClient } from "@/pages/client/profile/edit.profile.tsx";
-import { OrderClient } from "@/pages/client/order";
-import { PaymentClient } from "@/pages/client/payment";
-import { OrderSuccess } from "@/pages/client/order-success";
-import { adminRoutes } from "./admin.route";
-import { authRoutes } from "./auth.route";
-import { sellerRoutes } from "./seller.route";
-import { errorRoutes } from "./error.route";
+import { ProfilePageClient } from '@/pages/client/profile/client.profile.tsx';
+import { EditProfileClient } from '@/pages/client/profile/edit.profile.tsx';
+import { OrderClient } from '@/pages/client/order';
+import { PaymentClient } from '@/pages/client/payment';
+import { OrderSuccess } from '@/pages/client/order-success';
+import { adminRoutes } from './admin.route';
+import { authRoutes } from './auth.route';
+import { sellerRoutes } from './seller.route';
+import { errorRoutes } from './error.route';
 
 const clientRoutes: RouteObject[] = [
     {
@@ -23,57 +23,54 @@ const clientRoutes: RouteObject[] = [
         children: [
             {
                 index: true,
-                element: <ProfilePageClient />
+                element: <ProfilePageClient />,
             },
             {
                 path: 'edit-profile',
-                element: <EditProfileClient />
+                element: <EditProfileClient />,
             },
             {
                 path: 'my-orders',
-                element: <ClientOrder />
+                element: <ClientOrder />,
             },
             {
                 path: 'address',
-                element: <ClientAddress />
+                element: <ClientAddress />,
             },
             // {
             //     path: 'history',
             //     element: <ClientHistory />
             // },
-
-        ]
-
-    }
-]
+        ],
+    },
+];
 
 export const router = createBrowserRouter([
     {
-        path: "/",
+        path: '/',
         element: <AppLayout />,
         children: [
             {
                 index: true,
-                element: <div className="h-screen">This is homepage</div>
+                element: <div className="h-screen">This is homepage</div>,
             },
             {
                 path: '/seller/order/:id',
-                element: <DetailPage />
+                element: <DetailPage />,
             },
             {
                 path: '/client/order/:id',
-                element: <OrderClient />
+                element: <OrderClient />,
             },
             {
                 path: '/client/order/payment',
-                element: <PaymentClient />
+                element: <PaymentClient />,
             },
             {
                 path: '/client/order/success',
-                element: <OrderSuccess />
+                element: <OrderSuccess />,
             },
-
-        ]
+        ],
     },
     ...authRoutes,
     ...sellerRoutes,

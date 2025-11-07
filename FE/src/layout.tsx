@@ -1,7 +1,7 @@
-import { Header } from "@/components/layout/header"
-import { Outlet } from "react-router"
-import './layout.scss'
-import { ScrollTop } from "./components/common/scrollTop"
+import { Header } from '@/components/layout/header';
+import { Outlet } from 'react-router';
+import './layout.scss';
+import { ScrollTop } from './components/common/scrollTop';
 
 export const AppLayout = () => {
     return (
@@ -12,5 +12,5 @@ export const AppLayout = () => {
                 <Outlet />
             </div>
         </>
-    )
-}
+    );
+};

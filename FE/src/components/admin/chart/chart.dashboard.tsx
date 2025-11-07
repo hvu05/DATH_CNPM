@@ -9,9 +9,9 @@ type GrowthPoint = {
 
 export const GrowthChart = ({ data }: { data: GrowthPoint[] }) => {
     const option = useMemo(() => {
-        const categories = data.map((point) => point.period);
-        const usersSeries = data.map((point) => point.users);
-        const ordersSeries = data.map((point) => point.orders);
+        const categories = data.map(point => point.period);
+        const usersSeries = data.map(point => point.users);
+        const ordersSeries = data.map(point => point.orders);
 
         return {
             tooltip: { trigger: 'axis' },

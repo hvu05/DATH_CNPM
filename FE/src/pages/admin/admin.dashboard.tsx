@@ -1,5 +1,13 @@
 import React from 'react';
-import { ArrowDownOutlined, ArrowUpOutlined, BarChartOutlined, DollarOutlined, ShoppingCartOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons';
+import {
+    ArrowDownOutlined,
+    ArrowUpOutlined,
+    BarChartOutlined,
+    DollarOutlined,
+    ShoppingCartOutlined,
+    TeamOutlined,
+    UserOutlined,
+} from '@ant-design/icons';
 import { Avatar, Card, Col, Row, Statistic, Table, Tag, Typography } from 'antd';
 import CountUp from 'react-countup';
 import { GrowthChart } from '@/components/admin/chart/chart.dashboard';
@@ -9,7 +17,11 @@ const { Title, Text } = Typography;
 const numberFormatter = (value: number) => <CountUp end={value} separator="," />;
 
 const currency = (n: number) =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
+    new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 0,
+    }).format(n);
 
 type GrowthPoint = {
     period: string;
@@ -88,10 +100,38 @@ export const DashboardPage: React.FC = () => {
     ];
 
     const ordersData = [
-        { key: 1, id: 'INV-1045', customer: 'Jane Cooper', total: 289, status: 'Paid', date: '2025-09-14' },
-        { key: 2, id: 'INV-1046', customer: 'Cody Fisher', total: 159, status: 'Pending', date: '2025-09-13' },
-        { key: 3, id: 'INV-1047', customer: 'Devon Lane', total: 540, status: 'Paid', date: '2025-09-13' },
-        { key: 4, id: 'INV-1048', customer: 'Eleanor Pena', total: 120, status: 'Refunded', date: '2025-09-12' },
+        {
+            key: 1,
+            id: 'INV-1045',
+            customer: 'Jane Cooper',
+            total: 289,
+            status: 'Paid',
+            date: '2025-09-14',
+        },
+        {
+            key: 2,
+            id: 'INV-1046',
+            customer: 'Cody Fisher',
+            total: 159,
+            status: 'Pending',
+            date: '2025-09-13',
+        },
+        {
+            key: 3,
+            id: 'INV-1047',
+            customer: 'Devon Lane',
+            total: 540,
+            status: 'Paid',
+            date: '2025-09-13',
+        },
+        {
+            key: 4,
+            id: 'INV-1048',
+            customer: 'Eleanor Pena',
+            total: 120,
+            status: 'Refunded',
+            date: '2025-09-12',
+        },
     ];
 
     return (
@@ -113,14 +153,18 @@ export const DashboardPage: React.FC = () => {
 
             {/* KPI cards */}
             <Row gutter={[16, 16]}>
-                {kpis.map((kpi) => (
+                {kpis.map(kpi => (
                     <Col xs={24} sm={12} md={12} lg={6} key={kpi.title}>
                         <Card hoverable className="shadow-sm">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <Text type="secondary">{kpi.title}</Text>
                                     <div className="text-2xl font-semibold">
-                                        {kpi.title === 'Revenue' ? currency(kpi.value) : <CountUp end={kpi.value} separator="," />}
+                                        {kpi.title === 'Revenue' ? (
+                                            currency(kpi.value)
+                                        ) : (
+                                            <CountUp end={kpi.value} separator="," />
+                                        )}
                                     </div>
                                     <div className="mt-1 flex items-center gap-2">
                                         {kpi.trend >= 0 ? (
@@ -137,7 +181,10 @@ export const DashboardPage: React.FC = () => {
                                 </div>
                                 <Avatar
                                     size={44}
-                                    style={{ backgroundColor: kpi.color, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
+                                    style={{
+                                        backgroundColor: kpi.color,
+                                        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                                    }}
                                     icon={kpi.icon}
                                 />
                             </div>
@@ -164,7 +211,12 @@ export const DashboardPage: React.FC = () => {
             <Row gutter={[16, 16]} className="mt-2">
                 <Col span={24}>
                     <Card title="Đơn hàng gần đây" className="shadow-sm" hoverable>
-                        <Table size="middle" columns={ordersColumns as any} dataSource={ordersData} pagination={{ pageSize: 5 }} />
+                        <Table
+                            size="middle"
+                            columns={ordersColumns as any}
+                            dataSource={ordersData}
+                            pagination={{ pageSize: 5 }}
+                        />
                     </Card>
                 </Col>
             </Row>

@@ -31,7 +31,7 @@ export const ProtectedRoute = ({
         (!isLoggedIn && allow);
 
     if (hasAccess) {
-        return <Navigate to={'/'} replace />;
+        return <Navigate to={'/error-404'} replace />;
     }
 
     return <>{children}</>;

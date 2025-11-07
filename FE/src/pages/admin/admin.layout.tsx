@@ -3,23 +3,25 @@ import { Avatar, Dropdown, Layout, Menu, Space, Typography, Drawer, Grid } from 
 import type { MenuProps } from "antd";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import { useMemo, useState } from "react";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
 
-const profileMenu: MenuProps['items'] = [
-    { key: 'login', label: 'Đăng nhập' },
-    { type: 'divider' },
-    { key: 'logout', danger: true, label: 'Đăng xuất' },
-];
-
 export const AdminLayout = () => {
+    const { isLoggedIn, logout } = useAuthContext();
     const navigate = useNavigate();
     const location = useLocation();
     const [collapsed, setCollapsed] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
     const screens = Grid.useBreakpoint();
     const isDesktop = !!screens.lg;
+
+    const profileMenu: MenuProps['items'] = [
+        ...(!isLoggedIn ? [{ key: 'login', label: 'Đăng nhập' }] : []),
+        { type: 'divider' },
+        { key: 'logout', danger: true, label: 'Đăng xuất' },
+    ];
 
     const selectedKey = useMemo(() => {
         return location.pathname.slice(7);
@@ -31,7 +33,7 @@ export const AdminLayout = () => {
 
     const onProfileClick: MenuProps['onClick'] = ({ key }) => {
         if (key === 'login') navigate('/login');
-        if (key === 'logout') console.log('logout clicked');
+        if (key === 'logout') logout();
     };
 
     const menuItems: MenuProps['items'] = [
@@ -44,7 +46,7 @@ export const AdminLayout = () => {
             children: [
                 {
                     key: 'inventory-static',
-                    label: 'Báo cáo kho hàng',
+                    label: 'Quản lí kho hàng',
                     icon: <StockOutlined />
                 },
                 {
@@ -69,7 +71,7 @@ export const AdminLayout = () => {
                     width={240}
                     style={{ position: 'sticky', top: 0, height: '100vh' }}
                 >
-                    <div className="flex items-center gap-2 px-4 h-14 text-black text-lg font-semibold">
+                    <div className="flex items-center gap-2 px-4 h-14 text-black text-sm font-semibold">
                         <span className="inline-block w-2 h-2 rounded-full bg-emerald-400" />
                         Admin
                     </div>

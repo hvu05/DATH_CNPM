@@ -1,8 +1,8 @@
-import { EditOutlined, UserOutlined, SearchOutlined, ReloadOutlined, TeamOutlined, CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons"
+import { EditOutlined, UserOutlined, SearchOutlined, TeamOutlined, CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons"
 import { Card, Space, Table, Tag, type TableProps, Row, Col, Statistic, Input, Button, Tooltip, Avatar, Empty, type TablePaginationConfig } from "antd"
 import { useEffect, useState, useCallback } from "react";
 import dayjs from "dayjs";
-import { UpdateUserModal } from "@/components/admin/update-user.modal";
+import { UpdateUserModal } from "@/components/admin/modal/update-user.modal";
 import { getAllUsersAPI, getUserRoles, getUserStaticsAPI, type IGetUsersParams, type IUserStatics } from "@/services/user/api";
 import type { FilterValue, TableCurrentDataSource } from "antd/es/table/interface";
 
@@ -57,7 +57,7 @@ const useUsersPage = () => {
             const queryParams = params || filters;
             const result = await getAllUsersAPI(queryParams);
             if (result.data) {
-                setDataTable(result.data.users);
+                setDataTable(result.data.results);
                 setMeta({
                     total: result.data.total,
                     page: result.data.page,

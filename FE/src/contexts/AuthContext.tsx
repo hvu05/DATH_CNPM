@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { isAuthenticated } from '@/services/auth/auth.service';
+import { isAuthenticated, removeTokens } from '@/services/auth/auth.service';
 import { getProfileAPI } from '@/services/global';
 
 export interface UserContext {
@@ -9,6 +9,7 @@ export interface UserContext {
   setIsLoggedIn: (v: boolean) => void;
   updateUser: (user: Partial<IUser>) => void;
   isLoading: boolean;
+  logout: () => void;
 }
 
 const AuthContext = createContext<UserContext | undefined>(undefined);
@@ -17,11 +18,11 @@ interface AuthProviderProps {
   children: React.ReactNode;
 }
 
+
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<IUser | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
     const initializeAuth = async () => {
       const authenticated = isAuthenticated();
@@ -44,6 +45,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     initializeAuth();
   }, []);
 
+  const logout = () => {
+    removeTokens();
+    setUser(null);
+    setIsLoggedIn(false);
+    window.location.href = '/login';
+  }
+
   const updateUser = (userData: Partial<IUser>) => {
     if (user) {
       setUser({ ...user, ...userData });
@@ -54,7 +62,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     <AuthContext.Provider value={{
       user, setUser,
       isLoggedIn, setIsLoggedIn,
-      updateUser, isLoading
+      updateUser, isLoading,
+      logout
     }}>
       {children}
     </AuthContext.Provider>

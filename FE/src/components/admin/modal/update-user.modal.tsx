@@ -4,7 +4,7 @@ import { Form, Input, Modal, Select, Switch, type UploadFile } from "antd";
 import useApp from "antd/es/app/useApp";
 import { useEffect, useState } from "react";
 import default_avatar from '@/assets/default-avatar-icon.svg'
-import { UploadImage } from "./upload.img";
+import { UploadImage } from "@/components/admin/upload.img";
 import { deleteImageAPI, uploadImageAPI } from "@/services/global";
 
 interface IUpdateUserModalProps {
@@ -47,7 +47,7 @@ export const UpdateUserModal = (props: IUpdateUserModalProps) => {
                 if (user && user.avatar) {
                     const result = await deleteImageAPI(`${import.meta.env.VITE_CLOUDINARY_NAME}/${user.avatar}`);
                 }
-                avatar = await uploadImageAPI(fileList[0].originFileObj);
+                avatar = await uploadImageAPI(fileList[0].originFileObj, 'avatar');
             }
 
             const result = await updateUserAPI(id, {

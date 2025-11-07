@@ -1,10 +1,16 @@
-import { Link, useNavigate } from 'react-router'
+import { Link } from 'react-router'
 import { useState } from 'react'
 import { authAPI, setTokens } from '@/services/auth/auth.service'
 import './auth.scss'
+import { getProfileAPI } from '@/services/global'
+
+const RouteMapping: Record<Role, string> = {
+    'ADMIN': '/admin',
+    'CUSTOMER': '/',
+    'STAFF': '/seller'
+}
 
 export const LoginPage = () => {
-    const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -20,7 +26,10 @@ export const LoginPage = () => {
             if (response && response.data) {
                 setTokens(response.data);
             }
-            window.location.href = '/';
+            const user = await getProfileAPI();
+
+            window.location.href = RouteMapping[user.data?.role ?? 'CUSTOMER'];
+
         } catch (err: any) {
             setError(err.response?.data?.message || 'Đăng nhập thất bại');
         } finally {

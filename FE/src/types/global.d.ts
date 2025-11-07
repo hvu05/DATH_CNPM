@@ -23,12 +23,14 @@ declare global {
         "update_at": Date
     }
 
-    interface IUsersPagination {
-        users: IUser[]
+    interface IPagination<T> {
+        results: T,
         total: number
         page: number
         limit: number
     }
+
+    type TFolder = 'avatar' | 'product'
 
     interface UploadImgResponse {
         url: string;

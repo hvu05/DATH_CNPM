@@ -3,7 +3,7 @@
     max-width: 300px;
     border-radius: 10px;
     max-height: fit-content;
-    font-family: "Poppins", 'Inter', sans-serif;
+    font-family: 'Poppins', 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 500;
     // overflow: hidden;
@@ -23,7 +23,7 @@
 
             &:hover {
                 cursor: pointer;
-                background: linear-gradient(90deg, #FFF1F1 0%, #FFF 100%);
+                background: linear-gradient(90deg, #fff1f1 0%, #fff 100%);
             }
 
             span {
@@ -34,8 +34,8 @@
     }
 
     .tab--active {
-        color: #EC0D0D;
-        background: linear-gradient(90deg, #FFF1F1 0%, #FFF 100%);
-        border-left-color: #EC0D0D; // Active indicator
+        color: #ec0d0d;
+        background: linear-gradient(90deg, #fff1f1 0%, #fff 100%);
+        border-left-color: #ec0d0d; // Active indicator
     }
 }

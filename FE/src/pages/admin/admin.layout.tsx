@@ -1,9 +1,20 @@
-import { BankOutlined, BellOutlined, HistoryOutlined, LineChartOutlined, MenuFoldOutlined, MenuUnfoldOutlined, PieChartOutlined, ShopOutlined, StockOutlined, UserOutlined } from "@ant-design/icons";
-import { Avatar, Dropdown, Layout, Menu, Space, Typography, Drawer, Grid } from "antd";
-import type { MenuProps } from "antd";
-import { Outlet, useLocation, useNavigate } from "react-router";
-import { useMemo, useState } from "react";
-import { useAuthContext } from "@/contexts/AuthContext";
+import {
+    BankOutlined,
+    BellOutlined,
+    HistoryOutlined,
+    LineChartOutlined,
+    MenuFoldOutlined,
+    MenuUnfoldOutlined,
+    PieChartOutlined,
+    ShopOutlined,
+    StockOutlined,
+    UserOutlined,
+} from '@ant-design/icons';
+import { Avatar, Dropdown, Layout, Menu, Space, Typography, Drawer, Grid } from 'antd';
+import type { MenuProps } from 'antd';
+import { Outlet, useLocation, useNavigate } from 'react-router';
+import { useMemo, useState } from 'react';
+import { useAuthContext } from '@/contexts/AuthContext';
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
@@ -42,25 +53,26 @@ export const AdminLayout = () => {
         { key: 'users', icon: <UserOutlined />, label: 'Khách hàng' },
         { key: 'products', icon: <ShopOutlined />, label: 'Sản phẩm' },
         {
-            key: 'inventory', icon: <BankOutlined />, label: 'Kho hàng',
+            key: 'inventory',
+            icon: <BankOutlined />,
+            label: 'Kho hàng',
             children: [
                 {
                     key: 'inventory-static',
                     label: 'Quản lí kho hàng',
-                    icon: <StockOutlined />
+                    icon: <StockOutlined />,
                 },
                 {
                     key: 'inventory-history',
                     label: 'Lịch sử nhập hàng',
                     icon: <HistoryOutlined />,
-                }
-            ]
+                },
+            ],
         },
     ];
 
     return (
         <Layout style={{ minHeight: '100vh' }}>
-
             {isDesktop && (
                 <Sider
                     theme="light"
@@ -89,16 +101,31 @@ export const AdminLayout = () => {
                     <div className="flex items-center gap-3">
                         <button
                             aria-label="Toggle sidebar"
-                            onClick={() => (isDesktop ? setCollapsed(!collapsed) : setMobileOpen(!mobileOpen))}
+                            onClick={() =>
+                                isDesktop ? setCollapsed(!collapsed) : setMobileOpen(!mobileOpen)
+                            }
                             className="text-gray-700 hover:text-black"
                         >
-                            {isDesktop ? (collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />) : (mobileOpen ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />)}
+                            {isDesktop ? (
+                                collapsed ? (
+                                    <MenuUnfoldOutlined />
+                                ) : (
+                                    <MenuFoldOutlined />
+                                )
+                            ) : mobileOpen ? (
+                                <MenuFoldOutlined />
+                            ) : (
+                                <MenuUnfoldOutlined />
+                            )}
                         </button>
                     </div>
                     <div className="flex items-center gap-3">
                         <BellOutlined className="text-gray-600 text-lg" />
-                        <Dropdown menu={{ items: profileMenu, onClick: onProfileClick }} trigger={["click"]}>
-                            <a onClick={(e) => e.preventDefault()}>
+                        <Dropdown
+                            menu={{ items: profileMenu, onClick: onProfileClick }}
+                            trigger={['click']}
+                        >
+                            <a onClick={e => e.preventDefault()}>
                                 <Space>
                                     <Avatar size={32} icon={<UserOutlined />} />
                                     <Text className="hidden sm:inline">Hello, Admin</Text>
@@ -128,10 +155,13 @@ export const AdminLayout = () => {
                         mode="inline"
                         selectedKeys={[selectedKey]}
                         items={menuItems}
-                        onClick={(info) => { onMenuClick(info); setMobileOpen(false); }}
+                        onClick={info => {
+                            onMenuClick(info);
+                            setMobileOpen(false);
+                        }}
                     />
                 </Drawer>
             )}
         </Layout>
     );
-}
+};

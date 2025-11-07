@@ -1,7 +1,30 @@
-import { DeleteOutlined, EditOutlined, SearchOutlined, ReloadOutlined, ShoppingCartOutlined, BoxPlotOutlined, TagOutlined, PlusOutlined } from "@ant-design/icons"
-import { Card, Space, Table, Tag, type TableProps, Row, Col, Statistic, Input, Button, Tooltip, Avatar, Empty } from "antd"
-import { useProductsPage } from "@/components/admin/hooks/product";
-import { AddProductModal } from "@/components/admin/modal/add.product.modal";
+import {
+    DeleteOutlined,
+    EditOutlined,
+    SearchOutlined,
+    ReloadOutlined,
+    ShoppingCartOutlined,
+    BoxPlotOutlined,
+    TagOutlined,
+    PlusOutlined,
+} from '@ant-design/icons';
+import {
+    Card,
+    Space,
+    Table,
+    Tag,
+    type TableProps,
+    Row,
+    Col,
+    Statistic,
+    Input,
+    Button,
+    Tooltip,
+    Avatar,
+    Empty,
+} from 'antd';
+import { useProductsPage } from '@/components/admin/hooks/product';
+import { AddProductModal } from '@/components/admin/modal/add.product.modal';
 
 export type Category = 'Laptop' | 'Phone' | 'Tablet';
 
@@ -12,7 +35,7 @@ export interface IProduct {
     category: {
         id: number;
         name: Category;
-    }
+    };
     quantity: number;
     is_active: boolean;
     create_at: Date;
@@ -55,9 +78,11 @@ export const ProductPage = () => {
         openAddModal,
         setIsOpenAddModal,
         brandsList,
-        series
+        series,
     } = useProductsPage();
-    const createTableColumns = (onEdit: (record: IProduct) => void): TableProps<IProduct>['columns'] => [
+    const createTableColumns = (
+        onEdit: (record: IProduct) => void
+    ): TableProps<IProduct>['columns'] => [
         {
             title: 'ID',
             key: 'id',
@@ -69,7 +94,11 @@ export const ProductPage = () => {
             key: 'STT',
             width: 60,
             align: 'center',
-            render: (_, __, index) => <span className="font-medium">{((filters.page ?? 1) - 1) * (filters.limit ?? 10) + index + 1}</span>,
+            render: (_, __, index) => (
+                <span className="font-medium">
+                    {((filters.page ?? 1) - 1) * (filters.limit ?? 10) + index + 1}
+                </span>
+            ),
         },
         {
             title: 'Tên sản phẩm',
@@ -100,7 +129,7 @@ export const ProductPage = () => {
                 //         {categoryConfig.text}
                 //     </Tag>
                 // );
-                return <span>{record.category.name}</span>
+                return <span>{record.category.name}</span>;
             },
             // filters: Object.values(PRODUCT_CATEGORIES).map(category => ({
             //     text: <Tag color={category.color}>{category.text}</Tag>,
@@ -130,7 +159,7 @@ export const ProductPage = () => {
             align: 'center',
             sorter: true,
             sortDirections: ['ascend', 'descend'],
-            render: (quantity) => (
+            render: quantity => (
                 <span className={`font-medium ${quantity < 10 ? 'text-red-500' : 'text-gray-700'}`}>
                     {quantity}
                 </span>
@@ -163,7 +192,7 @@ export const ProductPage = () => {
                 //         {status.text}
                 //     </Tag>
                 // );
-                return <span>{record.is_active === true ? 'Đang bán' : 'Ngừng bán'}</span>
+                return <span>{record.is_active === true ? 'Đang bán' : 'Ngừng bán'}</span>;
             },
             // filters: [
             //     {
@@ -183,12 +212,19 @@ export const ProductPage = () => {
             align: 'center',
             render: (_, record) => (
                 <div className="text-sm">
-                    <div className="font-medium">{new Date(record.create_at).toLocaleDateString('vi-VN')}</div>
-                    <div className="text-gray-500">{new Date(record.create_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</div>
+                    <div className="font-medium">
+                        {new Date(record.create_at).toLocaleDateString('vi-VN')}
+                    </div>
+                    <div className="text-gray-500">
+                        {new Date(record.create_at).toLocaleTimeString('vi-VN', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                        })}
+                    </div>
                 </div>
             ),
             sorter: true,
-            sortDirections: ['ascend', 'descend']
+            sortDirections: ['ascend', 'descend'],
         },
         {
             title: 'Thao tác',
@@ -210,12 +246,12 @@ export const ProductPage = () => {
                             type="text"
                             icon={<DeleteOutlined />}
                             className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                        // onClick={() => handleDelete(record)} // Add delete handler if needed
+                            // onClick={() => handleDelete(record)} // Add delete handler if needed
                         />
                     </Tooltip>
                 </Space>
             ),
-        }
+        },
     ];
     // const { totalProducts, activeProducts, totalSold, totalRevenue } = statistics;
     const columns = createTableColumns(handleEditProduct);
@@ -232,8 +268,12 @@ export const ProductPage = () => {
                                 <ShoppingCartOutlined className="text-2xl text-blue-600" />
                             </div>
                             <div>
-                                <h1 className="text-3xl font-bold text-gray-900">Quản lý sản phẩm</h1>
-                                <p className="text-gray-600 mt-1">Quản lý thông tin và trạng thái sản phẩm</p>
+                                <h1 className="text-3xl font-bold text-gray-900">
+                                    Quản lý sản phẩm
+                                </h1>
+                                <p className="text-gray-600 mt-1">
+                                    Quản lý thông tin và trạng thái sản phẩm
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -309,7 +349,7 @@ export const ProductPage = () => {
                                         size="large"
                                         style={{ width: 300 }}
                                         value={filters.search || ''}
-                                        onChange={(e) => handleSearch(e.target.value)}
+                                        onChange={e => handleSearch(e.target.value)}
                                         onSearch={handleSearch}
                                     />
                                     <Tooltip title="Làm mới">
@@ -342,27 +382,21 @@ export const ProductPage = () => {
                                     Hiển thị {range[0]}-{range[1]} của {meta?.total ?? 0} sản phẩm
                                 </span>
                             ),
-                            pageSizeOptions: ['5', '10', '20', '50', '100']
+                            pageSizeOptions: ['5', '10', '20', '50', '100'],
                         }}
                         onChange={handleTableChange}
                         scroll={{ x: 1200 }}
-                        locale={
-                            {
-                                emptyText: (
-                                    <Empty
-                                        image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                        description={
-                                            <span>
-                                                Không tìm thấy sản phẩm nào.
-                                            </span>
-                                        }
-                                    />
-                                ),
-                            }
-                        }
+                        locale={{
+                            emptyText: (
+                                <Empty
+                                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                    description={<span>Không tìm thấy sản phẩm nào.</span>}
+                                />
+                            ),
+                        }}
                     />
-                </Card >
-            </div >
+                </Card>
+            </div>
         </>
     );
 };

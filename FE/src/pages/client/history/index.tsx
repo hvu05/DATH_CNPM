@@ -1,7 +1,3 @@
 export const ClientHistory = () => {
-    return (
-        <>
-            Client History
-        </>
-    )
-}
+    return <>Client History</>;
+};

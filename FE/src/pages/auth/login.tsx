@@ -1,14 +1,14 @@
-import { Link } from 'react-router'
-import { useState } from 'react'
-import { authAPI, setTokens } from '@/services/auth/auth.service'
-import './auth.scss'
-import { getProfileAPI } from '@/services/global'
+import { Link } from 'react-router';
+import { useState } from 'react';
+import { authAPI, setTokens } from '@/services/auth/auth.service';
+import './auth.scss';
+import { getProfileAPI } from '@/services/global';
 
 const RouteMapping: Record<Role, string> = {
-    'ADMIN': '/admin',
-    'CUSTOMER': '/',
-    'STAFF': '/seller'
-}
+    ADMIN: '/admin',
+    CUSTOMER: '/',
+    STAFF: '/seller',
+};
 
 export const LoginPage = () => {
     const [email, setEmail] = useState('');
@@ -29,13 +29,12 @@ export const LoginPage = () => {
             const user = await getProfileAPI();
 
             window.location.href = RouteMapping[user.data?.role ?? 'CUSTOMER'];
-
         } catch (err: any) {
             setError(err.response?.data?.message || 'Đăng nhập thất bại');
         } finally {
             setLoading(false);
         }
-    }
+    };
     return (
         <div className="auth-container">
             <div className="auth">
@@ -47,7 +46,7 @@ export const LoginPage = () => {
                         className="auth__input"
                         placeholder="Email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={e => setEmail(e.target.value)}
                         required
                     />
                     <input
@@ -55,7 +54,7 @@ export const LoginPage = () => {
                         className="auth__input"
                         placeholder="Mật khẩu"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={e => setPassword(e.target.value)}
                         required
                     />
                     <button type="submit" className="auth__button" disabled={loading}>
@@ -74,5 +73,5 @@ export const LoginPage = () => {
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};

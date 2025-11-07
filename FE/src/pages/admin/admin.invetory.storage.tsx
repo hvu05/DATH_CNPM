@@ -1,7 +1,30 @@
 import React, { useMemo, useState } from 'react';
-import { Button, Card, Input, Space, Table, Typography, Modal, Form, InputNumber, Select, Tag, Statistic, Row, Col } from 'antd';
+import {
+    Button,
+    Card,
+    Input,
+    Space,
+    Table,
+    Typography,
+    Modal,
+    Form,
+    InputNumber,
+    Select,
+    Tag,
+    Statistic,
+    Row,
+    Col,
+} from 'antd';
 import type { ColumnsType, TableProps } from 'antd/es/table';
-import { ReloadOutlined, SearchOutlined, PlusOutlined, InboxOutlined, BoxPlotOutlined, WarningOutlined, HddOutlined } from '@ant-design/icons';
+import {
+    ReloadOutlined,
+    SearchOutlined,
+    PlusOutlined,
+    InboxOutlined,
+    BoxPlotOutlined,
+    WarningOutlined,
+    HddOutlined,
+} from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { AddProductModal } from '@/components/admin/modal/add.product.modal';
 import type { IBrand } from '@/services/admin/products/admin.product.api';
@@ -32,7 +55,7 @@ export interface IProduct {
     category: {
         id: number;
         name: Category;
-    }
+    };
     quantity: number;
     is_active: boolean;
     create_at: Date;
@@ -48,16 +71,116 @@ export interface IProductStatics {
 
 // Fake data with realistic timestamps for status calculation
 const INVENTORY_PRODUCTS: InventoryProduct[] = [
-    { id: 'P001', name: 'Arabica Beans 1kg', quantity: 150, sold: 45, importTime: '2024-10-01T09:15:00Z', lastSaleTime: '2024-10-04T14:20:00Z', category: 'Coffee Beans', price: 250000, status: 'new' },
-    { id: 'P002', name: 'Robusta Beans 500g', quantity: 240, sold: 120, importTime: '2024-09-15T12:30:00Z', lastSaleTime: '2024-09-20T11:30:00Z', category: 'Coffee Beans', price: 180000, status: 'in-stock' },
-    { id: 'P003', name: 'Glass Bottles 250ml', quantity: 480, sold: 320, importTime: '2024-09-10T08:45:00Z', lastSaleTime: '2024-09-25T16:45:00Z', category: 'Packaging', price: 15000, status: 'in-stock' },
-    { id: 'P004', name: 'Organic Milk 1L', quantity: 3, sold: 297, importTime: '2024-10-02T10:10:00Z', lastSaleTime: '2024-10-05T09:15:00Z', category: 'Dairy', price: 45000, status: 'low-stock' },
-    { id: 'P005', name: 'Brown Sugar 5kg', quantity: 60, sold: 40, importTime: '2024-09-28T16:25:00Z', lastSaleTime: '2024-10-03T13:40:00Z', category: 'Sweeteners', price: 120000, status: 'new' },
-    { id: 'P006', name: 'Packing Box Medium', quantity: 2, sold: 198, importTime: '2024-08-20T07:55:00Z', lastSaleTime: '2024-09-15T10:20:00Z', category: 'Packaging', price: 8000, status: 'low-stock' },
-    { id: 'P007', name: 'Vanilla Syrup 750ml', quantity: 110, sold: 90, importTime: '2024-08-15T11:05:00Z', lastSaleTime: '2024-09-01T14:30:00Z', category: 'Flavors', price: 85000, status: 'in-stock' },
-    { id: 'P008', name: 'Cocoa Powder 1kg', quantity: 4, sold: 71, importTime: '2024-10-03T14:50:00Z', lastSaleTime: '2024-10-05T11:25:00Z', category: 'Ingredients', price: 95000, status: 'low-stock' },
-    { id: 'P009', name: 'Paper Cups 12oz', quantity: 180, sold: 120, importTime: '2024-09-25T13:20:00Z', lastSaleTime: '2024-10-04T15:10:00Z', category: 'Packaging', price: 12000, status: 'new' },
-    { id: 'P010', name: 'Caramel Sauce 500ml', quantity: 85, sold: 65, importTime: '2024-08-10T09:45:00Z', lastSaleTime: '2024-08-25T12:15:00Z', category: 'Flavors', price: 65000, status: 'in-stock' },
+    {
+        id: 'P001',
+        name: 'Arabica Beans 1kg',
+        quantity: 150,
+        sold: 45,
+        importTime: '2024-10-01T09:15:00Z',
+        lastSaleTime: '2024-10-04T14:20:00Z',
+        category: 'Coffee Beans',
+        price: 250000,
+        status: 'new',
+    },
+    {
+        id: 'P002',
+        name: 'Robusta Beans 500g',
+        quantity: 240,
+        sold: 120,
+        importTime: '2024-09-15T12:30:00Z',
+        lastSaleTime: '2024-09-20T11:30:00Z',
+        category: 'Coffee Beans',
+        price: 180000,
+        status: 'in-stock',
+    },
+    {
+        id: 'P003',
+        name: 'Glass Bottles 250ml',
+        quantity: 480,
+        sold: 320,
+        importTime: '2024-09-10T08:45:00Z',
+        lastSaleTime: '2024-09-25T16:45:00Z',
+        category: 'Packaging',
+        price: 15000,
+        status: 'in-stock',
+    },
+    {
+        id: 'P004',
+        name: 'Organic Milk 1L',
+        quantity: 3,
+        sold: 297,
+        importTime: '2024-10-02T10:10:00Z',
+        lastSaleTime: '2024-10-05T09:15:00Z',
+        category: 'Dairy',
+        price: 45000,
+        status: 'low-stock',
+    },
+    {
+        id: 'P005',
+        name: 'Brown Sugar 5kg',
+        quantity: 60,
+        sold: 40,
+        importTime: '2024-09-28T16:25:00Z',
+        lastSaleTime: '2024-10-03T13:40:00Z',
+        category: 'Sweeteners',
+        price: 120000,
+        status: 'new',
+    },
+    {
+        id: 'P006',
+        name: 'Packing Box Medium',
+        quantity: 2,
+        sold: 198,
+        importTime: '2024-08-20T07:55:00Z',
+        lastSaleTime: '2024-09-15T10:20:00Z',
+        category: 'Packaging',
+        price: 8000,
+        status: 'low-stock',
+    },
+    {
+        id: 'P007',
+        name: 'Vanilla Syrup 750ml',
+        quantity: 110,
+        sold: 90,
+        importTime: '2024-08-15T11:05:00Z',
+        lastSaleTime: '2024-09-01T14:30:00Z',
+        category: 'Flavors',
+        price: 85000,
+        status: 'in-stock',
+    },
+    {
+        id: 'P008',
+        name: 'Cocoa Powder 1kg',
+        quantity: 4,
+        sold: 71,
+        importTime: '2024-10-03T14:50:00Z',
+        lastSaleTime: '2024-10-05T11:25:00Z',
+        category: 'Ingredients',
+        price: 95000,
+        status: 'low-stock',
+    },
+    {
+        id: 'P009',
+        name: 'Paper Cups 12oz',
+        quantity: 180,
+        sold: 120,
+        importTime: '2024-09-25T13:20:00Z',
+        lastSaleTime: '2024-10-04T15:10:00Z',
+        category: 'Packaging',
+        price: 12000,
+        status: 'new',
+    },
+    {
+        id: 'P010',
+        name: 'Caramel Sauce 500ml',
+        quantity: 85,
+        sold: 65,
+        importTime: '2024-08-10T09:45:00Z',
+        lastSaleTime: '2024-08-25T12:15:00Z',
+        category: 'Flavors',
+        price: 65000,
+        status: 'in-stock',
+    },
 ];
 
 const timeFormatter = new Intl.DateTimeFormat('vi-VN', {
@@ -73,7 +196,8 @@ export const InventoryStoragePage = () => {
     const [statusFilter, setStatusFilter] = useState<ProductStatus | 'all'>('all');
     const [products, setProducts] = useState<InventoryProduct[]>(INVENTORY_PRODUCTS);
     const [currentProduct, setCurrentProduct] = useState<IProduct | null>(null);
-    const { brandsList, categoriesList, series, openAddModal, setIsOpenAddModal } = useProductsPage();
+    const { brandsList, categoriesList, series, openAddModal, setIsOpenAddModal } =
+        useProductsPage();
 
     // Calculate statistics
     const statistics = useMemo(() => {
@@ -86,7 +210,7 @@ export const InventoryStoragePage = () => {
 
     const getStatusTag = (status: ProductStatus) => {
         const statusConfig = {
-            'new': { color: 'green', text: 'Hàng mới', icon: <InboxOutlined /> },
+            new: { color: 'green', text: 'Hàng mới', icon: <InboxOutlined /> },
             'in-stock': { color: 'blue', text: 'Tồn kho', icon: <BoxPlotOutlined /> },
             'low-stock': { color: 'orange', text: 'Sắp hết', icon: <WarningOutlined /> },
         };
@@ -162,7 +286,8 @@ export const InventoryStoragePage = () => {
                 title: 'Nhập lần cuối',
                 dataIndex: 'importTime',
                 render: (value: string) => timeFormatter.format(new Date(value)),
-                sorter: (a, b) => new Date(a.importTime).getTime() - new Date(b.importTime).getTime(),
+                sorter: (a, b) =>
+                    new Date(a.importTime).getTime() - new Date(b.importTime).getTime(),
                 sortDirections: ['ascend', 'descend'],
             },
             {
@@ -181,7 +306,7 @@ export const InventoryStoragePage = () => {
                 ),
             },
         ],
-        [],
+        []
     );
 
     const filteredData = useMemo(() => {
@@ -190,15 +315,16 @@ export const InventoryStoragePage = () => {
         // Search filter
         if (searchValue.trim()) {
             const keyword = searchValue.trim().toLowerCase();
-            filtered = filtered.filter((product) =>
-                product.name.toLowerCase().includes(keyword) ||
-                product.id.toLowerCase().includes(keyword)
+            filtered = filtered.filter(
+                product =>
+                    product.name.toLowerCase().includes(keyword) ||
+                    product.id.toLowerCase().includes(keyword)
             );
         }
 
         // Status filter
         if (statusFilter !== 'all') {
-            filtered = filtered.filter((product) => product.status === statusFilter);
+            filtered = filtered.filter(product => product.status === statusFilter);
         }
 
         return filtered;
@@ -207,14 +333,12 @@ export const InventoryStoragePage = () => {
     const handleTableChange: TableProps<InventoryProduct>['onChange'] = (
         _pagination,
         filters,
-        _sorter,
+        _sorter
     ) => {
         // Handle filters if needed
     };
 
-    const handleImportClick = (product: InventoryProduct) => {
-
-    };
+    const handleImportClick = (product: InventoryProduct) => {};
 
     const handleResetFilters = () => {
         setSearchValue('');
@@ -280,7 +404,7 @@ export const InventoryStoragePage = () => {
                         allowClear
                         style={{ maxWidth: 280 }}
                         value={searchValue}
-                        onChange={(event) => setSearchValue(event.target.value)}
+                        onChange={event => setSearchValue(event.target.value)}
                         prefix={<SearchOutlined />}
                         placeholder="Tìm theo tên hoặc ID sản phẩm"
                     />
@@ -316,7 +440,7 @@ export const InventoryStoragePage = () => {
                         pageSize: 8,
                         showSizeChanger: false,
                         showTotal: (total, range) =>
-                            `${range[0]}-${range[1]} của ${total} sản phẩm`
+                            `${range[0]}-${range[1]} của ${total} sản phẩm`,
                     }}
                     scroll={{ x: 800 }}
                 />

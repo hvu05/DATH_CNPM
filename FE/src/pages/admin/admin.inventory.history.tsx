@@ -1,5 +1,5 @@
 import { HistoryOutlined } from '@ant-design/icons';
-import { Card, Table, Typography } from 'antd'
+import { Card, Table, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 
 interface IInventoryHistory {
@@ -11,14 +11,44 @@ interface IInventoryHistory {
 }
 
 const inventoryData: IInventoryHistory[] = [
-    { ID: 1, name: 'MSI Thin U63', quantity: 120, price: 12_000_000, importTime: '2024-10-01T09:15:00Z' },
-    { ID: 2, name: 'Macbook pro M1', quantity: 102, price: 9_000_000, importTime: '2024-10-01T09:15:00Z' },
+    {
+        ID: 1,
+        name: 'MSI Thin U63',
+        quantity: 120,
+        price: 12_000_000,
+        importTime: '2024-10-01T09:15:00Z',
+    },
+    {
+        ID: 2,
+        name: 'Macbook pro M1',
+        quantity: 102,
+        price: 9_000_000,
+        importTime: '2024-10-01T09:15:00Z',
+    },
     { ID: 3, name: 'Oppo', quantity: 121, price: 32_000_000, importTime: '2024-10-01T09:15:00Z' },
     { ID: 4, name: 'Xiaomi', quantity: 121, price: 33_000_000, importTime: '2024-10-01T09:15:00Z' },
-    { ID: 5, name: 'MSI Thin U63', quantity: 122, price: 12_000_000, importTime: '2024-10-01T09:13:00Z' },
-    { ID: 6, name: 'Iphone 19', quantity: 123, price: 12_000_000, importTime: '2024-10-01T09:14:00Z' },
-    { ID: 7, name: 'MSI Thin U63', quantity: 112, price: 80_000_000, importTime: '2024-10-01T09:15:00Z' },
-]
+    {
+        ID: 5,
+        name: 'MSI Thin U63',
+        quantity: 122,
+        price: 12_000_000,
+        importTime: '2024-10-01T09:13:00Z',
+    },
+    {
+        ID: 6,
+        name: 'Iphone 19',
+        quantity: 123,
+        price: 12_000_000,
+        importTime: '2024-10-01T09:14:00Z',
+    },
+    {
+        ID: 7,
+        name: 'MSI Thin U63',
+        quantity: 112,
+        price: 80_000_000,
+        importTime: '2024-10-01T09:15:00Z',
+    },
+];
 
 const timeFormatter = new Intl.DateTimeFormat('vi-VN', {
     year: 'numeric',
@@ -33,14 +63,14 @@ export const InventoryHistoryPage = () => {
         {
             title: 'ID',
             dataIndex: 'ID',
-            sorter: (a, b) => (a.ID - b.ID),
+            sorter: (a, b) => a.ID - b.ID,
             sortDirections: ['ascend', 'descend'],
             width: 100,
         },
         {
             title: 'name',
             dataIndex: 'name',
-            sorter: (a, b) => (a.name.localeCompare(b.name)),
+            sorter: (a, b) => a.name.localeCompare(b.name),
             sortDirections: ['ascend', 'descend'],
         },
         {
@@ -54,13 +84,11 @@ export const InventoryHistoryPage = () => {
         {
             title: 'Import time',
             dataIndex: 'importTime',
-            sorter: (a, b) => (new Date(a.importTime).getTime() - new Date(b.importTime).getTime()),
+            sorter: (a, b) => new Date(a.importTime).getTime() - new Date(b.importTime).getTime(),
             sortDirections: ['ascend', 'descend'],
-            render: (_, record) => (
-                <span>{timeFormatter.format(new Date(record.importTime))}</span>
-            )
+            render: (_, record) => <span>{timeFormatter.format(new Date(record.importTime))}</span>,
         },
-    ]
+    ];
 
     // const { Text, Title } = Typography;
     return (
@@ -73,7 +101,9 @@ export const InventoryHistoryPage = () => {
                                 <HistoryOutlined className="text-2xl text-blue-600" />
                             </div>
                             <div>
-                                <h1 className="text-3xl font-bold text-gray-900">Lịch sử nhập hàng</h1>
+                                <h1 className="text-3xl font-bold text-gray-900">
+                                    Lịch sử nhập hàng
+                                </h1>
                                 <p className="text-gray-600 mt-1">Quản lí lịch sử nhập hàng</p>
                             </div>
                         </div>
@@ -84,5 +114,5 @@ export const InventoryHistoryPage = () => {
                 </Card>
             </div>
         </>
-    )
-}
+    );
+};

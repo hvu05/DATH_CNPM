@@ -1,7 +1,7 @@
-import { Outlet } from "react-router"
+import { Outlet } from 'react-router';
 // import './layout.scss'
-import { Header } from "@/components/seller/layout/header"
-import {TabClient} from "@/components/client/tab";
+import { Header } from '@/components/seller/layout/header';
+import { TabClient } from '@/components/client/tab';
 
 export const ClientLayout = () => {
     return (
@@ -14,5 +14,5 @@ export const ClientLayout = () => {
                 </div>
             </div>
         </>
-    )
-}
+    );
+};

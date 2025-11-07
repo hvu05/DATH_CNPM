@@ -1,5 +1,9 @@
-import { createBrowserRouter, Navigate, type RouteObject } from "react-router";
-import { AppLayout } from "@/layout";
+// FE/src/routes/route.tsx
+import {
+  createBrowserRouter,
+  Navigate,
+  type RouteObject,
+} from "react-router-dom";
 import { LoginPage } from "@/pages/auth/login";
 import { ConfirmPage } from "@/pages/auth/confirm";
 import { OtpPage } from "@/pages/auth/otp";
@@ -13,7 +17,7 @@ import { DetailPage } from "@/pages/seller/detail/detail";
 import { ClientLayout } from "@/pages/client/layout/layout.tsx";
 import { ClientOrder } from "@/pages/client/myOrders/orders.tsx";
 import { ClientAddress } from "@/pages/client/address";
-// import { ClientHistory } from "@/pages/client/history";
+import { ClientHistory } from "@/pages/client/history";
 import { ProfilePageClient } from "@/pages/client/profile/client.profile.tsx";
 import { EditProfileClient } from "@/pages/client/profile/edit.profile.tsx";
 import { AdminLayout } from "@/pages/admin/admin.layout";
@@ -25,148 +29,173 @@ import { PaymentClient } from "@/pages/client/payment";
 import { OrderSuccess } from "@/pages/client/order-success";
 import { RegisterPage } from "@/pages/auth/register";
 import { ProtectedRoute } from "./protected.route";
+import MainLayout from "@/layout/MainLayout";
+import HomePage from "@/pages/HomePage";
+import ProductDetailPage from "@/pages/ProductDetailPage";
+import CartPage from "@/pages/CartPage";
+import SearchPage from "@/pages/SearchPage";
 
 const authRoutes: RouteObject[] = [
-    {
-        path: '/',
-        element: <ProtectedRoute restrictedForAuthenticated={true}><AppLayout /></ProtectedRoute>,
-        children: [
-            {
-                path: '/login',
-                element: <LoginPage />
-            },
-            {
-                path: 'register',
-                element: <RegisterPage />
-            },
-            {
-                path: 'user-confirm',
-                element: <ConfirmPage />
-            },
-            {
-                path: 'otp',
-                element: <OtpPage />
-            },
-            {
-                path: 'reset-pass',
-                element: <ResetPasswordPage />
-            },
-        ]
-    }
-]
+  {
+    path: "/",
+    element: <MainLayout />,
+    children: [
+      {
+        path: "login",
+        element: <LoginPage />,
+      },
+      {
+        path: "register",
+        element: <RegisterPage />,
+      },
+      {
+        path: "user-confirm",
+        element: <ConfirmPage />,
+      },
+      {
+        path: "otp",
+        element: <OtpPage />,
+      },
+      {
+        path: "reset-pass",
+        element: <ResetPasswordPage />,
+      },
+    ],
+  },
+];
 
 const sellerRoutes: RouteObject[] = [
-    {
-        path: '/seller',
-        element: <ProtectedRoute allow="STAFF"><SellerLayout /></ProtectedRoute>,
-        children: [
-            {
-                index: true,
-                element: <ProfilePage />
-            },
-            {
-                path: 'edit-profile',
-                element: <EditProfilePage />
-            },
-            {
-                path: 'myOrders',
-                element: <OrderPage />
-            },
-            {
-                path: 'status',
-                element: <StatusPage />
-            },
-        ]
-    },
-]
+  {
+    path: "/seller",
+    element: (
+      <ProtectedRoute allow="STAFF">
+        <SellerLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <ProfilePage />,
+      },
+      {
+        path: "edit-profile",
+        element: <EditProfilePage />,
+      },
+      {
+        path: "myOrders",
+        element: <OrderPage />,
+      },
+      {
+        path: "status",
+        element: <StatusPage />,
+      },
+    ],
+  },
+];
 
 const clientRoutes: RouteObject[] = [
-    {
-        path: '/client',
-        // element: <ProtectedRoute allow={'CUSTOMER'}><ClientLayout /></ProtectedRoute>,
-        element: <ClientLayout />,
-        children: [
-            {
-                index: true,
-                element: <ProfilePageClient />
-            },
-            {
-                path: 'edit-profile',
-                element: <EditProfileClient />
-            },
-            {
-                path: 'my-orders',
-                element: <ClientOrder />
-            },
-            {
-                path: 'address',
-                element: <ClientAddress />
-            },
-            // {
-            //     path: 'history',
-            //     element: <ClientHistory />
-            // },
-
-        ]
-
-    }
-]
+  {
+    path: "/client",
+    element: (
+      <ProtectedRoute allow={"CUSTOMER"}>
+        <ClientLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <ProfilePageClient />,
+      },
+      {
+        path: "edit-profile",
+        element: <EditProfileClient />,
+      },
+      {
+        path: "my-orders",
+        element: <ClientOrder />,
+      },
+      {
+        path: "address",
+        element: <ClientAddress />,
+      },
+      {
+        path: "history",
+        element: <ClientHistory />,
+      },
+    ],
+  },
+];
 
 const adminRoutes: RouteObject[] = [
-    {
-        path: '/admin',
-        element: <ProtectedRoute allow={'ADMIN'}><AdminLayout /></ProtectedRoute>,
-        children: [
-            {
-                index: true,
-                element: <Navigate to={'/admin/dashboard'} replace />
-            },
-            {
-                path: 'dashboard',
-                element: <DashboardPage />
-            },
-            {
-                path: 'products',
-                element: <ProductPage />
-            },
-            {
-                path: 'users',
-                element: <UsersPage />
-            }
-        ]
-    }
-]
+  {
+    path: "/admin",
+    element: (
+      <ProtectedRoute allow="ADMIN">
+        <AdminLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <Navigate to={"/admin/dashboard"} replace />,
+      },
+      {
+        path: "dashboard",
+        element: <DashboardPage />,
+      },
+      {
+        path: "products",
+        element: <ProductPage />,
+      },
+      {
+        path: "users",
+        element: <UsersPage />,
+      },
+    ],
+  },
+];
 
 export const router = createBrowserRouter([
-    {
-        path: "/",
-        element: <AppLayout />,
-        children: [
-            {
-                index: true,
-                element: <div className="h-screen">This is homepage</div>
-            },
-            {
-                path: '/seller/order/:id',
-                element: <DetailPage />
-            },
-            {
-                path: '/client/order/:id',
-                element: <OrderClient />
-            },
-            {
-                path: '/client/order/payment',
-                element: <PaymentClient />
-            },
-            {
-                path: '/client/order/success',
-                element: <OrderSuccess />
-            },
-
-        ]
-    },
-    ...authRoutes,
-    ...sellerRoutes,
-    ...clientRoutes,
-    ...adminRoutes,
+  {
+    path: "/",
+    element: <MainLayout />,
+    children: [
+      {
+        index: true,
+        element: <HomePage />,
+      },
+      {
+        path: "product/:id",
+        element: <ProductDetailPage />,
+      },
+      {
+        path: "cart",
+        element: <CartPage />,
+      },
+      {
+        path: "search",
+        element: <SearchPage />,
+      },
+      {
+        path: "/seller/order/:id",
+        element: <DetailPage />,
+      },
+      {
+        path: "/client/order/:id",
+        element: <OrderClient />,
+      },
+      {
+        path: "/client/order/payment",
+        element: <PaymentClient />,
+      },
+      {
+        path: "/client/order/success",
+        element: <OrderSuccess />,
+      },
+    ],
+  },
+  ...authRoutes,
+  ...sellerRoutes,
+  ...clientRoutes,
+  ...adminRoutes,
 ]);

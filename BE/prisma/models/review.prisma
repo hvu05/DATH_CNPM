@@ -5,8 +5,7 @@ model Review{
   comment String @db.Text
   user_id String
   parent_id Int? 
-  create_at DateTime @default(now())
-  update_at DateTime @updatedAt
+
   @@id(name: "review_id",[id, product_id])
 
   parent Review? @relation(name: "ReviewRelation",fields: [id,parent_id], references: [id,product_id])

@@ -24,18 +24,21 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
     "nodemailer": "^7.0.9",
-    "vnpay": "^2.4.4",
     "zod": "^4.1.12"
   },
   "scripts": {
+
     "prisma:generate": "npx prisma generate",
     "prisma:migrate": "npx prisma migrate dev",
     "prisma:reset": "npx prisma migrate reset --force --skip-seed",
     "prisma:remigrate": "npm run prisma:reset && npm run prisma:migrate  --name init",
     "db:seed": "npx prisma db seed",
+
     "build": "tsc",
     "start": "node dist/app.js",
+
     "dev": "npm run prisma:generate && nodemon --watch src --ext ts --exec \"ts-node src/app.ts\"",
+
     "lint": "eslint \"src/**/*.ts\""
   },
   "prisma": {

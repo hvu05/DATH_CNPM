@@ -26,7 +26,6 @@ export const createUserHandler = async (req: Request, res: Response<ApiResponse<
   }
 };
 
-
 export const getProfileHandler = async (req: Request, res: Response<ApiResponse<userDto.UserResponse>>, next: NextFunction) => {
   try {
     const user = req.user;

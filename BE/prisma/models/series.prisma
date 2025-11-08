@@ -1,7 +1,7 @@
 model Series{
   id Int
   brand_id Int
-  name String @unique
+
   @@id(name : "series_id", [id, brand_id])
 
   brand Brand @relation(fields: [brand_id], references: [id])

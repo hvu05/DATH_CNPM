@@ -10,7 +10,6 @@ CLOUDINARY_URL=cloudinary://<your_api_key>:<your_api_secret>@<your-cloud-name>
 IMAGE_SIZE = 5
 MAIL_USER = <your-email>
 MAIL_PASS = 
-REDIRECT_VNPAY_URL = <front-end> # Trang mà vnpay redirect sau khi thanh toán
 ```
 ### Cách lấy `CLOUDINARY_URL`  
 ```

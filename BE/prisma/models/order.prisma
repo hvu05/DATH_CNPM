@@ -4,8 +4,8 @@ model Order{
   total Int
   status String @default("PENDING")
   create_at DateTime @default(now())
-  deliver_at DateTime?
-  province String
+  shipping_at DateTime?
+  provine String
   ward String 
   detail String
   note String? @db.TinyText

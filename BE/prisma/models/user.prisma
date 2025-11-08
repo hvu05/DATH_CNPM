@@ -16,5 +16,4 @@ model User{
   address Address[]
   reviews Review[]
   cart_items CartItem[]
-  payment Payment[]
 }

@@ -3,9 +3,6 @@ import router from './routes';
 import { errorHanler } from './middlewares/error.middleware';
 import config from './config/config';
 import cors from "cors";
-BigInt.prototype.toJSON = function () {
-  return this.toString();
-}
 const app = express();
 const port = config.port; // default port to listen
 

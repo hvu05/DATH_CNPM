@@ -8,7 +8,8 @@
         "build": "tsc -b && vite build",
         "lint": "eslint .",
         "preview": "vite preview",
-        "format": "prettier --write ."
+        "format": "prettier --write .",
+        "start:debug": "vite --debug"
     },
     "dependencies": {
         "@ant-design/icons": "^5.6.1",

@@ -14,5 +14,5 @@ router.use('/payments', paymentRouter);
 router.use('/orders', orderRouter)
 router.use('/admin', adminRouter);
 router.use('/upload', uploadRouter);
-router.use('/product', productRouter)
+router.use('/products', productRouter)
 export default router;

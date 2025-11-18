@@ -1,4 +1,3 @@
-import { prisma } from "../../config/prisma.config";
 import { initProduct } from "./init-product";
 import { initUser } from "./init-user";
 /**

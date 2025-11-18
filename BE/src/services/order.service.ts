@@ -7,7 +7,7 @@ import { AppError, ErrorCode } from '../exeptions';
 export const createOrder = async (
   data: orderDto.OrderCreateRequest,
   user_id: string,
-) => {
+) : Promise<orderDto.OrderResponse> => {
   const id = generateIdOrder(data.province);
   // TODO: Cần tối ưu
   //? 1. Get 1 list variants
@@ -30,7 +30,7 @@ export const createOrder = async (
       province: data.province,
       ward: data.ward,
       detail: data.detail,
-      note: data.note,
+      note: data.note ,
       order_items: {
         createMany: {
           data: data.items.map((item, index) => ({
@@ -44,7 +44,15 @@ export const createOrder = async (
       },
     },
     include: {
-      order_items: true,
+      order_items: {
+        include: {
+          variant: {
+            include: {
+              product: true
+            },
+          }
+        },
+      }
     },
   });
 
@@ -62,18 +70,30 @@ export const createOrder = async (
       }),
     ),
   );
-  return order;
+  return orderDto.mapOrderToDTO(order);
 };
 
-export const getOrdersOfUser = async (user_id: string) => {
-  return await prisma.order.findMany({
+export const getOrdersByUser = async (user_id: string): Promise<orderDto.OrderListResponse> => {
+  const orders = await prisma.order.findMany({
     where: {
       user_id: user_id,
     },
     include: {
-      order_items: true,
+      order_items: {
+        include: {
+          variant: {
+            include: {
+              product: true
+            },
+          }
+        },
+      }
     },
   });
+  return {
+    count: orders.length,
+    orders: orders.map(orderDto.mapOrderToDTO),
+  }
 };
 
 /**
@@ -99,26 +119,6 @@ const generateIdOrder = (province: string) => {
 
   return `ORD-${datePart}-${provincePart}-${randomPart}`;
 };
-
-// const calculateTotalItemPrice = async (item: orderDto.OrderItemCreateRequest) => {
-//   // const product = await prisma.product.findUnique({
-//   //   where: {
-//   //     id: item.product_id,
-//   //   },
-//   // })
-//   // if (!product) throw new AppError(ErrorCode.NOT_FOUND, "Không tìm thấy Product");
-//   const productVariant = await prisma.productVariant.findUnique({
-//     where: {
-//       variant_id: {
-//         product_id: item.product_id,
-//         id : item.product_variant_id
-//       }
-//     },
-//   })
-//   if (!productVariant) throw new AppError(ErrorCode.NOT_FOUND, "Không tìm thấy Product Variant");
-//   if (productVariant.quantity < item.quantity) throw new AppError(ErrorCode.BAD_REQUEST, "Không đủ số lượng");
-//   return productVariant.price * item.quantity
-// }
 
 const getVariant = async (
   item: orderDto.OrderItemCreateRequest,

@@ -4,9 +4,6 @@ import * as addressService from "../services/address.service";
 import { NextFunction, Request, Response } from "express";
 import { ApiResponse } from "../types/api-response";
 
-/*
-  * Sẽ loại bỏ api này trong tương lai
-*/
 export const createUserHandler = async (req: Request, res: Response<ApiResponse<userDto.UserResponse>>, next: NextFunction) => {
   // validation
   const parsed = userDto.UserCreateSchema.safeParse(req.body);
@@ -25,7 +22,6 @@ export const createUserHandler = async (req: Request, res: Response<ApiResponse<
     next(error);
   }
 };
-
 
 export const getProfileHandler = async (req: Request, res: Response<ApiResponse<userDto.UserResponse>>, next: NextFunction) => {
   try {

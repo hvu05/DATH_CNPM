@@ -11,7 +11,6 @@ interface IProps {
     loading: boolean;
 }
 
-
 export const StepOneForm = (props: IProps) => {
     const { sendOtp, formData, handleInputChange, loading } = props;
     return (
@@ -86,5 +85,5 @@ export const StepOneForm = (props: IProps) => {
                 </button>
             </form>
         </>
-    )
-}
+    );
+};

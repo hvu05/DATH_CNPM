@@ -1,25 +1,38 @@
-import { BankOutlined, BellOutlined, HistoryOutlined, LineChartOutlined, MenuFoldOutlined, MenuUnfoldOutlined, PieChartOutlined, ShopOutlined, StockOutlined, UserOutlined } from "@ant-design/icons";
-import { Avatar, Dropdown, Layout, Menu, Space, Typography, Drawer, Grid } from "antd";
-import type { MenuProps } from "antd";
-import { Outlet, useLocation, useNavigate } from "react-router";
-import { useMemo, useState } from "react";
+import {
+    BankOutlined,
+    BellOutlined,
+    HistoryOutlined,
+    LineChartOutlined,
+    MenuFoldOutlined,
+    MenuUnfoldOutlined,
+    PieChartOutlined,
+    ShopOutlined,
+    StockOutlined,
+    UserOutlined,
+} from '@ant-design/icons';
+import { Avatar, Dropdown, Layout, Menu, Space, Typography, Drawer, Grid } from 'antd';
+import type { MenuProps } from 'antd';
+import { Outlet, useLocation, useNavigate } from 'react-router';
+import { useMemo, useState } from 'react';
+import { useAuthContext } from '@/contexts/AuthContext';
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
 
-const profileMenu: MenuProps['items'] = [
-    { key: 'login', label: 'Đăng nhập' },
-    { type: 'divider' },
-    { key: 'logout', danger: true, label: 'Đăng xuất' },
-];
-
 export const AdminLayout = () => {
+    const { isLoggedIn, logout } = useAuthContext();
     const navigate = useNavigate();
     const location = useLocation();
     const [collapsed, setCollapsed] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
     const screens = Grid.useBreakpoint();
     const isDesktop = !!screens.lg;
+
+    const profileMenu: MenuProps['items'] = [
+        ...(!isLoggedIn ? [{ key: 'login', label: 'Đăng nhập' }] : []),
+        { type: 'divider' },
+        { key: 'logout', danger: true, label: 'Đăng xuất' },
+    ];
 
     const selectedKey = useMemo(() => {
         return location.pathname.slice(7);
@@ -31,7 +44,7 @@ export const AdminLayout = () => {
 
     const onProfileClick: MenuProps['onClick'] = ({ key }) => {
         if (key === 'login') navigate('/login');
-        if (key === 'logout') console.log('logout clicked');
+        if (key === 'logout') logout();
     };
 
     const menuItems: MenuProps['items'] = [
@@ -40,25 +53,26 @@ export const AdminLayout = () => {
         { key: 'users', icon: <UserOutlined />, label: 'Khách hàng' },
         { key: 'products', icon: <ShopOutlined />, label: 'Sản phẩm' },
         {
-            key: 'inventory', icon: <BankOutlined />, label: 'Kho hàng',
+            key: 'inventory',
+            icon: <BankOutlined />,
+            label: 'Kho hàng',
             children: [
                 {
                     key: 'inventory-static',
-                    label: 'Báo cáo kho hàng',
-                    icon: <StockOutlined />
+                    label: 'Quản lí kho hàng',
+                    icon: <StockOutlined />,
                 },
                 {
                     key: 'inventory-history',
                     label: 'Lịch sử nhập hàng',
                     icon: <HistoryOutlined />,
-                }
-            ]
+                },
+            ],
         },
     ];
 
     return (
         <Layout style={{ minHeight: '100vh' }}>
-
             {isDesktop && (
                 <Sider
                     theme="light"
@@ -69,7 +83,7 @@ export const AdminLayout = () => {
                     width={240}
                     style={{ position: 'sticky', top: 0, height: '100vh' }}
                 >
-                    <div className="flex items-center gap-2 px-4 h-14 text-black text-lg font-semibold">
+                    <div className="flex items-center gap-2 px-4 h-14 text-black text-sm font-semibold">
                         <span className="inline-block w-2 h-2 rounded-full bg-emerald-400" />
                         Admin
                     </div>
@@ -87,16 +101,31 @@ export const AdminLayout = () => {
                     <div className="flex items-center gap-3">
                         <button
                             aria-label="Toggle sidebar"
-                            onClick={() => (isDesktop ? setCollapsed(!collapsed) : setMobileOpen(!mobileOpen))}
+                            onClick={() =>
+                                isDesktop ? setCollapsed(!collapsed) : setMobileOpen(!mobileOpen)
+                            }
                             className="text-gray-700 hover:text-black"
                         >
-                            {isDesktop ? (collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />) : (mobileOpen ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />)}
+                            {isDesktop ? (
+                                collapsed ? (
+                                    <MenuUnfoldOutlined />
+                                ) : (
+                                    <MenuFoldOutlined />
+                                )
+                            ) : mobileOpen ? (
+                                <MenuFoldOutlined />
+                            ) : (
+                                <MenuUnfoldOutlined />
+                            )}
                         </button>
                     </div>
                     <div className="flex items-center gap-3">
                         <BellOutlined className="text-gray-600 text-lg" />
-                        <Dropdown menu={{ items: profileMenu, onClick: onProfileClick }} trigger={["click"]}>
-                            <a onClick={(e) => e.preventDefault()}>
+                        <Dropdown
+                            menu={{ items: profileMenu, onClick: onProfileClick }}
+                            trigger={['click']}
+                        >
+                            <a onClick={e => e.preventDefault()}>
                                 <Space>
                                     <Avatar size={32} icon={<UserOutlined />} />
                                     <Text className="hidden sm:inline">Hello, Admin</Text>
@@ -126,10 +155,13 @@ export const AdminLayout = () => {
                         mode="inline"
                         selectedKeys={[selectedKey]}
                         items={menuItems}
-                        onClick={(info) => { onMenuClick(info); setMobileOpen(false); }}
+                        onClick={info => {
+                            onMenuClick(info);
+                            setMobileOpen(false);
+                        }}
                     />
                 </Drawer>
             )}
         </Layout>
     );
-}
+};

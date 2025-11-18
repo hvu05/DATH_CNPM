@@ -1,9 +1,9 @@
-import { Link, useNavigate } from "react-router";
-import { useState } from "react";
-import { authAPI } from "@/services/auth/auth.service";
-import { StepOneForm } from "@/components/auth/register/step.one";
-import { StepTwoForm } from "@/components/auth/register/step.two";
-import { type RegisterRequest } from '@/types/auth/auth.types'
+import { Link, useNavigate } from 'react-router';
+import { useState } from 'react';
+import { authAPI } from '@/services/auth/auth.service';
+import { StepOneForm } from '@/components/auth/register/step.one';
+import { StepTwoForm } from '@/components/auth/register/step.two';
+import { type RegisterRequest } from '@/types/auth/auth.types';
 
 export const RegisterPage = () => {
     const navigate = useNavigate();
@@ -22,7 +22,7 @@ export const RegisterPage = () => {
         email: '',
         password: '',
         confirmPassword: '',
-        phone: ''
+        phone: '',
     });
 
     const validateForm = () => {
@@ -57,7 +57,7 @@ export const RegisterPage = () => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: value
+            [name]: value,
         }));
     };
 
@@ -92,7 +92,7 @@ export const RegisterPage = () => {
                 email: formData.email,
                 password: formData.password,
                 phone: formData.phone || undefined,
-                otp_code: otpCode
+                otp_code: otpCode,
             };
 
             await authAPI.register(registerData);
@@ -167,7 +167,7 @@ export const RegisterPage = () => {
                 )}
 
                 <div className="mt-6 text-center pt-6 border-t border-gray-200">
-                    <span className="text-gray-600 text-sm">Đã có tài khoản? {" "}</span>
+                    <span className="text-gray-600 text-sm">Đã có tài khoản? </span>
                     <Link
                         to="/login"
                         className="text-red-500 font-medium hover:text-red-600 transition-colors text-sm"
@@ -177,5 +177,5 @@ export const RegisterPage = () => {
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};

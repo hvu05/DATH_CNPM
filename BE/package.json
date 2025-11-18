@@ -41,7 +41,8 @@
     "build": "tsc",
     "start": "node dist/app.js",
     "dev": "npm run prisma:generate && nodemon --watch src --ext ts --exec \"ts-node src/app.ts\"",
-    "lint": "eslint \"src/**/*.ts\""
+    "lint": "eslint \"src/**/*.ts\"",
+    "start:debug": "npm run prisma:generate && nodemon --watch src --ext ts --exec \"node --inspect=9229 -r ts-node/register src/app.ts\""
   },
   "prisma": {
     "schema": "./prisma/models/",

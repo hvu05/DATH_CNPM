@@ -9,17 +9,14 @@ interface IProps {
 }
 
 export const StepTwoForm = (props: IProps) => {
-    const { verifyOtpAndRegister, emailForOtp, otpCode, setOtpCode, resendOtp, loading, goBack } = props;
+    const { verifyOtpAndRegister, emailForOtp, otpCode, setOtpCode, resendOtp, loading, goBack } =
+        props;
     return (
         <>
             <form onSubmit={verifyOtpAndRegister} className="space-y-4">
                 <div className="text-center mb-4">
-                    <p className="text-gray-600 mb-2">
-                        OTP đã được gửi đến:
-                    </p>
-                    <p className="font-medium text-gray-800">
-                        {emailForOtp}
-                    </p>
+                    <p className="text-gray-600 mb-2">OTP đã được gửi đến:</p>
+                    <p className="font-medium text-gray-800">{emailForOtp}</p>
                 </div>
 
                 <div>
@@ -28,7 +25,7 @@ export const StepTwoForm = (props: IProps) => {
                         className="w-full px-4 py-3 border-2 border-red-200 rounded-lg focus:outline-none focus:border-red-400 transition-colors text-gray-700 placeholder-gray-400 text-center text-xl tracking-widest"
                         placeholder="Nhập mã OTP (6 ký tự)"
                         value={otpCode}
-                        onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                        onChange={e => setOtpCode(e.target.value.replace(/\D/g, ''))}
                         maxLength={6}
                         required
                     />
@@ -61,5 +58,5 @@ export const StepTwoForm = (props: IProps) => {
                 </div>
             </form>
         </>
-    )
-}
+    );
+};

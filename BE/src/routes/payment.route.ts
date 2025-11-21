@@ -31,7 +31,7 @@ router.get('/vnpay-verify', paymentController.verifyPaymentHandler)
 registry.registerPath({
   tags: ['Payment'],
   path: '/payments',
-  method: 'get',
+  method: 'post',
   security: [
     { 
       bearerAuth: [] 
@@ -41,7 +41,7 @@ registry.registerPath({
     body: {
       content: {
         "application/json": {
-          schema: ApiResponseSchema(paymentDto.paymentCreateSchema)
+          schema: paymentDto.paymentCreateSchema
         }
       }
     }

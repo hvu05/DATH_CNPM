@@ -22,6 +22,7 @@ export const OrderItemResponseSchema = z.object({
   product_variant: z.object({
     id: z.number(),
     product_id: z.number(),
+    thumbnail: z.string().optional(),
     color: z.string().optional(),
     storage: z.string().optional(),
     name: z.string(),

@@ -2,9 +2,10 @@ import { JwtPayload } from "jsonwebtoken";
 import { prisma } from "../config/prisma.config";
 import * as reviewDto from "../dtos/reviews";
 import { AppError, ErrorCode } from "../exeptions";
+import { AuthPayload } from "../types/auth-payload";
 
 export const createReview = async (data: reviewDto.ReviewCreateRequest, userId: string, productId: number): Promise<reviewDto.ReviewResponse> => {
-    const order = prisma.order.findFirst({
+    const order = await prisma.order.findFirst({
         where: {
             user_id: userId,
         },
@@ -89,12 +90,7 @@ export const updateReview = async (data: reviewDto.ReviewCreateRequest, userId: 
     return reviewDto.toReviewResponse(updatedReview);
 }
 
-export const deleteReview = async (userInfo: JwtPayload & {
-    id?: string;
-    role?: string;
-    full_name?: string;
-    email?: string;
-}, productId: number, reviewId: number): Promise<void> => {
+export const deleteReview = async (userInfo: AuthPayload, productId: number, reviewId: number): Promise<void> => {
     if (userInfo.role === undefined) {
         throw new AppError(ErrorCode.BAD_REQUEST, 'You do not have permission to perform this action!');
     }

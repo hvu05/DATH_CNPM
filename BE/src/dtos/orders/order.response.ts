@@ -18,20 +18,20 @@
   
 // }
 import z from "zod";
-import { registry } from "../../config/openapi.config";
 import { OrderItemResponseSchema } from "./order-item.response";
+import { AddressResponseSchema } from "../users";
+import { PaymentResponseSchema } from "../payment";
 
 export const OrderResponseSchema = z.object({
   id: z.string(),
   user_id: z.string(),
   total: z.number(),
   status: z.string(),
-  province: z.string(),
-  ward: z.string(),
-  detail: z.string(),
+  address: AddressResponseSchema,
   note: z.string().optional(),
   create_at: z.date(),
   deliver_at: z.date().optional(),
+  payment: PaymentResponseSchema.optional(),
   order_items: z.array(OrderItemResponseSchema),
 });
 

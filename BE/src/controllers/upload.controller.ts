@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { uploadFile, deleteFile } from '../services/cloudinary.service';
 import * as uploadDto from '../dtos/upload';
 import { ApiResponse } from '../types/api-response';
+import { OrderReturnRequestSchema } from '../dtos/orders';
 
 export const uploadImageHandler = async (
   req: Request,
@@ -63,3 +64,25 @@ export const deleteImageHandler = async (
     next(error);
   }
 };
+
+
+//? For test only
+export const testHandler = async (req: Request, res: Response, next: NextFunction) => {
+  const parsed = OrderReturnRequestSchema.safeParse({
+    ...req.body,
+    images: (req.files ?? []) as Express.Multer.File[]
+  });
+
+  if (!parsed.success) {
+    return res.status(400).json({
+      success: false,
+      error: parsed.error.issues[0].message
+    })
+  }
+  console.log("parsed data",parsed.data);
+  try {
+    res.json("sdsd");
+  } catch (error) {
+    next(error);
+  }
+}

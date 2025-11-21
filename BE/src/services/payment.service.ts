@@ -3,7 +3,6 @@ import { prisma } from '../config/prisma.config';
 import * as paymentDto from '../dtos/payment';
 import { AppError, ErrorCode } from '../exeptions';
 import { getPaymentUrl, verifyHash } from './vnpay.service';
-import { Payment } from '@prisma/client';
 /**
  *
  * @param data
@@ -33,7 +32,7 @@ export const createPayment = async (
           id: user_id,
         },
       },
-      amount: data.amount,
+      amount: order.total,
       method: data.payment_method,
       payment_status: paymentDto.PaymentStatus.PENDING,
     },

@@ -7,4 +7,4 @@ export const ApiResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) => z.ob
   errors: z.any().optional().nullable(),
 });
 
-export type ApiResponse = z.infer<typeof ApiResponseSchema>;
+export type ApiResponse<T> = z.infer<typeof ApiResponseSchema>;

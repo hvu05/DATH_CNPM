@@ -9,17 +9,15 @@ import z from "zod";
 //     detail: string;
 //   }[];
 // };
-
+export const AddressResponseSchema = z.object({
+  id: z.number(),
+  province: z.string(),
+  ward: z.string(),
+  detail: z.string(),
+})
 export const AddressListResponseSchema = z.object({
   user_id: z.string(),
-  addresses: z.array(
-    z.object({
-      id: z.number(),
-      province: z.string(),
-      ward: z.string(),
-      detail: z.string(),
-    })
-  ),
+  addresses: z.array(AddressResponseSchema),
 });
 
 export type AddressListResponse = z.infer<typeof AddressListResponseSchema>;

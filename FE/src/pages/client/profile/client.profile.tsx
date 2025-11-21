@@ -1,9 +1,17 @@
 import { useNavigate } from 'react-router';
 import defaultAvatar from '@/assets/default-avatar-icon.svg';
 import '@/pages/client/profile/index.scss';
+// import { useState } from 'react';
+import { useClientProfile } from '@/hooks/client/useClientProfile';
+
 
 export const ProfilePageClient = () => {
     const navigate = useNavigate();
+
+    // const [refresh, setRefresh] = useState<boolean>(true)
+    const {data: profile, loading: loading} = useClientProfile()
+
+    if (loading) return <p>Loading...</p>;
     return (
         <div className="client-profile">
             <h1 className="client-profile__title">Thông tin khách hàng</h1>
@@ -14,17 +22,17 @@ export const ProfilePageClient = () => {
                     </div>
                     <div className="client-profile__info-row">
                         <div className="client-profile__label">Họ và tên</div>
-                        <div className="client-profile__value">Tên khach hang</div>
+                        <div className="client-profile__value">{profile?.full_name ?? 'Chưa có tên'}</div>
                     </div>
                     <div className="client-profile__hr"></div>
                     <div className="client-profile__info-row">
                         <div className="client-profile__label">Số điện thoại</div>
-                        <div className="client-profile__value">012345678</div>
+                        <div className="client-profile__value">{profile?.phone ?? 'Chưa có số điện thoại'}</div>
                     </div>
                     <div className="client-profile__hr"></div>
                     <div className="client-profile__info-row">
-                        <div className="client-profile__label">Giới tính</div>
-                        <div className="client-profile__value">Nam</div>
+                        <div className="client-profile__label">Email</div>
+                        <div className="client-profile__value">{profile?.email ?? 'Chưa có email'}</div>
                     </div>
                     <div className="client-profile__hr"></div>
                     <div className="client-profile__button-container">

@@ -25,6 +25,7 @@ export const LoginPage = () => {
             const response = await authAPI.login({ email, password });
             if (response && response.data) {
                 setTokens(response.data);
+                console.log(response)
             }
             const user = await getProfileAPI();
 

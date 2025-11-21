@@ -36,6 +36,7 @@ export const mapOrderToDTO = (order: OrderWithItemPrisma): OrderResponse => {
     order_items: order.order_items.map(mapOrderItemsToDTO),
   };
 };
+
 const mapAddressToDTO = (address: OrderWithItemPrisma | any): any => {
   return {
     id: address.id,

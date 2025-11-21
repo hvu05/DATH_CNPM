@@ -37,7 +37,7 @@ export const createOrderHandler = async (
 
 export const getAllOrderByUser = async (
   req: Request,
-  res: Response<ApiResponse<orderDto.OrderListResponse>>,
+  res: Response<ApiResponse<orderDto.OrdersUserListResponse>>,
   next: NextFunction,
 ) => {
   try {

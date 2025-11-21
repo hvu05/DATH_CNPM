@@ -55,7 +55,7 @@ registry.registerPath({
       description: 'OK',
       content: {
         'application/json': {
-          schema: ApiResponseSchema(orderDto.OrderListResponseSchema),
+          schema: ApiResponseSchema(orderDto.OrdersUserListResponseSchema),
         },
       },
     },

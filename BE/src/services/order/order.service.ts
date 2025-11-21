@@ -78,13 +78,14 @@ export const createOrder = async (
 
 export const getOrdersByUser = async (
   userId: string,
-): Promise<orderDto.OrderListResponse> => {
+): Promise<orderDto.OrdersUserListResponse> => {
   const orders = await prisma.order.findMany({
     where: {
       user_id: userId,
     },
     include: {
       payment: true,
+      user: true,
       order_items: {
         include: {
           variant: {
@@ -98,6 +99,7 @@ export const getOrdersByUser = async (
   });
   return {
     count: orders.length,
+    user: orders[0].user,
     orders: orders.map(orderDto.mapOrderToDTO),
   };
 };

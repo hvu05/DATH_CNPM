@@ -1,6 +1,6 @@
 import { Review } from "@prisma/client";
 import { ReviewResponse } from "./review.response";
-import { ReviewListResponse } from "./review-list.response";
+import { ReviewListResponse} from "./review-list.response";
 import { ReviewListQuery } from "./review-list-query.request";
 
 export const toReviewResponse = (review: Review): ReviewResponse => {

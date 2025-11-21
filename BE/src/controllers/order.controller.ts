@@ -3,8 +3,9 @@ import { Request, Response, NextFunction } from "express";
 import * as orderDto from "../dtos/orders";
 import * as orderService from "../services/order.service";
 import { AppError, ErrorCode } from "../exeptions";
+import { ApiResponse } from "../types/api-response";
 
-export const createOrderHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const createOrderHandler = async (req: Request, res: Response<ApiResponse<orderDto.OrderResponse>>, next: NextFunction) => {
   const parsed = orderDto.OrderCreateSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({
@@ -25,3 +26,30 @@ export const createOrderHandler = async (req: Request, res: Response, next: Next
     next(error);
   }
 }
+
+export const getAllOrderByUser = async (req: Request, res: Response<ApiResponse<orderDto.OrderListResponse>>, next: NextFunction) => {
+  try {
+    const user_id = req.user?.id;
+    if (!user_id)  throw new AppError(ErrorCode.UNAUTHORIZED, "Lỗi!!!! Chưa xác thực người dùng");
+    const orders = await orderService.getOrdersByUser(user_id);
+    res.json({
+      success: true,
+      data: orders,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+// export const getAllOrders = async (req: Request, res: Response<ApiResponse<orderDto.OrderListResponse>>, next: NextFunction) => {
+
+//   try {
+//     const orders = await orderService.getAllOrders();
+//     res.json({
+//       success: true,
+//       data: orders,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// }

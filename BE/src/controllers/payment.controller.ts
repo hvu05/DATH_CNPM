@@ -6,7 +6,7 @@ import { ApiResponse } from '../types/api-response';
 
 export const createPaymentHandler = async (
   req: Request,
-  res: Response<ApiResponse<{ payment: Payment; url?: string }>>,
+  res: Response<ApiResponse<{ payment: paymentDto.PaymentResponse; url?: string }>>,
   next: NextFunction,
 ) => {
   const parsed = paymentDto.paymentCreateSchema.safeParse(req.body);
@@ -31,7 +31,7 @@ export const createPaymentHandler = async (
 
 export const verifyPaymentHandler = async (
   req: Request,
-  res: Response<ApiResponse<Payment>>,
+  res: Response<ApiResponse<paymentDto.PaymentResponse>>,
   next: NextFunction,
 ) => {
   const parsed = paymentDto.VnpayQuerySchema.safeParse(req.query);

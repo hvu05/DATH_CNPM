@@ -126,5 +126,4 @@ export const sendOtpForRegister = async (email: string): Promise<void> => {
     .catch((error: any) => {
       console.error(`❌ [OTP] Failed to send email:`, error);
     });
-
 }

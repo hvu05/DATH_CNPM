@@ -2,13 +2,14 @@ import { prisma } from '../../config/prisma.config';
 import * as orderDto from '../../dtos/orders';
 import crypto from 'crypto';
 import { AppError, ErrorCode } from '../../exeptions';
+import { createPayment } from '../payment.service';
 
 
 //! Tạm dùng được
 export const createOrder = async (
   data: orderDto.OrderCreateRequest,
   user_id: string,
-): Promise<orderDto.OrderResponse> => {
+): Promise<orderDto.OrderResponse & { url?: string }> => {
   const id = generateIdOrder(data.province);
   // TODO: Cần tối ưu
   //? 1. Get 1 list variants
@@ -73,7 +74,8 @@ export const createOrder = async (
       }),
     ),
   );
-  return orderDto.mapOrderToDTO(order);
+  const payment = await createPayment({ order_id: order.id, payment_method: data.method }, user_id);
+  return { ...orderDto.mapOrderToDTO(order), url: payment.url };
 };
 
 export const getOrdersByUser = async (

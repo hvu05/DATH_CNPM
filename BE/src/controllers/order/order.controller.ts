@@ -7,7 +7,7 @@ import { ApiResponse } from '../../types/api-response';
 
 export const createOrderHandler = async (
   req: Request,
-  res: Response<ApiResponse<orderDto.OrderResponse>>,
+  res: Response<ApiResponse<orderDto.OrderResponse & { url?: string }>>,
   next: NextFunction,
 ) => {
   const parsed = orderDto.OrderCreateSchema.safeParse(req.body);

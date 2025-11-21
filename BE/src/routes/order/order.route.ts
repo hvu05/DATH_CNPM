@@ -6,6 +6,7 @@ import * as orderDto from '../../dtos/orders';
 import { checkRole } from '../../middlewares/check-role.middleware';
 import { ApiResponseSchema } from '../../dtos/common/api-response';
 import orderStatusRoute from './order-status.route';
+import { string } from 'zod';
 const router = Router();
 router.use('/:order_id', orderStatusRoute);
 
@@ -32,7 +33,9 @@ registry.registerPath({
       description: 'OK',
       content: {
         'application/json': {
-          schema: ApiResponseSchema(orderDto.OrderResponseSchema),
+          schema: ApiResponseSchema(orderDto.OrderResponseSchema.extend({
+            url: string(),
+          })),
         },
       },
     },

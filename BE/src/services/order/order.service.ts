@@ -1,13 +1,14 @@
-import { prisma } from '../config/prisma.config';
-import * as orderDto from '../dtos/orders';
+import { prisma } from '../../config/prisma.config';
+import * as orderDto from '../../dtos/orders';
 import crypto from 'crypto';
-import { AppError, ErrorCode } from '../exeptions';
+import { AppError, ErrorCode } from '../../exeptions';
+
 
 //! Tạm dùng được
 export const createOrder = async (
   data: orderDto.OrderCreateRequest,
   user_id: string,
-) : Promise<orderDto.OrderResponse> => {
+): Promise<orderDto.OrderResponse> => {
   const id = generateIdOrder(data.province);
   // TODO: Cần tối ưu
   //? 1. Get 1 list variants
@@ -18,7 +19,7 @@ export const createOrder = async (
   //? 2. Calculate total
   const total = variants.reduce((sum, variant, i) => {
     return sum + variant.price * data.items[i].quantity;
-  },0);
+  }, 0);
 
   //? 3. Create order
   const order = await prisma.order.create({
@@ -30,7 +31,7 @@ export const createOrder = async (
       province: data.province,
       ward: data.ward,
       detail: data.detail,
-      note: data.note ,
+      note: data.note,
       order_items: {
         createMany: {
           data: data.items.map((item, index) => ({
@@ -39,20 +40,22 @@ export const createOrder = async (
             product_variant_id: item.product_variant_id,
             price_per_item: variants[index].price,
             quantity: item.quantity,
+            status: 'PENDING',
           })),
         },
       },
     },
     include: {
+      payment: true,
       order_items: {
         include: {
           variant: {
             include: {
-              product: true
+              product: true,
             },
-          }
+          },
         },
-      }
+      },
     },
   });
 
@@ -73,33 +76,119 @@ export const createOrder = async (
   return orderDto.mapOrderToDTO(order);
 };
 
-export const getOrdersByUser = async (user_id: string): Promise<orderDto.OrderListResponse> => {
+export const getOrdersByUser = async (
+  userId: string,
+): Promise<orderDto.OrderListResponse> => {
   const orders = await prisma.order.findMany({
     where: {
-      user_id: user_id,
+      user_id: userId,
     },
     include: {
+      payment: true,
       order_items: {
         include: {
           variant: {
             include: {
-              product: true
+              product: true,
             },
-          }
+          },
         },
-      }
+      },
     },
   });
   return {
     count: orders.length,
     orders: orders.map(orderDto.mapOrderToDTO),
-  }
+  };
 };
+
+export const getAllOrders = async (
+  query: orderDto.OrderListQuery,
+): Promise<orderDto.OrderListResponse> => {
+  const {
+    page,
+    limit,
+    sortBy,
+    sortOrder,
+    status,
+    start_date,
+    end_date,
+    min_price,
+    max_price,
+    search,
+  } = query;
+
+  let where: any = {};
+  if (status) {
+    where.status = status;
+  }
+
+  if (start_date || end_date) {
+    where.create_at = {};
+    if (start_date) {
+      where.create_at.gte = new Date(start_date);
+    }
+    if (end_date) {
+      const endDate = new Date(end_date);
+      endDate.setDate(endDate.getDate() + 1);
+      where.create_at.lte = endDate;
+    }
+  }
+
+  if (min_price || max_price) {
+    where.total = {};
+    if (min_price) {
+      where.total.gte = min_price;
+    }
+    if (max_price) {
+      where.total.lte = max_price;
+    }
+  }
+
+  if (search) {
+    where.OR = [
+      { id: { contains: search, mode: 'insensitive' } },
+      { product: { name: { contains: search, mode: 'insensitive' } } },
+    ];
+  }
+  const [totalOrders, orders] = await prisma.$transaction([
+    // Đếm tổng số bản ghi (Không áp dụng phân trang)
+    prisma.order.count({ where }),
+
+    // Truy vấn danh sách đơn hàng
+    prisma.order.findMany({
+      where,
+      orderBy: {
+        [sortBy]: sortOrder,
+      },
+      skip: (page - 1) * limit, // Offset
+      take: limit, // Limit
+      include: {
+        payment: true,
+        order_items: {
+          include: {
+            variant: {
+              include: {
+                product: true,
+              },
+            },
+          },
+        },
+      },
+    }),
+  ]);
+
+  return {
+    count: totalOrders,
+    orders: orders.map(orderDto.mapOrderToDTO),
+  };
+};
+
 
 /**
  * generate order_id theo định dạng 'ORD-yyymmdd-HCM-123456'
- * @param province 
- * @returns 
+ * @param province
+ * @returns
  */
 const generateIdOrder = (province: string) => {
   // 1. Ngày theo định dạng YYYYMMDD
@@ -107,11 +196,11 @@ const generateIdOrder = (province: string) => {
 
   // 2. Province code (3 ký tự in hoa, bỏ dấu)
   const provincePart = province
-    .normalize('NFD')                    // bỏ dấu tiếng Việt
+    .normalize('NFD') // bỏ dấu tiếng Việt
     .replace(/[\u0300-\u036f]/g, '')
     .toUpperCase()
-    .split(/\s+/)                        // tách theo khoảng trắng
-    .map(word => word[0])                // lấy chữ cái đầu mỗi từ
+    .split(/\s+/) // tách theo khoảng trắng
+    .map((word) => word[0]) // lấy chữ cái đầu mỗi từ
     .join('');
 
   // 3. Random 6 ký tự để tránh trùng

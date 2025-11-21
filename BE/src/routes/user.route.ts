@@ -21,7 +21,7 @@ registry.registerPath({
     body: {
       content: {
         "application/json": {
-          schema: ApiResponseSchema(userDto.UserCreateSchema)
+          schema: (userDto.UserCreateSchema)
         }
       }
     }
@@ -37,7 +37,7 @@ registry.registerPath({
     }
   }
 })
-router.post('/', authenticateHandler, checkRole("ADMIN"), userController.createUserHandler)
+router.post('/', authenticateHandler, checkRole(["ADMIN"]), userController.createUserHandler)
 registry.registerPath({
   tags: ['User'],
   path: '/users/profile',
@@ -73,7 +73,7 @@ registry.registerPath({
     body: {
       content: {
         "application/json": {
-          schema: ApiResponseSchema(userDto.UserUpdateSchema)
+          schema: (userDto.UserUpdateSchema)
         }
       }
     }
@@ -100,6 +100,15 @@ registry.registerPath({
       bearerAuth: [] 
     }
   ],
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: (userDto.AddressCreateSchema)
+        }
+      }
+    }
+  },
   responses: {
     "200": {
       description: "OK",
@@ -112,4 +121,79 @@ registry.registerPath({
   }
 })
 router.post('/address', authenticateHandler, userController.createAddressHandler)
+
+registry.registerPath({
+  tags: ['User'],
+  path: '/users/address',
+  method: 'get',
+  security: [
+    { 
+      bearerAuth: [] 
+    }
+  ],
+  responses: {
+    "200": {
+      description: "OK",
+      content: {
+        "application/json": {
+          schema: ApiResponseSchema(userDto.AddressListResponseSchema)
+        }
+      }
+    }
+  }
+})
+router.get('/address', authenticateHandler, userController.getAddressListHandler)
+
+registry.registerPath({
+  tags: ['User'],
+  path: '/users/address/{address_id}',
+  method: 'put',
+  security: [
+    { 
+      bearerAuth: [] 
+    }
+  ],
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: (userDto.AddressCreateSchema)
+        }
+      }
+    }
+  },
+  responses: {
+    "200": {
+      description: "OK",
+      content: {
+        "application/json": {
+          schema: ApiResponseSchema(userDto.AddressListResponseSchema)
+        }
+      }
+    }
+  }
+})
+router.put('/address/:address_id', authenticateHandler, userController.updateAddressHandler)
+
+registry.registerPath({
+  tags: ['User'],
+  path: '/users/address/{address_id}',
+  method: 'delete',
+  security: [
+    { 
+      bearerAuth: [] 
+    }
+  ],
+  responses: {
+    "200": {
+      description: "OK",
+      content: {
+        "application/json": {
+          schema: ApiResponseSchema(userDto.AddressListResponseSchema)
+        }
+      }
+    }
+  }
+})
+router.delete('/address/:address_id', authenticateHandler, userController.deleteAddressHandler)
 export default router

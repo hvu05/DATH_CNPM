@@ -20,23 +20,30 @@ export const createPayment = async (
     },
   });
   if (!order) throw new AppError(ErrorCode.NOT_FOUND, 'Không tìm thấy Order');
-  const payment = await prisma.payment.create({
-    data: {
-      order: {
-        connect: {
-          id: data.order_id,
-        },
-      },
-      user: {
-        connect: {
-          id: user_id,
-        },
-      },
-      amount: order.total,
-      method: data.payment_method,
-      payment_status: paymentDto.PaymentStatus.PENDING,
-    },
-  });
+  
+  // const payment = await prisma.payment.create({
+  //   data: {
+  //     order: {
+  //       connect: {
+  //         id: data.order_id,
+  //       },
+  //     },
+  //     user: {
+  //       connect: {
+  //         id: user_id,
+  //       },
+  //     },
+  //     amount: order.total,
+  //     method: data.payment_method,
+  //     payment_status: paymentDto.PaymentStatus.PENDING,
+  //   },
+  // });
+  const payment = await prisma.payment.findFirst({
+    where: {
+      order_id: data.order_id,
+    }
+  })
+  if (!payment) throw new AppError(ErrorCode.NOT_FOUND, 'Không tìm thấy Payment');
   if (data.payment_method == paymentDto.PaymentMethod.VNPAY) {
     const url = await getPaymentUrl(order.total, order.id, payment.id);
     return {

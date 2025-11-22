@@ -115,7 +115,7 @@ export const deleteAddressHandler = async (req: Request, res: Response<ApiRespon
   try {
     const user = req.user;
     if (!user) throw new AppError(ErrorCode.UNAUTHORIZED, 'Lỗi!!!! Chưa xác thực người dùng');
-    const addressId = Number(req.params.id);
+    const addressId = Number(req.params.address_id);
     const address = await addressService.deleteAddress(addressId, user.id);
     const response = { success: true, data: address };
     res.status(200).json(response);

@@ -47,7 +47,7 @@ export const clientRoutes: RouteObject[] = [
             {
                 path: '/client/order/payment',
                 element: <PaymentClient />,
-            },
+            },  
             {
                 path: '/client/order/success',
                 element: <OrderSuccess />,

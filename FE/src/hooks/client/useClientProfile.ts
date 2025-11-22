@@ -31,9 +31,10 @@ export const useClientProfile = () => {
         fetchProfile();
     }, []);
 
-    return { 
-        data: profile, 
+    return {
+        data: profile,
         loading: loading,
-        updating: updating, 
-        updateProfile: updateProfile };
+        updating: updating,
+        updateProfile: updateProfile,
+    };
 };

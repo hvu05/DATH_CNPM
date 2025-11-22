@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import '@/pages/client/myOrders/index.scss';
 import { AllOrders } from '@/components/client/statusOrder/allOrders';
 import { PendingPay } from '@/components/client/statusOrder/pendingPay';
@@ -7,6 +7,7 @@ import { ProcessingOrder } from '@/components/client/statusOrder/processingOrder
 import { SuccessOrder } from '@/components/client/statusOrder/successOrder';
 import { CancelOrders } from '@/components/client/statusOrder/cancelOrder';
 import { ReturnOrder } from '@/components/client/statusOrder/returnOrder';
+import { orderAPI } from '@/services/user/orders/user.order.api';
 
 type OptionsFilter =
     | 'all'
@@ -17,25 +18,54 @@ type OptionsFilter =
     | 'return'
     | 'cancelled';
 
+//     export enum PaymentStatus {
+//     PENDING = 'PENDING',
+//     SUCCESS = 'SUCCESS',
+//     FAILED = 'FAILED'
+// }
+
+
+// export enum OrderStatus {
+//   PENDING = 'PENDING',
+//   CONFIRMED = 'CONFIRMED',
+//   PROCESSING = 'PROCESSING',
+//   DELIVERING = 'DELIVERING',
+//   DELIVERED = 'DELIVERED',
+//   COMPLETED = 'COMPLETED',
+//   CANCELLED = 'CANCELLED',
+//   RETURNED = 'RETURNED',
+//   REFUNDED = 'REFUNDED'
+// }
 export const ClientOrder = () => {
     const [filter, setFilter] = useState<OptionsFilter>('all');
 
+    const [orders, setOrder] = useState()
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const res = await orderAPI.getOrderByUser()
+            setOrder(res.data)
+        }
+        fetchData()
+    }, [])
+    if(!orders) return <p> Loading ...</p>
+    console.log('orders', orders)
     const renderFillter = () => {
         switch (filter) {
             case 'pending_pay':
-                return <PendingPay />;
+                return <PendingPay orders={orders} />;
             case 'shipping':
-                return <ShippingOrder />;
+                return <ShippingOrder orders={orders} />;
             case 'processing':
-                return <ProcessingOrder />;
+                return <ProcessingOrder orders={orders} />;
             case 'succeeded':
-                return <SuccessOrder />;
+                return <SuccessOrder orders={orders} />;
             case 'return':
-                return <ReturnOrder />;
+                return <ReturnOrder  orders={orders} />;
             case 'cancelled':
-                return <CancelOrders />;
+                return <CancelOrders  orders={orders} />;
             default:
-                return <AllOrders />;
+                return <AllOrders orders={orders} />;
         }
     };
     // @ts-ignore

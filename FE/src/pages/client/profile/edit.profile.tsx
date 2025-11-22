@@ -6,7 +6,7 @@ import { message } from 'antd';
 import { useNavigate } from 'react-router';
 
 export const EditProfileClient = () => {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const { data: profile, loading, updating, updateProfile } = useClientProfile();
     const [form, setForm] = useState({
         full_name: '',
@@ -37,8 +37,8 @@ export const EditProfileClient = () => {
 
     const handleSubmit = async () => {
         await updateProfile(form);
-        message.success('Cập nhật thành công!')
-        navigate('/client')
+        message.success('Cập nhật thành công!');
+        navigate('/client');
     };
 
     if (loading) return <p>Loading...</p>;

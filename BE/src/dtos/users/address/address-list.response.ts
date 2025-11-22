@@ -1,4 +1,5 @@
-import z from "zod";
+import z, { optional } from "zod";
+import { UserResponseSchema } from "../user.response";
 
 // export interface AddressListResponse {
 //   user_id: string;
@@ -16,7 +17,14 @@ export const AddressResponseSchema = z.object({
   detail: z.string(),
 })
 export const AddressListResponseSchema = z.object({
-  user_id: z.string(),
+  // user_id: z.string(),
+  user: UserResponseSchema.pick({
+    id: true,
+    full_name: true,
+    avatar: true,
+    email: true,
+    phone: true,
+  }),
   addresses: z.array(AddressResponseSchema),
 });
 

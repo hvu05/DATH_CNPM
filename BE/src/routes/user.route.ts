@@ -153,6 +153,14 @@ registry.registerPath({
       bearerAuth: [] 
     }
   ],
+  parameters: [
+    {
+      name: 'address_id',
+      in: 'path',
+      required: true,
+      schema: { type: 'string' },
+    },
+  ],
   request: {
     body: {
       content: {
@@ -183,6 +191,14 @@ registry.registerPath({
     { 
       bearerAuth: [] 
     }
+  ],
+  parameters: [
+    {
+      name: 'address_id',
+      in: 'path',
+      required: true,
+      schema: { type: 'string' },
+    },
   ],
   responses: {
     "200": {

@@ -5,10 +5,12 @@ model OrderItem{
   product_variant_id Int
   quantity Int
   price_per_item Int
-
+  status String @default("PENDING")
   @@id(name: "item_id", [id,order_id])
   order Order @relation(fields: [order_id], references: [id])
   product Product @relation(fields: [product_id], references: [id])
 
   variant ProductVariant @relation(fields: [product_variant_id,product_id], references: [id, product_id])
+
+  return_request ReturnOrderRequest?
 }

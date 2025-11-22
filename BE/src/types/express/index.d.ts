@@ -1,14 +1,11 @@
-import { JwtPayload } from "jsonwebtoken";
+import { File } from "buffer";
+import { ImageFileSchema } from "../../dtos/upload/image";
+import { AuthPayload } from "../auth-payload";
 
 declare global {
   namespace Express {
     export interface Request {
-      user?: JwtPayload & { 
-        id?: string; 
-        role?: string;
-        full_name?: string
-        email?: string  
-      };
+      user?: AuthPayload
     }
   }
   export interface BigInt {

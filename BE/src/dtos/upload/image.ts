@@ -8,7 +8,10 @@ export const ImageFileSchema = z.object({
   originalname: z.string().min(1, "Missing filename"),
   mimetype: z.enum(["image/png", "image/jpeg", "image/jpg", "image/webp", "image/gif"]),
   size: z.number().max(imageSize * 1024 * 1024, `Max size: ${imageSize} MB`),
-  buffer: z.instanceof(Buffer),
+  buffer: z.instanceof(Buffer).openapi({
+    type: "string",
+    format: "binary",
+  }),
 });
 
 export type ImageFile = z.infer<typeof ImageFileSchema>;

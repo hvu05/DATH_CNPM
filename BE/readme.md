@@ -11,6 +11,7 @@ IMAGE_SIZE = 5
 MAIL_USER = <your-email>
 MAIL_PASS = 
 REDIRECT_VNPAY_URL = <front-end> # Trang mà vnpay redirect sau khi thanh toán
+JWT_SECRET = your-secret
 ```
 ### Cách lấy `CLOUDINARY_URL`  
 ```

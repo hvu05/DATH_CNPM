@@ -1,19 +1,20 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import { RouterProvider } from "react-router-dom";
-import { router } from "@/routes/route";
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { router } from '@/routes/route';
+import { RouterProvider } from 'react-router-dom';
+import '@/styles/global.css';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { CartProvider } from '@/contexts/CartContext';
+import { App } from 'antd';
 
-import { AuthProvider } from "@/contexts/AuthContext";
-import { CartProvider } from "@/contexts/CartContext";
-import "@/styles/global.css";
-
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <AuthProvider>
-      <CartProvider>
-        {/* RouterProvider bọc toàn bộ ứng dụng và nhận vào router đã cấu hình */}
-        <RouterProvider router={router} />
-      </CartProvider>
-    </AuthProvider>
-  </StrictMode>
+createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+        <AuthProvider>
+            <App>
+                <CartProvider>
+                    <RouterProvider router={router} />
+                </CartProvider>
+            </App>
+        </AuthProvider>
+    </StrictMode>
 );

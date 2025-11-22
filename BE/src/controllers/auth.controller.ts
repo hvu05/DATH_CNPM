@@ -40,7 +40,7 @@ export const sendOtpForRegisterHandler = async (req: Request, res: Response<ApiR
   }
 }
 
-export const registerHandler = async (req: Request, res: Response<ApiResponse<{token: authDto.LoginResponse, user : UserResponse}>>, next: NextFunction) => {
+export const registerHandler = async (req: Request, res: Response<ApiResponse<authDto.RegisterResponse>>, next: NextFunction) => {
    // validation
     const parsed = authDto.RegisterSchema.safeParse(req.body);
     if (!parsed.success) {

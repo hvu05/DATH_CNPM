@@ -4,8 +4,8 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-    access_token: string,
-    refresh_token: string
+    access_token: string;
+    refresh_token: string;
 }
 
 export interface RefreshTokenRequest {
@@ -28,9 +28,9 @@ export interface RegisterRequest {
 export interface RegisterResponse {
     data: IUser;
     tokens: {
-        access_token: string,
-        refresh_token: string
-    }
+        access_token: string;
+        refresh_token: string;
+    };
 }
 
 export interface SendOtpRequest {

@@ -46,7 +46,6 @@ export const createAddress = async (data : AddressCreateRequest, id? : string) :
   });
 
    return {
-    user: allAddresses[0].user,
     addresses: allAddresses,
   };
 }
@@ -72,27 +71,7 @@ export const getAddressList = async (user_id: string) : Promise<AddressListRespo
   },
     orderBy: { id: "asc" }, // sắp xếp tăng dần cho đẹp
   });
-  let user
-  if (addresses.length > 0) {
-    user = addresses[0].user
-  }
-  else {
-    user = await prisma.user.findUniqueOrThrow(
-      {
-        where: {
-          id: user_id
-        },
-        select: {
-          id: true,
-          full_name: true,
-          avatar: true,
-          email: true,
-          phone: true,
-        }
-      })
-  }
   return {
-    user: user,
     addresses
   }
 }

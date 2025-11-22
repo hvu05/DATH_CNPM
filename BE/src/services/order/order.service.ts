@@ -99,6 +99,17 @@ export const getOrdersByUser = async (
       },
     },
   });
+  let user
+  if (orders.length > 0) {
+    user = orders[0].user
+  }
+  else {
+    user = await prisma.user.findUniqueOrThrow({
+      where: {
+        id: userId
+      }
+    })
+  }
   return {
     count: orders.length,
     user: orders[0].user,

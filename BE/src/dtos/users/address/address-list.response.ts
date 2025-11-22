@@ -15,16 +15,16 @@ export const AddressResponseSchema = z.object({
   province: z.string(),
   ward: z.string(),
   detail: z.string(),
-})
-export const AddressListResponseSchema = z.object({
-  // user_id: z.string(),
-  user: UserResponseSchema.pick({
+  user: optional(UserResponseSchema.pick({
     id: true,
     full_name: true,
     avatar: true,
     email: true,
-    phone: true,
-  }),
+    phone: true
+  })),
+})
+export const AddressListResponseSchema = z.object({
+  // user_id: z.string(),
   addresses: z.array(AddressResponseSchema),
 });
 

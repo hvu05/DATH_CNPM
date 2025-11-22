@@ -9,6 +9,11 @@
         margin-bottom: 16px;
     }
 
+    &__item {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
     &__filter {
         display: flex;
         flex-wrap: wrap;
@@ -19,6 +24,33 @@
         border-radius: 10px;
     }
 
+    &__price-status {
+        margin-top: -120px;
+    }
+    
+    &__cancel {
+        cursor: pointer !important; // Force cursor
+        color: rgb(0, 0, 0);
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        
+        &:hover {
+            color: rgb(255, 49, 49);
+        }
+        
+        &:active {
+            transform: translateY(0);
+        }
+        
+        &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed !important;
+        }
+    }
+    
     &__filter-option {
         padding: 10px 16px;
         color: #a2a9b4;

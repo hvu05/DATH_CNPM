@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import '@/pages/client/myOrders/index.scss';
 import { AllOrders } from '@/components/client/statusOrder/allOrders';
 import { PendingPay } from '@/components/client/statusOrder/pendingPay';
@@ -7,7 +7,8 @@ import { ProcessingOrder } from '@/components/client/statusOrder/processingOrder
 import { SuccessOrder } from '@/components/client/statusOrder/successOrder';
 import { CancelOrders } from '@/components/client/statusOrder/cancelOrder';
 import { ReturnOrder } from '@/components/client/statusOrder/returnOrder';
-import { orderAPI } from '@/services/user/orders/user.order.api';
+import type { DataInOrder, OrderAllResponse } from '@/types/clients/client.order.types';
+import { useClientOrder } from '@/hooks/client/useClientOrder';
 
 type OptionsFilter =
     | 'all'
@@ -18,42 +19,46 @@ type OptionsFilter =
     | 'return'
     | 'cancelled';
 
-//     export enum PaymentStatus {
-//     PENDING = 'PENDING',
-//     SUCCESS = 'SUCCESS',
-//     FAILED = 'FAILED'
+
+    
+// export enum OrderItemStatus {
+//   PENDING = 'PENDING',
+//   COMPLETED = 'COMPLETED',
+//   RETURNED = 'RETURNED',
+//   REFUNDED = 'REFUNDED'
 // }
 
-
 // export enum OrderStatus {
-//   PENDING = 'PENDING',
+//   PENDING = 'PENDING',//
 //   CONFIRMED = 'CONFIRMED',
-//   PROCESSING = 'PROCESSING',
-//   DELIVERING = 'DELIVERING',
-//   DELIVERED = 'DELIVERED',
+//   PROCESSING = 'PROCESSING',//
+//   DELIVERING = 'DELIVERING',//
+//   DELIVERED = 'DELIVERED',//
 //   COMPLETED = 'COMPLETED',
-//   CANCELLED = 'CANCELLED',
-//   RETURNED = 'RETURNED',
+//   CANCELLED = 'CANCELLED',//
+//   RETURNED = 'RETURNED',//
 //   REFUNDED = 'REFUNDED'
 // }
 export const ClientOrder = () => {
     const [filter, setFilter] = useState<OptionsFilter>('all');
+    const [refresh, setRefresh] = useState<boolean>(true)
+    const [orders, setOrder] = useState<DataInOrder | null>(null)
+    const {data: res, loading: loading} = useClientOrder(refresh)
 
-    const [orders, setOrder] = useState()
+    const ref = useRef<OptionsFilter>()
+    useEffect(() => {
+        setOrder(res?.data ?? null)
+    }, [res])
 
     useEffect(() => {
-        const fetchData = async () => {
-            const res = await orderAPI.getOrderByUser()
-            setOrder(res.data)
-        }
-        fetchData()
-    }, [])
-    if(!orders) return <p> Loading ...</p>
-    console.log('orders', orders)
+        ref.current = filter
+    }, [filter])
+    
+    if(loading) return <p> Loading ...</p>
     const renderFillter = () => {
         switch (filter) {
             case 'pending_pay':
-                return <PendingPay orders={orders} />;
+                return <PendingPay orders={orders} setRefresh={setRefresh}/>;
             case 'shipping':
                 return <ShippingOrder orders={orders} />;
             case 'processing':
@@ -114,7 +119,7 @@ export const ClientOrder = () => {
                     className={`client-order__filter-option ${filter == 'cancelled' ? 'client-order__filter-option--active' : ''}`}
                     onClick={() => setFilter('cancelled')}
                 >
-                    Hủy hàng
+                    Đã hủy
                 </button>
             </div>
 

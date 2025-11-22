@@ -1,19 +1,26 @@
 import default_order from '@/assets/seller/default_order.webp';
 import { useNavigate } from 'react-router';
 import '@/styles/client/clientOrderList.scss';
+import type { DataInOrder, OrdersInOrder } from '@/types/clients/client.order.types';
 
-export const CancelOrders = ({ orders }) => {
+type Props = {
+    orders: DataInOrder | null;
+};
+export const CancelOrders = ({ orders }: Props) => {
     const navigate = useNavigate();
 
     // Filter orders that are in "CANCELLED" status
-    const cancelledOrders = orders?.data?.orders?.filter(item => item?.status === 'CANCELLED');
+    const cancelledOrders = orders?.orders?.filter(item => item?.status === 'CANCELLED');
 
+    const handleRebuy = (order: OrdersInOrder) => {
+        navigate(`/client/order/${order.id}`, {state: {order: order}})
+    }
     return (
         <div className="client-order__list">
-            {cancelledOrders?.map(order => 
-                order?.order_items?.map(item => (
-                    <div className="client-order__item" key={item?.id}>
-                        <div className="client-order__product-info">
+            {cancelledOrders?.map(order => (
+                <div className="client-order__item" key={order?.id}>
+                    {order?.order_items?.map(item => (
+                        <div className="client-order__product-info" key={item?.id}>
                             <div className="client-order__img-container">
                                 <img
                                     className="client-order__img"
@@ -33,22 +40,25 @@ export const CancelOrders = ({ orders }) => {
                                 </div>
                             </div>
                         </div>
-                        <div className="client-order__price-status">
-                            <div className="client-order__price">
-                                Giá: {item?.product_variant?.price.toLocaleString()}đ
-                            </div>
-                            <div className="btn-rebuy">Mua lại</div>
+                    ))}
 
-                            {/* <button
-                                onClick={() => navigate(`/client/order/${order?.id}`)}
-                                className="client-order__detail-link"
-                            >
-                                Chi tiết đơn hàng
-                            </button> */}
+                    <div className="client-order__price-status">
+                        <div className="client-order__price">
+                            Giá: {order?.total?.toLocaleString()}đ
                         </div>
+                        <div className="btn-rebuy" onClick={() => handleRebuy(order)}>
+                            Mua lại
+                        </div>
+
+                        <button
+                            onClick={() => navigate(`/client/info/${order?.id}`, {state: {order: order}})}
+                            className="client-order__detail-link"
+                        >
+                            Chi tiết đơn hàng
+                        </button>
                     </div>
-                ))
-            )}
+                </div>
+            ))}
         </div>
     );
 };

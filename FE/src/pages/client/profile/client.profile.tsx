@@ -4,12 +4,11 @@ import '@/pages/client/profile/index.scss';
 // import { useState } from 'react';
 import { useClientProfile } from '@/hooks/client/useClientProfile';
 
-
 export const ProfilePageClient = () => {
     const navigate = useNavigate();
 
     // const [refresh, setRefresh] = useState<boolean>(true)
-    const {data: profile, loading: loading} = useClientProfile()
+    const { data: profile, loading: loading } = useClientProfile();
 
     if (loading) return <p>Loading...</p>;
     return (
@@ -22,17 +21,23 @@ export const ProfilePageClient = () => {
                     </div>
                     <div className="client-profile__info-row">
                         <div className="client-profile__label">Họ và tên</div>
-                        <div className="client-profile__value">{profile?.full_name ?? 'Chưa có tên'}</div>
+                        <div className="client-profile__value">
+                            {profile?.full_name ?? 'Chưa có tên'}
+                        </div>
                     </div>
                     <div className="client-profile__hr"></div>
                     <div className="client-profile__info-row">
                         <div className="client-profile__label">Số điện thoại</div>
-                        <div className="client-profile__value">{profile?.phone ?? 'Chưa có số điện thoại'}</div>
+                        <div className="client-profile__value">
+                            {profile?.phone ?? 'Chưa có số điện thoại'}
+                        </div>
                     </div>
                     <div className="client-profile__hr"></div>
                     <div className="client-profile__info-row">
                         <div className="client-profile__label">Email</div>
-                        <div className="client-profile__value">{profile?.email ?? 'Chưa có email'}</div>
+                        <div className="client-profile__value">
+                            {profile?.email ?? 'Chưa có email'}
+                        </div>
                     </div>
                     <div className="client-profile__hr"></div>
                     <div className="client-profile__button-container">

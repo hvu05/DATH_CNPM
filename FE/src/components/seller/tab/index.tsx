@@ -1,12 +1,14 @@
 import { useLocation, useNavigate } from 'react-router';
 import './index.scss';
 import '@/assets/seller/user.svg';
+import { useAuthContext } from '@/contexts/AuthContext';
 
 type PathName = 'myOrders' | 'status' | 'seller';
 
 export const Tab = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const { logout } = useAuthContext();
 
     const isActiveLink = (path: PathName) => {
         if (path === 'seller') {
@@ -82,7 +84,7 @@ export const Tab = () => {
                         </span>
                         <span>Quản lí đơn hàng</span>
                     </li>
-                    <li
+                    {/* <li
                         onClick={() => navigate('/seller/status')}
                         className={`${isActiveLink('status') ? 'tab--active' : ''}`}
                     >
@@ -118,8 +120,8 @@ export const Tab = () => {
                             </svg>
                         </span>
                         <span>Cập nhật trạng thái</span>
-                    </li>
-                    <li>
+                    </li> */}
+                    <li onClick={logout}>
                         <span>
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"

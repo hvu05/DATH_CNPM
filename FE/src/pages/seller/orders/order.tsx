@@ -1,32 +1,39 @@
 import { useEffect, useState } from 'react';
 import './order.scss';
 import { useNavigate } from 'react-router';
-import { ProductOutlined, SearchOutlined, MoreOutlined, UserOutlined } from '@ant-design/icons';
+import { ProductOutlined, SearchOutlined, MoreOutlined } from '@ant-design/icons';
 import {
-    Layout,
     Card,
     Row,
     Col,
     Typography,
     Space,
     List,
-    Avatar,
     Tag,
     Button,
     Input,
     InputNumber,
-    Checkbox,
     DatePicker,
     Dropdown,
     Skeleton,
     Empty,
     Select,
-    Radio,
     message,
+    Image,
+    Pagination,
+    App,
 } from 'antd';
 import type { MenuProps } from 'antd';
 import dayjs from 'dayjs';
-import { getAllOrders, type IGetOrdersParams, type IOrder } from '@/services/seller/seller.service';
+import {
+    acceptDeliverAPI,
+    acceptReturnRqAPI,
+    completeDeliverAPI,
+    getAllOrders,
+    type IGetOrdersParams,
+    type IOrder,
+    type OrderStatus,
+} from '@/services/seller/seller.service';
 import defaulProduct from '@/assets/seller/default_order.webp';
 
 const { Title, Text } = Typography;
@@ -45,31 +52,38 @@ export const OrderPage = () => {
     const [orders, setOrders] = useState<IOrder[]>([]);
     const [loading, setLoading] = useState(false);
     const [filters, setFilters] = useState<FilterState>({});
-    const [params, setParams] = useState<IGetOrdersParams>({ page: 1, limit: 10 });
+    const [params, setParams] = useState<IGetOrdersParams>({ page: 1, limit: 3 });
     const [searchText, setSearchText] = useState('');
+    const [totalOrders, setTotalOrders] = useState(0);
     const navigate = useNavigate();
+    const { notification, message } = App.useApp();
 
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
     // Get status color and text
-    const getStatusColor = (status: string) => {
-        const colors: Record<string, string> = {
+    const getStatusColor = (status: OrderStatus) => {
+        const colors: Record<OrderStatus, string> = {
             PENDING: 'orange',
-            CONFIRMED: 'blue',
             PROCESSING: 'cyan',
             DELIVERING: 'purple',
             COMPLETED: 'green',
             CANCELLED: 'red',
+            REFUNDED: 'blue',
+            RETURNED: 'wheat',
+            RETURN_REQUEST: 'red',
         };
         return colors[status] || 'default';
     };
 
-    const getStatusText = (status: string) => {
-        const texts: Record<string, string> = {
+    const getStatusText = (status: OrderStatus) => {
+        const texts: Record<OrderStatus, string> = {
             PENDING: 'Chờ xác nhận',
-            CONFIRMED: 'Đã xác nhận',
             PROCESSING: 'Đang xử lý',
             DELIVERING: 'Đang giao',
             COMPLETED: 'Hoàn thành',
             CANCELLED: 'Đã hủy',
+            RETURN_REQUEST: 'Yêu cầu trả hàng',
+            REFUNDED: 'Đã hoàn tiền',
+            RETURNED: 'Đã trả hàng',
         };
         return texts[status] || status;
     };
@@ -81,7 +95,6 @@ export const OrderPage = () => {
             currency: 'VND',
         }).format(amount);
     };
-
     // Action buttons for order
     const getActionItems = (order: IOrder): MenuProps['items'] => {
         const items: MenuProps['items'] = [
@@ -91,22 +104,115 @@ export const OrderPage = () => {
                 onClick: () => navigate(`/seller/order/${order.id}`, { state: { order } }),
             },
         ];
-
         // Add action buttons based on status
-        if (order.status === 'PENDING') {
-            items.push(
-                { type: 'divider' },
-                {
-                    key: 'confirm',
-                    label: 'Xác nhận đơn',
-                    danger: false,
-                },
-                {
-                    key: 'cancel',
-                    label: 'Hủy đơn',
-                    danger: true,
-                }
-            );
+        switch (order.status) {
+            case 'PROCESSING':
+                items.push(
+                    { type: 'divider' },
+                    {
+                        key: 'confirm##1',
+                        label: <span className="text-green-400">Xác nhận đơn</span>,
+                        danger: false,
+                        onClick: async () => {
+                            try {
+                                await acceptDeliverAPI(order.id);
+                                message.success('Thành công');
+                                await delay(1000);
+                                window.location.reload();
+                            } catch (error: any) {
+                                console.log(error);
+                                notification.error({
+                                    message: 'Error',
+                                    description: error.response.data.error,
+                                });
+                            }
+                        },
+                    }
+                );
+                break;
+            case 'DELIVERING':
+                items.push(
+                    { type: 'divider' },
+                    {
+                        key: 'completed##1',
+                        label: <span className="text-green-500">Giao hàng thành công</span>,
+                        danger: false,
+                        onClick: async () => {
+                            try {
+                                await completeDeliverAPI(order.id);
+                                message.success('Thành công');
+                                await delay(1000);
+                                window.location.reload();
+                            } catch (error: any) {
+                                notification.error({
+                                    message: 'Error',
+                                    description: error.response.data.error,
+                                });
+                            }
+                        },
+                    }
+                );
+                break;
+            case 'RETURN_REQUEST':
+                items.push(
+                    { type: 'divider' },
+                    {
+                        key: 'returnrequest##1',
+                        label: <span className="text-red-500">Xác nhận trả hàng</span>,
+                        danger: false,
+                        onClick: async () => {
+                            try {
+                                // Handle multiple items in the order
+                                const returnPromises =
+                                    order.order_items?.map(item =>
+                                        acceptReturnRqAPI(order.id, item.id)
+                                    ) || [];
+
+                                if (returnPromises.length === 0) {
+                                    message.warning('Không có sản phẩm nào để trả hàng');
+                                    return;
+                                }
+
+                                message.loading('Đang xử lý trả hàng...', 0);
+
+                                // Execute all return requests in parallel
+                                const results = await Promise.allSettled(returnPromises);
+
+                                // Check if all were successful
+                                const successful = results.filter(
+                                    result => result.status === 'fulfilled'
+                                ).length;
+
+                                message.destroy();
+
+                                if (successful === returnPromises.length) {
+                                    message.success(
+                                        `Xác nhận trả hàng thành công cho ${successful} sản phẩm`
+                                    );
+                                } else {
+                                    message.warning(
+                                        `Xác nhận trả hàng thành công cho ${successful}/${returnPromises.length} sản phẩm`
+                                    );
+                                }
+
+                                // await delay(1000);
+                                // window.location.reload();
+                            } catch (error: any) {
+                                message.destroy();
+                                console.error('Return request error:', error);
+                                notification.error({
+                                    message: 'Lỗi xác nhận trả hàng',
+                                    description:
+                                        error.response?.data?.error ||
+                                        'Không thể xác nhận yêu cầu trả hàng',
+                                });
+                            }
+                        },
+                    }
+                );
+                break;
+            default:
+                break;
         }
 
         return items;
@@ -129,6 +235,7 @@ export const OrderPage = () => {
             const result = await getAllOrders(requestParams);
             if (result.success && result.data) {
                 setOrders(result.data.orders || []);
+                setTotalOrders(result.data.count || 0);
             }
         } catch (error) {
             console.error('Failed to load orders:', error);
@@ -147,7 +254,16 @@ export const OrderPage = () => {
     const resetFilters = () => {
         setFilters({});
         setSearchText('');
-        setParams({ page: 1, limit: 10 });
+        setParams({ page: 1, limit: 3 });
+    };
+
+    // Handle pagination change
+    const handlePageChange = (page: number, pageSize?: number) => {
+        setParams({
+            ...params,
+            page: page,
+            limit: pageSize || params.limit,
+        });
     };
 
     // Load orders on component mount and when filters change
@@ -169,12 +285,7 @@ export const OrderPage = () => {
             }
         >
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', width: '100%' }}>
-                <Avatar
-                    size={64}
-                    src={defaulProduct}
-                    icon={<UserOutlined />}
-                    style={{ flexShrink: 0 }}
-                />
+                <Image src={defaulProduct} width={100} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                     <div
                         style={{
@@ -278,14 +389,18 @@ export const OrderPage = () => {
                                     onChange={value =>
                                         setFilters({ ...filters, status: value as string })
                                     }
-                                    options={[
-                                        { value: 'PENDING', label: 'Chờ xác nhận' },
-                                        { value: 'CONFIRMED', label: 'Đã xác nhận' },
-                                        { value: 'PROCESSING', label: 'Đang xử lý' },
-                                        { value: 'DELIVERING', label: 'Đang giao' },
-                                        { value: 'COMPLETED', label: 'Hoàn thành' },
-                                        { value: 'CANCELLED', label: 'Đã hủy' },
-                                    ]}
+                                    options={
+                                        [
+                                            { value: 'PENDING', label: 'Chờ xác nhận' },
+                                            { value: 'REFUNDED', label: 'Đã hoàn tiền' },
+                                            { value: 'PROCESSING', label: 'Đang xử lý' },
+                                            { value: 'DELIVERING', label: 'Đang giao' },
+                                            { value: 'COMPLETED', label: 'Hoàn thành' },
+                                            { value: 'CANCELLED', label: 'Đã hủy' },
+                                            { value: 'RETURN_REQUEST', label: 'Yêu cầu trả hàng' },
+                                            { value: 'RETURNED', label: 'Đã trả hàng' },
+                                        ] as { value: OrderStatus; label: string }[]
+                                    }
                                 />
                             </div>
 
@@ -332,6 +447,7 @@ export const OrderPage = () => {
                                     onChange={dates =>
                                         setFilters({ ...filters, dateRange: dates as any })
                                     }
+                                    format={'DD-MM-YYYY'}
                                 />
                             </div>
 
@@ -366,6 +482,23 @@ export const OrderPage = () => {
                         />
                     )}
                 </Col>
+
+                {/* Pagination  */}
+                <div className="flex w-full justify-end" style={{ marginTop: '24px' }}>
+                    <Pagination
+                        current={params.page}
+                        pageSize={params.limit}
+                        total={totalOrders}
+                        onChange={handlePageChange}
+                        onShowSizeChange={handlePageChange}
+                        showSizeChanger
+                        showQuickJumper
+                        showTotal={(total, range) =>
+                            `${range[0]}-${range[1]} của ${total} đơn hàng`
+                        }
+                        pageSizeOptions={['3', '5', '10', '20', '50']}
+                    />
+                </div>
             </Row>
         </div>
     );

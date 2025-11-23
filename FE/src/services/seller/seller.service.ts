@@ -32,15 +32,14 @@ export type TSortColumn = 'create_at';
 export type SortOrder = 'desc' | 'asc';
 export type OrderStatus =
     | 'PENDING'
-    | 'CONFIRMED'
     | 'PROCESSING'
     | 'DELIVERING'
-    | 'DELIVERED'
     | 'COMPLETED'
     | 'CANCELLED'
     | 'RETURNED'
-    | 'REFUNDED';
-
+    | 'REFUNDED'
+    | 'RETURN_REQUEST';
+export type PaymentStatus = 'SUCCESS' | 'FAILED' | 'PENDING';
 export interface IGetOrdersParams {
     page: number;
     limit: number;
@@ -59,7 +58,7 @@ export interface IPayment {
     order_id: string;
     amount: number;
     method: string;
-    payment_status: string;
+    payment_status: PaymentStatus;
     transaction_code: string;
     create_at: Date;
     update_at: Date;
@@ -77,6 +76,7 @@ export interface IOrderItem {
         storage: string;
         name: string;
         price: number;
+        thumbnail: string;
     };
 }
 
@@ -84,7 +84,7 @@ export interface IOrder {
     id: string;
     user_id: string;
     total: number;
-    status: string;
+    status: OrderStatus;
     address: {
         id: string;
         province: string;
@@ -96,6 +96,10 @@ export interface IOrder {
     deliver_at: Date;
     payment: IPayment;
     order_items: IOrderItem[];
+    filter: {
+        page: number;
+        limit: number;
+    };
 }
 
 export interface IOrders {
@@ -138,10 +142,37 @@ export const getAllOrders = async (params: IGetOrdersParams) => {
     if (params.status) {
         urlParam.append('status', params.status);
     }
+    if (params.start_date) {
+        urlParam.append('start_date', params.start_date.toDateString());
+    }
+    if (params.end_date) {
+        urlParam.append('end_date', params.end_date.toDateString());
+    }
     urlParam.append('sortBy', params.sortBy ?? DEFAULT_SORTBY);
     urlParam.append('sort_order', params.sortOrder ?? DEFAUTLT_SORTORDER);
     const result = await axios.get<ApiResponse<IOrders>>(
         `${import.meta.env.VITE_BACKEND_URL}/orders/all?${urlParam.toString()}`
+    );
+    return result.data;
+};
+
+export const acceptDeliverAPI = async (order_id: string) => {
+    const result = await axios.patch(
+        `${import.meta.env.VITE_BACKEND_URL}/orders/${order_id}/deliver`
+    );
+    return result.data;
+};
+
+export const completeDeliverAPI = async (order_id: string) => {
+    const result = await axios.patch(
+        `${import.meta.env.VITE_BACKEND_URL}/orders/${order_id}/complete`
+    );
+    return result.data;
+};
+
+export const acceptReturnRqAPI = async (order_id: string, order_item_id: string) => {
+    const result = await axios.patch(
+        `${import.meta.env.VITE_BACKEND_URL}/orders/${order_id}/return-confirm/${order_item_id}`
     );
     return result.data;
 };

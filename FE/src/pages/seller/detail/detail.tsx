@@ -4,7 +4,7 @@ import defaultItem from '@/assets/seller/default_order.webp';
 import { Fragment } from 'react/jsx-runtime';
 import { Button, message, Typography, Skeleton } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import type { ICustomer, IOrder } from '@/services/seller/seller.service';
+import type { ICustomer, IOrder, OrderStatus } from '@/services/seller/seller.service';
 import { getUserById } from '@/services/seller/seller.service';
 import { useEffect, useState } from 'react';
 
@@ -56,26 +56,30 @@ export const DetailPage = () => {
     };
 
     // Get status color and text
-    const getStatusColor = (status: string) => {
-        const colors: Record<string, string> = {
+    const getStatusColor = (status: OrderStatus) => {
+        const colors: Record<OrderStatus, string> = {
             PENDING: 'orange',
-            CONFIRMED: 'blue',
             PROCESSING: 'cyan',
             DELIVERING: 'purple',
             COMPLETED: 'green',
             CANCELLED: 'red',
+            RETURNED: 'blue',
+            REFUNDED: 'red',
+            RETURN_REQUEST: 'orange',
         };
         return colors[status] || 'default';
     };
 
-    const getStatusText = (status: string) => {
-        const texts: Record<string, string> = {
+    const getStatusText = (status: OrderStatus) => {
+        const texts: Record<OrderStatus, string> = {
             PENDING: 'Chờ xác nhận',
-            CONFIRMED: 'Đã xác nhận',
             PROCESSING: 'Đang xử lý',
             DELIVERING: 'Đang giao',
             COMPLETED: 'Hoàn thành',
             CANCELLED: 'Đã hủy',
+            RETURNED: 'Đã trả hàng',
+            REFUNDED: 'Đã hoàn tiền',
+            RETURN_REQUEST: 'Yêu cầu trả hàng',
         };
         return texts[status] || status;
     };
@@ -335,29 +339,15 @@ export const DetailPage = () => {
                     </div>
 
                     <div className="seller-order-detail__actions">
-                        {orderData.status === 'PENDING' && (
+                        {orderData.status === 'RETURN_REQUEST' && (
                             <>
                                 <button
                                     className="btn-rebuy seller-order-detail__action-btn"
                                     style={{ backgroundColor: '#1677ff', marginBottom: '12px' }}
                                 >
-                                    Xác nhận đơn hàng
-                                </button>
-                                <button
-                                    className="btn-rebuy seller-order-detail__action-btn"
-                                    style={{ backgroundColor: '#ff4d4f', color: 'white' }}
-                                >
-                                    Hủy đơn hàng
+                                    Xác nhận yêu cầu trả hàng
                                 </button>
                             </>
-                        )}
-                        {orderData.status === 'CONFIRMED' && (
-                            <button
-                                className="btn-rebuy seller-order-detail__action-btn"
-                                style={{ backgroundColor: '#52c41a' }}
-                            >
-                                Bắt đầu xử lý
-                            </button>
                         )}
                         {orderData.status === 'PROCESSING' && (
                             <button
@@ -372,7 +362,7 @@ export const DetailPage = () => {
                                 className="btn-rebuy seller-order-detail__action-btn"
                                 style={{ backgroundColor: '#13c2c2' }}
                             >
-                                Hoàn thành đơn hàng
+                                Giao hàng thành công
                             </button>
                         )}
                     </div>

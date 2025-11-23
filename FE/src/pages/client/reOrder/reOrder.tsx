@@ -2,90 +2,29 @@ import { Fragment } from 'react/jsx-runtime';
 import defaultItem from '@/assets/client/default_order.webp';
 import carIcon from '@/assets/client/car.svg';
 import qrcodeIcon from '@/assets/client/qrcode.svg';
-import './index.scss';
+// import './index.scss';
 import { useState } from 'react';
-import { ChangeAddressPage } from '@/components/client/ChangeAddress';
 import { useLocation, useNavigate } from 'react-router';
 import { useClientProfile } from '@/hooks/client/useClientProfile';
 import type { Address } from '@/types/clients/client.address.types';
 import { orderAPI } from '@/services/user/orders/user.order.api';
-import type {
-    OrderItem,
-    OrderItemInOrder,
-    OrderRequest,
-    OrdersInOrder,
-    ProductVariant,
-} from '@/types/clients/client.order.types';
+import type { OrderRequest, OrdersInOrder } from '@/types/clients/client.order.types';
 import { message } from 'antd';
 
 type OptionsPayment = 'COD' | 'VNPAY';
 
-export const OrderClient = () => {
+export const ReOrderClient = () => {
     const [formChangeAddress, setFormChangeAddress] = useState<boolean>(false);
     const navigate = useNavigate();
     const location = useLocation();
-    const orderItems: OrderItem[] = location.state.order.order_items;
-    console.log('reere', location.state.order);
+    const order: OrdersInOrder = location.state.order || '';
+    console.log('re', order);
     const [statusPayment, setStatusPayment] = useState<OptionsPayment>('COD');
 
     const { data: profile, loading: loadingProfile } = useClientProfile();
 
     const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
 
-// const orderItems: OrderItem[] = [
-//     {
-//         id: 1,
-//         price_per_item: 25000000,
-//         quantity: 2,
-//         product_variant: {
-//             id: 1,
-//             product_id: 101,
-//             color: "Đen",
-//             storage: "128GB",
-//             name: "iPhone 15 Pro",
-//             price: 25000000
-//         }
-//     },
-//     {
-//         id: 2,
-//         price_per_item: 28000000,
-//         quantity: 1,
-//         product_variant: {
-//             id: 2,
-//             product_id: 101,
-//             color: "Trắng",
-//             storage: "256GB",
-//             name: "iPhone 15 Pro",
-//             price: 28000000
-//         }
-//     },
-//     {
-//         id: 3,
-//         price_per_item: 22000000,
-//         quantity: 3,
-//         product_variant: {
-//             id: 3,
-//             product_id: 102,
-//             color: "Xanh",
-//             storage: "512GB",
-//             name: "Samsung Galaxy S24",
-//             price: 22000000
-//         }
-//     },
-//     {
-//         id: 4,
-//         price_per_item: 5000000,
-//         quantity: 1,
-//         product_variant: {
-//             id: 4,
-//             product_id: 103,
-//             color: "Đỏ",
-//             storage: "64GB",
-//             name: "Xiaomi Redmi Note 13",
-//             price: 5000000
-//         }
-//     }
-// ];
     const order_fake: OrderRequest = {
         province: selectedAddress?.province || 'Chưa chọn',
         ward: selectedAddress?.ward || 'Chưa chọn',
@@ -99,21 +38,6 @@ export const OrderClient = () => {
         ],
         method: statusPayment,
     };
-    const HandleOrder = async () => {
-        const res = await orderAPI.createOrder(order_fake);
-        if (res) {
-            if (!selectedAddress) {
-                message.warning('Vui lòng chọn địa chỉ');
-                return;
-            }
-
-            if (statusPayment === 'VNPAY') {
-                navigate('/client/order/payment', { state: { qrUrl: res.data?.url } });
-            } else if (statusPayment === 'COD') {
-                navigate('/client/order/success');
-            }
-        }
-    };
 
     if (loadingProfile) return <p>Loading...</p>;
     return (
@@ -121,10 +45,12 @@ export const OrderClient = () => {
             <div className="client-order-detail__main">
                 {/* Products Card */}
                 <div className="client-order-detail__card">
-                    <h2 className="client-order-detail__card-title">Sản phẩm trong đơn (2)</h2>
+                    <h2 className="client-order-detail__card-title">
+                        Sản phẩm trong đơn ({order.order_items.length})
+                    </h2>
                     <div className="client-order-detail__product-list">
-                        {orderItems.map((item, index) => (
-                            <Fragment key={index}>
+                        {order.order_items.map((ord, index )=> (
+                            <Fragment key={ord.id}>
                                 <div className="client-order-detail__product-item">
                                     <div className="client-order-detail__product-info">
                                         <div className="client-order-detail__product-img-container">
@@ -132,19 +58,19 @@ export const OrderClient = () => {
                                         </div>
                                         <div className="client-order-detail__product-details">
                                             <h3 className="client-order-detail__product-name">
-                                                {item?.product_variant?.name}
+                                                {ord.product_variant.name}
                                             </h3>
                                             <div className="client-order-detail__product-attrs">
-                                                <span>{item?.product_variant?.color}</span>
-                                                <span>{item.quantity}</span>
+                                                <span>{ord.product_variant.color}</span>
+                                                <span>Quantity: {ord.quantity}</span>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="client-order-detail__product-price">
-                                        {item.price_per_item.toLocaleString()} VNĐ
+                                        {ord.price_per_item.toLocaleString()} VND
                                     </div>
                                 </div>
-                                {<hr className="client-order-detail__separator" />}
+                                {index < 1 && <hr className="client-order-detail__separator" />}
                             </Fragment>
                         ))}
                     </div>
@@ -174,16 +100,10 @@ export const OrderClient = () => {
                             <div>
                                 <div className="client-order-detail__info-label">Địa chỉ</div>
                                 <div className="client-order-detail__info-value">
-                                    {selectedAddress?.detail} - {selectedAddress?.ward} -{' '}
-                                    {selectedAddress?.province}
+                                    {order.address.detail} - {order.address.ward} -{' '}
+                                    {order.address.province}
                                 </div>
                             </div>
-                            <button
-                                className="client-order-detail__change-btn"
-                                onClick={() => setFormChangeAddress(true)}
-                            >
-                                Thay đổi
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -199,17 +119,7 @@ export const OrderClient = () => {
                             <input type="radio" name="payment" id="payment-cash" defaultChecked />
                             <label htmlFor="payment-cash">
                                 <img src={carIcon} alt="Cash payment" />
-                                <span>Thanh toán khi nhận hàng</span>
-                            </label>
-                        </div>
-                        <div
-                            className="client-order-detail__payment-option"
-                            onClick={() => setStatusPayment('VNPAY')}
-                        >
-                            <input type="radio" name="payment" id="payment-qrcode" />
-                            <label htmlFor="payment-qrcode">
-                                <img src={qrcodeIcon} alt="QR Code payment" />
-                                <span>Thanh toán bằng mã QR</span>
+                                <span>{order.payment.method}</span>
                             </label>
                         </div>
                     </div>
@@ -221,7 +131,7 @@ export const OrderClient = () => {
                     <h2 className="client-order-detail__summary-title">Thông tin đơn hàng</h2>
                     <div className="client-order-detail__summary-row">
                         <span>Tổng tiền</span>
-                        <span className="client-order-detail__summary-price">{location.state.order.total.toLocaleString()} VNĐ</span>
+                        <span className="client-order-detail__summary-price">{order.total.toLocaleString()} VND</span>
                     </div>
                     <div className="client-order-detail__summary-row">
                         <span>Tổng khuyến mãi</span>
@@ -231,20 +141,11 @@ export const OrderClient = () => {
                     <div className="client-order-detail__summary-row client-order-detail__summary-row--final">
                         <span>Cần thanh toán</span>
                         <span className="client-order-detail__summary-price--final">
-                            {location.state.order.total.toLocaleString()} VND
+                            {order.total.toLocaleString()} VND
                         </span>
                     </div>
                 </div>
-                <div className="btn-rebuy client-order-detail__checkout" onClick={HandleOrder}>
-                    Đặt hàng
-                </div>
             </div>
-            {formChangeAddress && (
-                <ChangeAddressPage
-                    setFormChangeAddress={setFormChangeAddress}
-                    setSelectedAddress={setSelectedAddress}
-                />
-            )}
         </div>
     );
 };

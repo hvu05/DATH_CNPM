@@ -176,9 +176,16 @@ export const OrderPage = () => {
                     style={{ flexShrink: 0 }}
                 />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'flex-start',
+                            marginBottom: '8px',
+                        }}
+                    >
                         <Space wrap>
-                            <Text strong>#{order.id}</Text>
+                            <Text strong>Mã đơn hàng: #{order.id}</Text>
                             <Tag color={getStatusColor(order.status)} style={{ margin: 0 }}>
                                 {getStatusText(order.status)}
                             </Tag>
@@ -190,24 +197,42 @@ export const OrderPage = () => {
                         </Text>
                         {order.order_items && order.order_items.length > 1 && (
                             <Text type="secondary" style={{ fontSize: '13px', marginLeft: '6px' }}>
-                                (+{order.order_items.length - 1} sp khác)
+                                (+{order.order_items.length - 1} sản phẩm khác)
                             </Text>
                         )}
                     </div>
-                    <div style={{ display: 'flex', gap: '16px', marginBottom: '6px', fontSize: '13px' }}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            gap: '16px',
+                            marginBottom: '6px',
+                            fontSize: '13px',
+                        }}
+                    >
                         <Text>Số lượng: {order.order_items?.[0]?.quantity || 1}</Text>
                         <Text type="secondary">
                             {order.order_items?.[0]?.product_variant?.color || 'N/A'}
                         </Text>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Text strong style={{ fontSize: '14px' }}>{formatCurrency(order.total)}</Text>
-                        <Text type="secondary" style={{ fontSize: '12px' }}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <Text strong style={{ fontSize: '18px', color: 'red' }}>
+                            {formatCurrency(order.total)}
+                        </Text>
+                        <Text type="secondary" style={{ fontSize: '16px' }}>
                             {dayjs(order.create_at).format('DD/MM/YYYY HH:mm')}
                         </Text>
                     </div>
                     {order.note && (
-                        <Text type="secondary" style={{ fontSize: '12px', marginTop: '4px', display: 'block' }}>
+                        <Text
+                            type="secondary"
+                            style={{ fontSize: '16px', marginTop: '4px', display: 'block' }}
+                        >
                             Ghi chú: {order.note}
                         </Text>
                     )}
@@ -276,7 +301,10 @@ export const OrderPage = () => {
                                         }
                                         parser={value => value!.replace(/\$\s?|(,*)/g, '')}
                                         onChange={value =>
-                                            setFilters({ ...filters, minPrice: value || undefined })
+                                            setFilters({
+                                                ...filters,
+                                                minPrice: (value as number) || undefined,
+                                            })
                                         }
                                     />
                                     <InputNumber
@@ -287,7 +315,10 @@ export const OrderPage = () => {
                                         }
                                         parser={value => value!.replace(/\$\s?|(,*)/g, '')}
                                         onChange={value =>
-                                            setFilters({ ...filters, maxPrice: value || undefined })
+                                            setFilters({
+                                                ...filters,
+                                                maxPrice: (value as number) || undefined,
+                                            })
                                         }
                                     />
                                 </Space>

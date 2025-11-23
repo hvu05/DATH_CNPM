@@ -14,6 +14,18 @@ interface IUser {
     phone: string;
 }
 
+export interface ICustomer {
+    id: string;
+    full_name: string;
+    email: string;
+    phone: string;
+    role: Role;
+    is_active: boolean;
+    avatar: string;
+    create_at: Date;
+    update_at: Date;
+}
+
 export const DEFAULT_SORTBY: TSortColumn = 'create_at';
 export const DEFAUTLT_SORTORDER: SortOrder = 'asc';
 export type TSortColumn = 'create_at';
@@ -98,6 +110,13 @@ export const updateProfileSellerAPI = async (full_name: string, phone: string) =
             full_name: full_name,
             phone: phone,
         }
+    );
+    return result.data;
+};
+
+export const getUserById = async (userId: string) => {
+    const result = await axios.get<ApiResponse<ICustomer | null>>(
+        `${import.meta.env.VITE_BACKEND_URL}/users/${userId}`
     );
     return result.data;
 };

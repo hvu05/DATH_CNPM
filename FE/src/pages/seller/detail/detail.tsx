@@ -2,10 +2,11 @@ import { useLocation, useNavigate } from 'react-router';
 import './detail.scss';
 import defaultItem from '@/assets/seller/default_order.webp';
 import { Fragment } from 'react/jsx-runtime';
-import { Button, message, Typography } from 'antd';
+import { Button, message, Typography, Skeleton } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import type { IOrder } from '@/services/seller/seller.service';
-import { useEffect } from 'react';
+import type { ICustomer, IOrder } from '@/services/seller/seller.service';
+import { getUserById } from '@/services/seller/seller.service';
+import { useEffect, useState } from 'react';
 
 const { Title } = Typography;
 
@@ -13,6 +14,8 @@ export const DetailPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const orderData = location.state?.order as IOrder;
+    const [customerInfo, setCustomerInfo] = useState<ICustomer | null>(null);
+    const [loadingCustomer, setLoadingCustomer] = useState(false);
 
     // Redirect back if no order data is provided
     useEffect(() => {
@@ -21,6 +24,28 @@ export const DetailPage = () => {
             navigate('/seller/myOrders');
         }
     }, [orderData, navigate]);
+
+    // Fetch customer information when orderData changes
+    useEffect(() => {
+        const fetchCustomerInfo = async () => {
+            if (!orderData?.user_id) return;
+
+            setLoadingCustomer(true);
+            try {
+                const result = await getUserById(orderData.user_id);
+                if (result.data) {
+                    setCustomerInfo(result.data);
+                }
+            } catch (error) {
+                console.error('Failed to fetch customer info:', error);
+                message.warning('Không thể tải thông tin khách hàng');
+            } finally {
+                setLoadingCustomer(false);
+            }
+        };
+
+        fetchCustomerInfo();
+    }, [orderData?.user_id]);
 
     // Format currency
     const formatCurrency = (amount: number) => {
@@ -94,232 +119,264 @@ export const DetailPage = () => {
             <div className="seller-order-detail__content">
                 <div className="seller-order-detail__main">
                     {/* Products Card */}
-                <div className="seller-order-detail__card">
-                    <h2 className="seller-order-detail__card-title">
-                        Sản phẩm trong đơn ({orderData.order_items?.length || 0})
-                    </h2>
-                    <div className="seller-order-detail__product-list">
-                        {orderData.order_items?.map((item, index) => (
-                            <Fragment key={item.id}>
-                                <div className="seller-order-detail__product-item">
-                                    <div className="seller-order-detail__product-info">
-                                        <div className="seller-order-detail__product-img-container">
-                                            <img
-                                                src={item.product_variant?.thumbnail || defaultItem}
-                                                alt={item.product_variant?.name || 'Sản phẩm'}
-                                            />
+                    <div className="seller-order-detail__card">
+                        <h2 className="seller-order-detail__card-title">
+                            Sản phẩm trong đơn ({orderData.order_items?.length || 0})
+                        </h2>
+                        <div className="seller-order-detail__product-list">
+                            {orderData.order_items?.map((item, index) => (
+                                <Fragment key={item.id}>
+                                    <div className="seller-order-detail__product-item">
+                                        <div className="seller-order-detail__product-info">
+                                            <div className="seller-order-detail__product-img-container">
+                                                <img
+                                                    src={
+                                                        item.product_variant?.thumbnail ||
+                                                        defaultItem
+                                                    }
+                                                    alt={item.product_variant?.name || 'Sản phẩm'}
+                                                />
+                                            </div>
+                                            <div className="seller-order-detail__product-details">
+                                                <h3 className="seller-order-detail__product-name">
+                                                    {item.product_variant?.name || 'Sản phẩm'}
+                                                </h3>
+                                                <div className="seller-order-detail__product-attrs">
+                                                    <span>
+                                                        Màu sắc:{' '}
+                                                        {item.product_variant?.color || 'N/A'}
+                                                    </span>
+                                                    <span>
+                                                        Dung lượng:{' '}
+                                                        {item.product_variant?.storage || 'N/A'}
+                                                    </span>
+                                                    <span>Số lượng: {item.quantity}</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className="seller-order-detail__product-details">
-                                            <h3 className="seller-order-detail__product-name">
-                                                {item.product_variant?.name || 'Sản phẩm'}
-                                            </h3>
-                                            <div className="seller-order-detail__product-attrs">
-                                                <span>
-                                                    Màu sắc: {item.product_variant?.color || 'N/A'}
-                                                </span>
-                                                <span>
-                                                    Dung lượng:{' '}
-                                                    {item.product_variant?.storage || 'N/A'}
-                                                </span>
-                                                <span>Số lượng: {item.quantity}</span>
+                                        <div className="seller-order-detail__product-price">
+                                            {formatCurrency(
+                                                parseFloat(item.price_per_item) * item.quantity
+                                            )}
+                                        </div>
+                                    </div>
+                                    {index < (orderData.order_items?.length || 0) - 1 && (
+                                        <hr className="seller-order-detail__separator" />
+                                    )}
+                                </Fragment>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Customer Info Card */}
+                    <div className="seller-order-detail__card">
+                        <h2 className="seller-order-detail__card-title">Thông tin khách hàng</h2>
+                        <div className="seller-order-detail__customer-info">
+                            {loadingCustomer ? (
+                                <Skeleton active paragraph={{ rows: 3 }} />
+                            ) : (
+                                <>
+                                    <div className="seller-order-detail__info-group">
+                                        <p>
+                                            <span className="seller-order-detail__info-label">
+                                                Họ và tên:
+                                            </span>{' '}
+                                            <span className="seller-order-detail__info-value">
+                                                {customerInfo?.full_name || 'Chưa có thông tin'}
+                                            </span>
+                                        </p>
+                                        <p>
+                                            <span className="seller-order-detail__info-label">
+                                                Email:
+                                            </span>{' '}
+                                            <span className="seller-order-detail__info-value">
+                                                {customerInfo?.email || 'Chưa có thông tin'}
+                                            </span>
+                                        </p>
+                                        <p>
+                                            <span className="seller-order-detail__info-label">
+                                                Số điện thoại:
+                                            </span>{' '}
+                                            <span className="seller-order-detail__info-value">
+                                                {customerInfo?.phone ||
+                                                    customerInfo?.phone ||
+                                                    'Chưa có thông tin'}
+                                            </span>
+                                        </p>
+                                        <p>
+                                            <span className="seller-order-detail__info-label">
+                                                Mã khách hàng:
+                                            </span>{' '}
+                                            <span className="seller-order-detail__info-value">
+                                                {orderData.user_id}
+                                            </span>
+                                        </p>
+                                    </div>
+                                    <div className="seller-order-detail__info-group seller-order-detail__info-group--address">
+                                        <div>
+                                            <div className="seller-order-detail__info-label">
+                                                Địa chỉ giao hàng
+                                            </div>
+                                            <div className="seller-order-detail__info-value">
+                                                {orderData.address?.detail &&
+                                                orderData.address?.ward &&
+                                                orderData.address?.province
+                                                    ? `${orderData.address.detail}, ${orderData.address.ward}, ${orderData.address.province}`
+                                                    : 'Chưa có địa chỉ'}
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="seller-order-detail__product-price">
-                                        {formatCurrency(
-                                            parseFloat(item.price_per_item) * item.quantity
-                                        )}
-                                    </div>
-                                </div>
-                                {index < (orderData.order_items?.length || 0) - 1 && (
-                                    <hr className="seller-order-detail__separator" />
-                                )}
-                            </Fragment>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Customer Info Card */}
-                <div className="seller-order-detail__card">
-                    <h2 className="seller-order-detail__card-title">Thông tin khách hàng</h2>
-                    <div className="seller-order-detail__customer-info">
-                        <div className="seller-order-detail__info-group">
-                            <p>
-                                <span className="seller-order-detail__info-label">
-                                    Mã khách hàng:
-                                </span>{' '}
-                                <span className="seller-order-detail__info-value">
-                                    {orderData.user_id}
-                                </span>
-                            </p>
-                            <p>
-                                <span className="seller-order-detail__info-label">
-                                    Số điện thoại:
-                                </span>{' '}
-                                <span className="seller-order-detail__info-value">
-                                    {orderData.user?.phone || 'Chưa có thông tin'}
-                                </span>
-                            </p>
-                        </div>
-                        <div className="seller-order-detail__info-group seller-order-detail__info-group--address">
-                            <div>
-                                <div className="seller-order-detail__info-label">
-                                    Địa chỉ giao hàng
-                                </div>
-                                <div className="seller-order-detail__info-value">
-                                    {orderData.address?.detail &&
-                                    orderData.address?.ward &&
-                                    orderData.address?.province
-                                        ? `${orderData.address.detail}, ${orderData.address.ward}, ${orderData.address.province}`
-                                        : 'Chưa có địa chỉ'}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Order Info Card */}
-                <div className="seller-order-detail__card">
-                    <h2 className="seller-order-detail__card-title">Thông tin đơn hàng</h2>
-                    <div className="seller-order-detail__customer-info">
-                        <div className="seller-order-detail__info-group">
-                            <p>
-                                <span className="seller-order-detail__info-label">
-                                    Mã đơn hàng:
-                                </span>{' '}
-                                <span className="seller-order-detail__info-value">
-                                    #{orderData.id}
-                                </span>
-                            </p>
-                            <p>
-                                <span className="seller-order-detail__info-label">Ngày đặt:</span>{' '}
-                                <span className="seller-order-detail__info-value">
-                                    {new Date(orderData.create_at).toLocaleString('vi-VN')}
-                                </span>
-                            </p>
-                            {orderData.deliver_at && (
-                                <p>
-                                    <span className="seller-order-detail__info-label">
-                                        Ngày giao:
-                                    </span>{' '}
-                                    <span className="seller-order-detail__value">
-                                        {new Date(orderData.deliver_at).toLocaleString('vi-VN')}
-                                    </span>
-                                </p>
+                                </>
                             )}
                         </div>
-                        <div className="seller-order-detail__info-group">
-                            <div>
-                                <div className="seller-order-detail__info-label">Ghi chú</div>
-                                <div className="seller-order-detail__info-value">
-                                    {orderData.note || 'Không có ghi chú'}
-                                </div>
-                            </div>
-                        </div>
                     </div>
-                </div>
 
-                {/* Payment Info Card */}
-                <div className="seller-order-detail__card">
-                    <h2 className="seller-order-detail__card-title">Thông tin thanh toán</h2>
-                    <div className="seller-order-detail__payment-info">
-                        <div className="seller-order-detail__info-group">
-                            <p>
-                                <span className="seller-order-detail__info-label">
-                                    Phương thức:
-                                </span>{' '}
-                                <span className="seller-order-detail__info-value">
-                                    {orderData.payment?.method || 'N/A'}
-                                </span>
-                            </p>
-                            <p>
-                                <span className="seller-order-detail__info-label">Trạng thái:</span>{' '}
-                                <span className="seller-order-detail__info-value">
-                                    {orderData.payment?.payment_status || 'N/A'}
-                                </span>
-                            </p>
-                            {orderData.payment?.transaction_code && (
+                    {/* Order Info Card */}
+                    <div className="seller-order-detail__card">
+                        <h2 className="seller-order-detail__card-title">Thông tin đơn hàng</h2>
+                        <div className="seller-order-detail__customer-info">
+                            <div className="seller-order-detail__info-group">
                                 <p>
                                     <span className="seller-order-detail__info-label">
-                                        Mã giao dịch:
+                                        Mã đơn hàng:
                                     </span>{' '}
                                     <span className="seller-order-detail__info-value">
-                                        {orderData.payment.transaction_code}
+                                        #{orderData.id}
                                     </span>
                                 </p>
-                            )}
+                                <p>
+                                    <span className="seller-order-detail__info-label">
+                                        Ngày đặt:
+                                    </span>{' '}
+                                    <span className="seller-order-detail__info-value">
+                                        {new Date(orderData.create_at).toLocaleString('vi-VN')}
+                                    </span>
+                                </p>
+                                {orderData.deliver_at && (
+                                    <p>
+                                        <span className="seller-order-detail__info-label">
+                                            Ngày giao:
+                                        </span>{' '}
+                                        <span className="seller-order-detail__value">
+                                            {new Date(orderData.deliver_at).toLocaleString('vi-VN')}
+                                        </span>
+                                    </p>
+                                )}
+                            </div>
+                            <div className="seller-order-detail__info-group">
+                                <div>
+                                    <div className="seller-order-detail__info-label">Ghi chú</div>
+                                    <div className="seller-order-detail__info-value">
+                                        {orderData.note || 'Không có ghi chú'}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Payment Info Card */}
+                    <div className="seller-order-detail__card">
+                        <h2 className="seller-order-detail__card-title">Thông tin thanh toán</h2>
+                        <div className="seller-order-detail__payment-info">
+                            <div className="seller-order-detail__info-group">
+                                <p>
+                                    <span className="seller-order-detail__info-label">
+                                        Phương thức:
+                                    </span>{' '}
+                                    <span className="seller-order-detail__info-value">
+                                        {orderData.payment?.method || 'N/A'}
+                                    </span>
+                                </p>
+                                <p>
+                                    <span className="seller-order-detail__info-label">
+                                        Trạng thái:
+                                    </span>{' '}
+                                    <span className="seller-order-detail__info-value">
+                                        {orderData.payment?.payment_status || 'N/A'}
+                                    </span>
+                                </p>
+                                {orderData.payment?.transaction_code && (
+                                    <p>
+                                        <span className="seller-order-detail__info-label">
+                                            Mã giao dịch:
+                                        </span>{' '}
+                                        <span className="seller-order-detail__info-value">
+                                            {orderData.payment.transaction_code}
+                                        </span>
+                                    </p>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
-                </div>
 
-            <div className="seller-order-detail__sidebar">
-                <div className="seller-order-detail__summary">
-                    <h2 className="seller-order-detail__summary-title">Tổng cộng</h2>
-                    <div className="seller-order-detail__summary-row">
-                        <span>Tạm tính ({orderData.order_items?.length || 0} sản phẩm)</span>
-                        <span className="seller-order-detail__summary-price">
-                            {formatCurrency(orderData.total)}
-                        </span>
+                <div className="seller-order-detail__sidebar">
+                    <div className="seller-order-detail__summary">
+                        <h2 className="seller-order-detail__summary-title">Tổng cộng</h2>
+                        <div className="seller-order-detail__summary-row">
+                            <span>Tạm tính ({orderData.order_items?.length || 0} sản phẩm)</span>
+                            <span className="seller-order-detail__summary-price">
+                                {formatCurrency(orderData.total)}
+                            </span>
+                        </div>
+                        <div className="seller-order-detail__summary-row">
+                            <span>Phí vận chuyển</span>
+                            <span className="seller-order-detail__summary-price">
+                                {formatCurrency(0)}
+                            </span>
+                        </div>
+                        <hr className="seller-order-detail__separator" />
+                        <div className="seller-order-detail__summary-row seller-order-detail__summary-row--final">
+                            <span>Tổng thanh toán</span>
+                            <span className="seller-order-detail__summary-price--final">
+                                {formatCurrency(orderData.total)}
+                            </span>
+                        </div>
                     </div>
-                    <div className="seller-order-detail__summary-row">
-                        <span>Phí vận chuyển</span>
-                        <span className="seller-order-detail__summary-price">
-                            {formatCurrency(0)}
-                        </span>
-                    </div>
-                    <hr className="seller-order-detail__separator" />
-                    <div className="seller-order-detail__summary-row seller-order-detail__summary-row--final">
-                        <span>Tổng thanh toán</span>
-                        <span className="seller-order-detail__summary-price--final">
-                            {formatCurrency(orderData.total)}
-                        </span>
-                    </div>
-                </div>
 
-                <div className="seller-order-detail__actions">
-                    {orderData.status === 'PENDING' && (
-                        <>
+                    <div className="seller-order-detail__actions">
+                        {orderData.status === 'PENDING' && (
+                            <>
+                                <button
+                                    className="btn-rebuy seller-order-detail__action-btn"
+                                    style={{ backgroundColor: '#1677ff', marginBottom: '12px' }}
+                                >
+                                    Xác nhận đơn hàng
+                                </button>
+                                <button
+                                    className="btn-rebuy seller-order-detail__action-btn"
+                                    style={{ backgroundColor: '#ff4d4f', color: 'white' }}
+                                >
+                                    Hủy đơn hàng
+                                </button>
+                            </>
+                        )}
+                        {orderData.status === 'CONFIRMED' && (
                             <button
                                 className="btn-rebuy seller-order-detail__action-btn"
-                                style={{ backgroundColor: '#1677ff', marginBottom: '12px' }}
+                                style={{ backgroundColor: '#52c41a' }}
                             >
-                                Xác nhận đơn hàng
+                                Bắt đầu xử lý
                             </button>
+                        )}
+                        {orderData.status === 'PROCESSING' && (
                             <button
                                 className="btn-rebuy seller-order-detail__action-btn"
-                                style={{ backgroundColor: '#ff4d4f', color: 'white' }}
+                                style={{ backgroundColor: '#722ed1' }}
                             >
-                                Hủy đơn hàng
+                                Bắt đầu giao hàng
                             </button>
-                        </>
-                    )}
-                    {orderData.status === 'CONFIRMED' && (
-                        <button
-                            className="btn-rebuy seller-order-detail__action-btn"
-                            style={{ backgroundColor: '#52c41a' }}
-                        >
-                            Bắt đầu xử lý
-                        </button>
-                    )}
-                    {orderData.status === 'PROCESSING' && (
-                        <button
-                            className="btn-rebuy seller-order-detail__action-btn"
-                            style={{ backgroundColor: '#722ed1' }}
-                        >
-                            Bắt đầu giao hàng
-                        </button>
-                    )}
-                    {orderData.status === 'DELIVERING' && (
-                        <button
-                            className="btn-rebuy seller-order-detail__action-btn"
-                            style={{ backgroundColor: '#13c2c2' }}
-                        >
-                            Hoàn thành đơn hàng
-                        </button>
-                    )}
+                        )}
+                        {orderData.status === 'DELIVERING' && (
+                            <button
+                                className="btn-rebuy seller-order-detail__action-btn"
+                                style={{ backgroundColor: '#13c2c2' }}
+                            >
+                                Hoàn thành đơn hàng
+                            </button>
+                        )}
+                    </div>
                 </div>
-            </div>
             </div>
         </div>
     );

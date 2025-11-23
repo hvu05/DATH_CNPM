@@ -3,3 +3,5 @@ export * from "./user-list.response";
 export * from "./user-static.response";
 export * from "./role.response";
 export * from "./user-update-admin.request";
+export * from "./product-list-query.request";
+export * from "./product-list.response";

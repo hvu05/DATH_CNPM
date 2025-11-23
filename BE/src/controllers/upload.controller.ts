@@ -65,6 +65,43 @@ export const deleteImageHandler = async (
   }
 };
 
+export const uploadMultipleImageHandler = async (
+  req: Request,
+  res: Response<ApiResponse<uploadDto.UploadResponse[]>>,
+  next: NextFunction,
+) => {
+  try {
+    if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'No file uploaded',
+      });
+    }
+
+    // Parse optional folder from query or body
+    const parsed = uploadDto.uploadImageSchema.safeParse(req.body);
+    const folder =
+      parsed.success && parsed.data ? parsed.data.folder : 'uploads';
+
+    const files = req.files as Express.Multer.File[];
+
+    // Upload all files in parallel
+    const uploadPromises = files.map((file, idx) => {
+      const publicId = `image_${Date.now()}_${Math.random().toString(36).substring(2, 9)}_${idx}`;
+      return uploadFile(file.buffer, publicId, folder);
+    });
+
+    const results = await Promise.all(uploadPromises);
+
+    res.json({
+      success: true,
+      data: results,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 //? For test only
 export const testHandler = async (req: Request, res: Response, next: NextFunction) => {

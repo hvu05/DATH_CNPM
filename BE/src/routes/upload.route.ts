@@ -25,4 +25,5 @@ router.post(
 // Delete image endpoint
 router.delete('/', uploadController.deleteImageHandler);
 
+router.post('/multiple', multerConfig.array('images'), uploadController.testHandler);
 export default router;

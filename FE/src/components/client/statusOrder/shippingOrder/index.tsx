@@ -1,52 +1,62 @@
-import default_order from "@/assets/seller/default_order.webp";
-import {useNavigate} from "react-router";
-import '@/styles/client/clientOrderList.scss'
+import default_order from '@/assets/seller/default_order.webp';
+import { useNavigate } from 'react-router';
+import '@/styles/client/clientOrderList.scss';
+import type { DataInOrder } from '@/types/clients/client.order.types';
 
-export const ShippingOrder = () => {
+type Props = {
+    orders: DataInOrder | null;
+};
+export const ShippingOrder = ({ orders }: Props) => {
+    const orderPending = orders?.orders?.filter(item => item?.status === 'DELIVERING');
     const navigate = useNavigate();
+    // const navigate = useNavigate();
     return (
         <div className="client-order__list">
-            <div className="client-order__item">
-                <div className="client-order__product-info">
-                    <div className="client-order__img-container">
-                        <img className="client-order__img" src={default_order} alt='order_img' />
-                    </div>
-                    <div className="client-order__details">
-                        <div className="client-order__name">Tên sản phẩm dài để test responsive</div>
-                        <div className="client-order__category">Loại sản phẩm: USB China</div>
-                        <div className="client-order__quantity">Số lượng: 12</div>
-                        <div className="client-order__shipping-info">Đơn hàng đã đên kho trung chuyển</div>
-                    </div>
-                </div>
-                <div className="client-order__price-status">
-                    <div className="client-order__price">Giá: 2,000,000đ</div>
-                    <div className="btn-processing">Đang giao</div>
-                    <button onClick={() => navigate('/client/order/1')} className="client-order__detail-link">Chi tiết đơn hàng</button>
-                </div>
-            </div>
+            {orderPending?.map(ord => (
+                <div className="client-order__item" key={ord?.id}>
+                    {ord?.order_items?.map(item => (
+                        <div className="client-order__product-info" key={item?.id}>
+                            <div className="client-order__img-container">
+                                <img
+                                    className="client-order__img"
+                                    src={default_order}
+                                    alt="order_img"
+                                />
+                            </div>
+                            <div className="client-order__details">
+                                <div className="client-order__name">
+                                    {item?.product_variant?.name}
+                                </div>
+                                <div className="client-order__category">
+                                    {item?.product_variant?.color}
+                                </div>
+                                <div className="client-order__quantity">
+                                    Số lượng: {item?.quantity}
+                                </div>
+                            </div>
+                        </div>
+                    ))}
 
-            <div className="client-order__item">
-                <div className="client-order__product-info">
-                    <div className="client-order__img-container">
-                        <img className="client-order__img" src={default_order} alt='order_img' />
-                    </div>
-                    <div className="client-order__details">
-                        <div className="client-order__name">Tên sản phẩm dài để test responsive</div>
-                        <div className="client-order__category">Loại sản phẩm: USB China</div>
-                        <div className="client-order__quantity">Số lượng: 12</div>
-                        <div className="client-order__shipping-info">Đơn hàng đã đên, chú ý điện thoại của bạn!</div>
+                    <div className="client-order__price-status">
+                        <div className="client-order__price">
+                            Giá: {ord?.total?.toLocaleString()}đ
+                        </div>
+                        <div className="btn-processing">Đang giao</div>
+                        <button className="client-order__return">
+                            Đơn hàng đã được giao đến bưu cục
+                        </button>
+                        <button
+                            onClick={() =>
+                                navigate(`/client/info/${ord?.id}`, { state: { order: ord } })
+                            }
+                            className="client-order__detail-link"
+                        >
+
+                            Chi tiết đơn hàng
+                        </button>
                     </div>
                 </div>
-
-                <div className="client-order__price-status">
-                    <div className="client-order__price">Giá: 2,000,000đ</div>
-                    <div className='client-order__status--dflex'>
-                        <div className="btn-evaluate">Xác nhận thành công</div>
-                    </div>
-
-                    <button onClick={() => navigate('/client/order/1')} className="client-order__detail-link">Chi tiết đơn hàng</button>
-                </div>
-            </div>
+            ))}
         </div>
-    )
-}
+    );
+};

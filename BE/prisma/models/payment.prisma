@@ -1,6 +1,6 @@
 model Payment{
   id String @id @default(uuid())
-  order_id String @unique
+  order_id String @unique 
   amount BigInt
   method String
   payment_status String

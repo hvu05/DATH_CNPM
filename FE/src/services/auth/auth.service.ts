@@ -5,7 +5,7 @@ import {
     type RefreshTokenResponse,
     type RegisterRequest,
     type RegisterResponse,
-    type SendOtpRequest
+    type SendOtpRequest,
 } from '@/types/auth/auth.types';
 
 export const authAPI = {
@@ -16,7 +16,7 @@ export const authAPI = {
 
     refreshToken: async (refreshToken: string): Promise<RefreshTokenResponse> => {
         const response = await axios.post('/auth/refresh', {
-            refresh_token: refreshToken
+            refresh_token: refreshToken,
         });
         return response.data;
     },
@@ -31,14 +31,14 @@ export const authAPI = {
     },
 
     sendOtp: async (data: SendOtpRequest) => {
+        console.log('data', data.email);
         const result = await axios.post<ApiResponse<any>>('/auth/send-otp', data);
         return result.data;
-    }
+    },
 };
 
-
 export const setTokens = (tokens: LoginResponse) => {
-    console.log('settoken method', tokens)
+    console.log('settoken method', tokens);
     localStorage.setItem('tokens', JSON.stringify(tokens));
 };
 

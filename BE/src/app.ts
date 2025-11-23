@@ -1,8 +1,12 @@
+import './config/zod-open-api.config';
 import express from 'express';
 import router from './routes';
 import { errorHanler } from './middlewares/error.middleware';
 import config from './config/config';
 import cors from "cors";
+import swaggerUi from "swagger-ui-express";
+import { generateOpenApi } from './config/openapi.config';
+
 BigInt.prototype.toJSON = function () {
   return this.toString();
 }
@@ -14,6 +18,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Swagger
+const openapi = generateOpenApi();
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openapi));
+// Route
 app.use(router);
 
 

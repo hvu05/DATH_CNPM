@@ -17,4 +17,5 @@ model User{
   reviews Review[]
   cart_items CartItem[]
   payment Payment[]
+  approve_requests ReturnOrderRequest[]
 }

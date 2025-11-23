@@ -13,4 +13,5 @@ model Order{
   user User @relation(fields: [user_id], references: [id])
   order_items OrderItem[]
   payment Payment?
+  return_request ReturnOrderRequest[]
 }

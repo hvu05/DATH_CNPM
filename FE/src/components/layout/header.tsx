@@ -1,14 +1,14 @@
-import './header.scss'
-import homeIcon from '@/assets/home-icon.svg'
-import menuIcon from '@/assets/menu-icon.svg'
-import searchIcon from '@/assets/search-icon.svg'
-import cartIcon from '@/assets/cart-icon.svg'
-import defaultAvatar from '@/assets/default-avatar-icon.svg'
-import { Link, useNavigate } from 'react-router'
-import { Dropdown, Avatar } from 'antd'
-import { UserOutlined, LogoutOutlined, SettingOutlined } from '@ant-design/icons'
-import { useAuthContext } from '@/contexts/AuthContext'
-import { removeTokens } from '@/services/auth/auth.service'
+import './header.scss';
+import homeIcon from '@/assets/home-icon.svg';
+import menuIcon from '@/assets/menu-icon.svg';
+import searchIcon from '@/assets/search-icon.svg';
+import cartIcon from '@/assets/cart-icon.svg';
+import defaultAvatar from '@/assets/default-avatar-icon.svg';
+import { Link, useNavigate } from 'react-router';
+import { Dropdown, Avatar } from 'antd';
+import { UserOutlined, LogoutOutlined, SettingOutlined } from '@ant-design/icons';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { removeTokens } from '@/services/auth/auth.service';
 
 export const Header = () => {
     const navigate = useNavigate();
@@ -19,38 +19,49 @@ export const Header = () => {
         setUser(null);
         setIsLoggedIn(false);
         navigate('/login');
-    }
+    };
+
     const handleMenuClick = (key: string) => {
         if (key === 'logout') {
             logout();
         } else if (key === 'profile') {
             // Navigate to profile page
-            navigate('/client')
-        }
-        else if (key === 'adminpage') {
+            navigate('/client');
+        } else if (key === 'adminpage') {
             navigate('/admin');
-        }
-        else if (key === 'sellerpage') {
-            navigate('/seller')
+        } else if (key === 'sellerpage') {
+            navigate('/seller');
         }
     };
 
     const menuItems = [
-        ...(user && user.role === 'CUSTOMER' ? [{
-            key: 'profile',
-            label: 'Thông tin cá nhân',
-            icon: <UserOutlined />
-        }] : []),
-        ...(user && user.role === 'ADMIN' ? [{
-            key: 'adminpage',
-            label: 'Quản trị viên',
-            icon: <SettingOutlined />
-        }] : []),
-        ...(user && user.role === 'STAFF' ? [{
-            key: 'sellerpage',
-            label: 'Nhân viên',
-            icon: <SettingOutlined />
-        }] : []),
+        ...(user && user.role === 'CUSTOMER'
+            ? [
+                  {
+                      key: 'profile',
+                      label: 'Thông tin cá nhân',
+                      icon: <UserOutlined />,
+                  },
+              ]
+            : []),
+        ...(user && user.role === 'ADMIN'
+            ? [
+                  {
+                      key: 'adminpage',
+                      label: 'Quản trị viên',
+                      icon: <SettingOutlined />,
+                  },
+              ]
+            : []),
+        ...(user && user.role === 'STAFF'
+            ? [
+                  {
+                      key: 'sellerpage',
+                      label: 'Nhân viên',
+                      icon: <SettingOutlined />,
+                  },
+              ]
+            : []),
         {
             type: 'divider' as const,
         },
@@ -58,9 +69,8 @@ export const Header = () => {
             key: 'logout',
             label: 'Đăng xuất',
             icon: <LogoutOutlined />,
-            danger: true
+            danger: true,
         },
-
     ];
 
     return (
@@ -76,7 +86,11 @@ export const Header = () => {
             </div>
 
             <div className="header__search">
-                <input type="text" className="header__search-input" placeholder="Tìm kiếm sản phẩm..." />
+                <input
+                    type="text"
+                    className="header__search-input"
+                    placeholder="Tìm kiếm sản phẩm..."
+                />
                 <img src={searchIcon} alt="Search" className="header__search-icon" />
             </div>
 
@@ -90,7 +104,7 @@ export const Header = () => {
                     <Dropdown
                         menu={{
                             items: menuItems,
-                            onClick: ({ key }) => handleMenuClick(key)
+                            onClick: ({ key }) => handleMenuClick(key),
                         }}
                         placement="bottomRight"
                         trigger={['click']}
@@ -104,7 +118,7 @@ export const Header = () => {
                     </Dropdown>
                 ) : (
                     <button
-                        onClick={() => window.location.href = '/login'}
+                        onClick={() => (window.location.href = '/login')}
                         className="header__button"
                     >
                         Đăng nhập
@@ -112,5 +126,5 @@ export const Header = () => {
                 )}
             </div>
         </header>
-    )
-}
+    );
+};

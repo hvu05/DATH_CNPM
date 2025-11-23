@@ -1,14 +1,14 @@
-import './header.scss'
-import homeIcon from '@/assets/home-icon.svg'
-import menuIcon from '@/assets/menu-icon.svg'
-import searchIcon from '@/assets/search-icon.svg'
-import cartIcon from '@/assets/cart-icon.svg'
-import defaultAvatar from '@/assets/default-avatar-icon.svg'
-import { Link } from 'react-router'
+import './header.scss';
+import homeIcon from '@/assets/home-icon.svg';
+import menuIcon from '@/assets/menu-icon.svg';
+import searchIcon from '@/assets/search-icon.svg';
+import cartIcon from '@/assets/cart-icon.svg';
+import defaultAvatar from '@/assets/default-avatar-icon.svg';
+import { Link } from 'react-router';
 
 export const Header = () => {
     return (
-        <header className="seller-header" style={{'zIndex': '100'}}>
+        <header className="seller-header" style={{ zIndex: '100' }}>
             <div className="seller-header__left">
                 <Link to={'/'} className="seller-header__home-link">
                     <img src={homeIcon} alt="Home" />
@@ -20,7 +20,11 @@ export const Header = () => {
             </div>
 
             <div className="seller-header__search">
-                <input type="text" className="seller-header__search-input" placeholder="Tìm kiếm sản phẩm..." />
+                <input
+                    type="text"
+                    className="seller-header__search-input"
+                    placeholder="Tìm kiếm sản phẩm..."
+                />
                 <img src={searchIcon} alt="Search" className="seller-header__search-icon" />
             </div>
 
@@ -32,5 +36,5 @@ export const Header = () => {
                 <img src={defaultAvatar} alt="Avatar" className="seller-header__avatar" />
             </div>
         </header>
-    )
-}
+    );
+};

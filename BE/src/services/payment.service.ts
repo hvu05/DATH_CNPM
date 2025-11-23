@@ -3,6 +3,7 @@ import { prisma } from '../config/prisma.config';
 import * as paymentDto from '../dtos/payment';
 import { AppError, ErrorCode } from '../exeptions';
 import { getPaymentUrl, verifyHash } from './vnpay.service';
+import { OrderStatus } from '../dtos/orders';
 /**
  *
  * @param data
@@ -110,6 +111,14 @@ export const verifyAndUpdatePayment = async (data: paymentDto.VnpayQuery) => {
       data: {
         transaction_code: verify.vnp_TransactionNo?.toString(),
         payment_status: paymentDto.PaymentStatus.SUCCESS,
+      }
+    })
+    await prisma.order.update({
+      where: {
+        id: payment.order_id,
+      },
+      data: {
+        status: OrderStatus.PROCESSING,
       }
     })
     return paymentDto.toPaymentResponse(payment);

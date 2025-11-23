@@ -1,14 +1,29 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './order.scss';
 import default_order from '@/assets/seller/default_order.webp';
 import { useNavigate } from 'react-router';
 import { ProductOutlined } from '@ant-design/icons';
+import { getAllOrders, type IGetOrdersParams } from '@/services/seller/seller.service';
 
 type OptionsFilter = 'all' | 'confirmed' | 'waiting' | 'rejected';
 
 export const OrderPage = () => {
     const [filter, setFilter] = useState<OptionsFilter>('all');
+    const [params, setParams] = useState<IGetOrdersParams>({ page: 1, limit: 10 });
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const loadOrder = async () => {
+            try {
+                params['status'] = 'CONFIRMED';
+                const result = await getAllOrders(params);
+                if (result.data) {
+                    console.log(result.data);
+                }
+            } catch (error) {}
+        };
+        loadOrder();
+    }, []);
 
     return (
         <div className="seller-order">

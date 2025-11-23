@@ -53,6 +53,7 @@ const mapOrderItemsToDTO = (
     price_per_item: item.price_per_item,
     quantity: item.quantity,
     product_variant: mapProductVariantToDTO(item.variant),
+    status: item.status
   };
 };
 

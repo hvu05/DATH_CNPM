@@ -1,6 +1,7 @@
 import { prisma } from "../../config/prisma.config";
 import { AppError, ErrorCode } from "../../exeptions";
 import * as orderDto from "../../dtos/orders";
+import { PaymentMethod, PaymentStatus } from "../../dtos/payment";
 
 const updateHandler = async (
   orderId: string,
@@ -39,25 +40,25 @@ const updateHandler = async (
     throw new AppError(ErrorCode.BAD_REQUEST, 'Không thành công');
   }
 };
-/**
- * Staff xác nhận đơn hàng
- * @param orderId 
- * @returns 
- */
-export const confirm = async (orderId: string) => {
-  const order = await prisma.order.findFirst({
-    where: {
-      id: orderId,
-    },
-  });
-  if (!order) {
-    throw new AppError(ErrorCode.NOT_FOUND, 'Không tìm thấy Order');
-  }
-  if (order.status !== orderDto.OrderStatus.PENDING) {
-    throw new AppError(ErrorCode.BAD_REQUEST, 'Trang thai khong hop le');
-  }
-  return updateHandler(orderId, orderDto.OrderStatus.CONFIRMED);
-};
+// /**
+//  * Staff xác nhận đơn hàng
+//  * @param orderId 
+//  * @returns 
+//  */
+// export const confirm = async (orderId: string) => {
+//   const order = await prisma.order.findFirst({
+//     where: {
+//       id: orderId,
+//     },
+//   });
+//   if (!order) {
+//     throw new AppError(ErrorCode.NOT_FOUND, 'Không tìm thấy Order');
+//   }
+//   if (order.status !== orderDto.OrderStatus.PENDING) {
+//     throw new AppError(ErrorCode.BAD_REQUEST, 'Trang thai khong hop le');
+//   }
+//   return updateHandler(orderId, orderDto.OrderStatus.CONFIRMED);
+// };
 
 /**
  * Khách hàng hoặc Staff huỷ đơn hàng (Trước khi vận chuyển)
@@ -82,10 +83,11 @@ export const cancel = async (orderId: string, userId?: string) => {
     throw new AppError(ErrorCode.NOT_FOUND, 'Không tìm thấy Order');
   }
   if (
-    order.status !== orderDto.OrderStatus.PENDING &&
-    order.status !== orderDto.OrderStatus.CONFIRMED
+    order.status !== orderDto.OrderStatus.PENDING 
+    &&
+    order.status !== orderDto.OrderStatus.PROCESSING
   ) {
-    throw new AppError(ErrorCode.BAD_REQUEST, 'Trang thai khong hop le');
+    throw new AppError(ErrorCode.BAD_REQUEST, 'Không thể huỷ đơn hàng');
   }
   if (userId && order.user_id !== userId) {
     throw new AppError(
@@ -94,42 +96,62 @@ export const cancel = async (orderId: string, userId?: string) => {
     );
   }
   await prisma.$transaction(
-    order.order_items.map((item) =>
-      prisma.productVariant.update({
+    order.order_items.flatMap((item) => [
+      prisma.payment.update({
         where: {
-          variant_id: {
-            product_id: item.variant.product_id,
-            id: item.variant.id,
-          },
+          order_id: orderId,
         },
         data: {
-          quantity: { increment: item.quantity },
+          payment_status: PaymentStatus.FAILED,
         },
       }),
+      prisma.orderItem.update({
+          where: {
+            item_id: {
+              id: item.id,
+              order_id: orderId
+            }
+          },
+          data: {
+            status: orderDto.OrderItemStatus.CANCELLED,
+          },
+        }),
+        prisma.productVariant.update({
+          where: {
+            variant_id: {
+              product_id: item.variant.product_id,
+              id: item.variant.id,
+            },
+          },
+          data: {
+            quantity: { increment: item.quantity },
+          },
+        }),
+    ]
     ),
   );
   return updateHandler(orderId, orderDto.OrderStatus.CANCELLED);
 };
 
-/**
- * Bắt đầu đóng gói hàng
- * @param orderId 
- * @returns 
- */
-export const process = async (orderId: string) => {
-  const order = await prisma.order.findFirst({
-    where: {
-      id: orderId,
-    },
-  });
-  if (!order) {
-    throw new AppError(ErrorCode.NOT_FOUND, 'Không tìm thấy Order');
-  }
-  if (order.status !== orderDto.OrderStatus.CONFIRMED) {
-    throw new AppError(ErrorCode.BAD_REQUEST, 'Trang thai khong hop le');
-  }
-  return updateHandler(orderId, orderDto.OrderStatus.PROCESSING);
-};
+// /**
+//  * Bắt đầu đóng gói hàng
+//  * @param orderId 
+//  * @returns 
+//  */
+// export const process = async (orderId: string) => {
+//   const order = await prisma.order.findFirst({
+//     where: {
+//       id: orderId,
+//     },
+//   });
+//   if (!order) {
+//     throw new AppError(ErrorCode.NOT_FOUND, 'Không tìm thấy Order');
+//   }
+//   if (order.status !== orderDto.OrderStatus.CONFIRMED) {
+//     throw new AppError(ErrorCode.BAD_REQUEST, 'Trang thai khong hop le');
+//   }
+//   return updateHandler(orderId, orderDto.OrderStatus.PROCESSING);
+// };
 
 /**
  * Đã giao cho đơn vị vận chuyển
@@ -161,6 +183,9 @@ export const complete = async (orderId: string) => {
     where: {
       id: orderId,
     },
+    include: {
+      payment: true
+    }
   });
   if (!order) {
     throw new AppError(ErrorCode.NOT_FOUND, 'Không tìm thấy Order');
@@ -176,6 +201,16 @@ export const complete = async (orderId: string) => {
       status: orderDto.OrderItemStatus.COMPLETED,
     },
   });
+  if (order.payment?.method == PaymentMethod.VNPAY) {
+    await prisma.payment.update({
+      where: {
+        order_id: orderId
+      },
+      data: {
+        payment_status: PaymentStatus.SUCCESS
+      }
+    })
+  }
   return updateHandler(orderId, orderDto.OrderStatus.COMPLETED);
 };
 
@@ -203,4 +238,5 @@ export const refunded = async (orderId: string, order_item_id: string) => {
   }
   return updateHandler(orderId, orderDto.OrderStatus.REFUNDED);
 };
+
 

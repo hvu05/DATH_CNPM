@@ -103,4 +103,37 @@ registry.registerPath({
   }
 })
 router.post('/register', authController.registerHandler)
+
+registry.registerPath({
+  tags: ['Auth'],
+  path: '/auth/refresh-token',
+  method: 'post',
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              refresh_token: {
+                type: "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  responses: {
+    "200": {
+      description: "OK",
+      content: {
+        "application/json": {
+          schema: ApiResponseSchema(authDto.LoginResponseSchema)
+        }
+      }
+    }
+  }
+})
+router.post('/refresh-token', authController.refreshTokenHandler)
 export default router

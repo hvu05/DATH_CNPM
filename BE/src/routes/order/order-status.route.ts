@@ -282,4 +282,45 @@ router.post(
   multerConfig.array('images', 5),
   orderReturnController.createReturnOrderRequestHandler,
 );
+registry.registerPath({
+  tags: ['Order - Status'],
+  path: '/orders/{order_id}/return/{order_item_id}/detail',
+  description: 'Staff xem chi tiết yêu cầu hoàn trả',
+  method: 'get',
+  security: [
+    {
+      bearerAuth: [],
+    },
+  ],
+  parameters: [
+    {
+      name: 'order_id',
+      in: 'path',
+      required: true,
+      schema: { type: 'string' },
+    },
+    {
+      name: 'order_item_id',
+      in: 'path',
+      required: true,
+      schema: { type: 'string' },
+    },
+  ],  
+  responses: {
+    '200': {
+      description: 'OK',
+      content: {
+        'application/json': {
+          schema: ApiResponseSchema(orderDto.OrderReturnResponseSchema),
+        },
+      },
+    },
+  }
+})
+router.get(
+  '/return/:order_item_id/detail',
+  authenticateHandler,
+  checkRole(['ADMIN', 'STAFF']),
+  orderReturnController.getReturnOrderDetailHandler
+)
 export default router;

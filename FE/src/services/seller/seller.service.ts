@@ -1,5 +1,19 @@
 import axios from '@/services/axios.customize';
 
+interface ApiResponse<T> {
+    success: boolean;
+    data?: T;
+    message?: string;
+    error?: string;
+}
+
+interface IUser {
+    id: string;
+    full_name: string;
+    email: string;
+    phone: string;
+}
+
 export const DEFAULT_SORTBY: TSortColumn = 'create_at';
 export const DEFAUTLT_SORTORDER: SortOrder = 'asc';
 export type TSortColumn = 'create_at';
@@ -100,7 +114,7 @@ export const getAllOrders = async (params: IGetOrdersParams) => {
         urlParam.append('max_price', params.max_price.toString());
     }
     if (params.min_price) {
-        urlParam.append('max_price', params.min_price.toString());
+        urlParam.append('min_price', params.min_price.toString());
     }
     if (params.status) {
         urlParam.append('status', params.status);

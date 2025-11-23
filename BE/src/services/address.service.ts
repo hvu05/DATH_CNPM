@@ -22,7 +22,9 @@ export const createAddress = async (data : AddressCreateRequest, id? : string) :
         connect : {
           id : user.id
         }
-      }
+      },
+      receive_name : data.receive_name? data.receive_name : user.full_name,
+      phone: data.phone? data.phone : user.phone? user.phone : ""
     },
   });
   const allAddresses = await prisma.address.findMany({
@@ -32,6 +34,8 @@ export const createAddress = async (data : AddressCreateRequest, id? : string) :
       province: true,
       ward: true,
       detail: true,
+      receive_name: true,
+      phone: true,
       user: {
         select: {
           id: true,
@@ -58,6 +62,8 @@ export const getAddressList = async (user_id: string) : Promise<AddressListRespo
       province: true,
       ward: true,
       detail: true,
+      receive_name: true,
+      phone: true,
       user: {
         select: {
           id: true,

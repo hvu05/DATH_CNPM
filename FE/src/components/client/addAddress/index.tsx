@@ -8,15 +8,15 @@ import { message } from 'antd';
 //! Chỗ này Fake api của Address
 interface AddAddressProps {
     setIsAddresses: React.Dispatch<React.SetStateAction<boolean>>;
+    setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const AddAddress: React.FC<AddAddressProps> = ({ setIsAddresses }) => {
+export const AddAddress: React.FC<AddAddressProps> = ({setIsAddresses , setRefresh}) => {
     const [provinces, setProvinces] = useState<Province[]>([]);
     const [wards, setWards] = useState<Ward[]>([]);
     const [selectedProvince, setSelectedProvince] = useState<string>('');
     const [selectedWard, setSelectedWard] = useState<string>('');
     const [detailAddress, setDetailAddress] = useState<string>('');
-
 
     // Fetch provinces on component mount
     useEffect(() => {
@@ -27,8 +27,7 @@ export const AddAddress: React.FC<AddAddressProps> = ({ setIsAddresses }) => {
             // } catch (error) {
             //     console.error('Failed to fetch provinces', error);
             // }
-            setProvinces(province_api)
-
+            setProvinces(province_api);
         };
         fetchProvinces();
     }, []);
@@ -43,7 +42,7 @@ export const AddAddress: React.FC<AddAddressProps> = ({ setIsAddresses }) => {
             // } catch (error) {
             //     console.error('Failed to fetch wards', error);
             // }
-            setWards(ward_api)
+            setWards(ward_api);
         };
         fetchWards();
     }, [selectedProvince]);
@@ -51,23 +50,25 @@ export const AddAddress: React.FC<AddAddressProps> = ({ setIsAddresses }) => {
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         // Handle the form submission logic here (e.g., save the address, etc.)
-        console.log('add address',{
+        console.log('add address', {
             selectedProvince,
             selectedWard,
             detailAddress,
         });
         const objRequest = {
-            province: selectedProvince,  // Example: "Long An"
-            ward: selectedWard,      // Example: "Kien Tuong"
+            province: selectedProvince, // Example: "Long An"
+            ward: selectedWard, // Example: "Kien Tuong"
             detail: detailAddress,
-        }
+        };
         try {
-            console.log('req', objRequest)
-            const res = await addressAPI.createANewAddress(objRequest)
-            if(res) message.success('Thêm địa chỉ thành công')
+            const res = await addressAPI.createANewAddress(objRequest);
+            if (res) {
+                message.success('Thêm địa chỉ thành công');
+                setRefresh(refresh => !refresh)
+            }
         } catch (error) {
-            message.error('Thêm địa chỉ thất bại')
-            console.log(error)
+            message.error('Thêm địa chỉ thất bại');
+            console.log(error);
         }
 
         // Close the address form
@@ -89,14 +90,16 @@ export const AddAddress: React.FC<AddAddressProps> = ({ setIsAddresses }) => {
                         value={phoneNumber}
                         onChange={(e) => setPhoneNumber(e.target.value)}
                     /> */}
- 
+
                     <select
                         className="address__input"
                         value={selectedProvince}
-                        onChange={(e) => setSelectedProvince(e.target.value)}
+                        onChange={e => setSelectedProvince(e.target.value)}
                     >
-                        <option value="" disabled>Chọn Tỉnh/Thành phố</option>
-                        {provinces.map((province) => (
+                        <option value="" disabled>
+                            Chọn Tỉnh/Thành phố
+                        </option>
+                        {provinces.map(province => (
                             <option key={province.code} value={province.name}>
                                 {province.name}
                             </option>
@@ -105,11 +108,13 @@ export const AddAddress: React.FC<AddAddressProps> = ({ setIsAddresses }) => {
                     <select
                         className="address__input"
                         value={selectedWard}
-                        onChange={(e) => setSelectedWard(e.target.value)}
+                        onChange={e => setSelectedWard(e.target.value)}
                         disabled={!selectedProvince}
                     >
-                        <option value="" disabled>Chọn Phường/Xã</option>
-                        {wards.map((ward) => (
+                        <option value="" disabled>
+                            Chọn Phường/Xã
+                        </option>
+                        {wards.map(ward => (
                             <option key={ward.code} value={ward.name}>
                                 {ward.name}
                             </option>
@@ -120,7 +125,7 @@ export const AddAddress: React.FC<AddAddressProps> = ({ setIsAddresses }) => {
                         className="address__input"
                         placeholder="Địa chỉ chi tiết"
                         value={detailAddress}
-                        onChange={(e) => setDetailAddress(e.target.value)}
+                        onChange={e => setDetailAddress(e.target.value)}
                     />
                     <button type="submit" className="address__button">
                         Thêm địa chỉ

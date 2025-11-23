@@ -6,20 +6,54 @@ import './index.scss';
 import { useState } from 'react';
 import { ChangeAddressPage } from '@/components/client/ChangeAddress';
 import { useNavigate } from 'react-router';
+import { useClientProfile } from '@/hooks/client/useClientProfile';
+import type { Address } from '@/types/clients/client.address.types';
+import { orderAPI } from '@/services/user/orders/user.order.api';
+import type { OrderRequest } from '@/types/clients/client.order.types';
+import { message } from 'antd';
 
-type OptionsPayment = 'cod' | 'card';
+type OptionsPayment = 'COD' | 'VNPAY';
 
 export const OrderClient = () => {
     const [formChangeAddress, setFormChangeAddress] = useState<boolean>(false);
     const navigate = useNavigate();
 
-    const [statusPayment, setStatusPayment] = useState<OptionsPayment>('cod');
+    const [statusPayment, setStatusPayment] = useState<OptionsPayment>('COD');
 
-    const HandleOrder = () => {
-        if (statusPayment === 'card') {
-            navigate('/client/order/payment');
-        } else navigate('/client/order/success');
+    const { data: profile, loading: loadingProfile } = useClientProfile();
+
+    const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
+
+    const order_fake: OrderRequest = {
+        province: selectedAddress?.province || 'Chưa chọn',
+        ward: selectedAddress?.ward || 'Chưa chọn',
+        detail: selectedAddress?.detail || 'Chưa chọn',
+        items: [
+            {
+                product_id: 1,
+                product_variant_id: 2,
+                quantity: 1,
+            },
+        ],
+        method: statusPayment,
     };
+    const HandleOrder = async () => {
+        const res = await orderAPI.createOrder(order_fake);
+        if (res) {
+            if (!selectedAddress) {
+                message.warning('Vui lòng chọn địa chỉ');
+                return;
+            }
+
+            if (statusPayment === 'VNPAY') {
+                navigate('/client/order/payment', { state: { qrUrl: res.data?.url } });
+            } else if(statusPayment === 'COD') {
+                navigate('/client/order/success');
+            }
+        }
+    };
+
+    if (loadingProfile) return <p>Loading...</p>;
     return (
         <div className="client-order-detail">
             <div className="client-order-detail__main">
@@ -62,21 +96,24 @@ export const OrderClient = () => {
                             <p>
                                 <span className="client-order-detail__info-label">Họ và tên:</span>{' '}
                                 <span className="client-order-detail__info-value">
-                                    Lê Nguyễn Văn Sĩ
+                                    {profile?.full_name || 'Chưa xác định'}
                                 </span>
                             </p>
                             <p>
                                 <span className="client-order-detail__info-label">
                                     Số điện thoại:
                                 </span>{' '}
-                                <span className="client-order-detail__info-value">01234567890</span>
+                                <span className="client-order-detail__info-value">
+                                    {profile?.phone || '0854747707'}
+                                </span>
                             </p>
                         </div>
                         <div className="client-order-detail__info-group client-order-detail__info-group--address">
                             <div>
                                 <div className="client-order-detail__info-label">Địa chỉ</div>
                                 <div className="client-order-detail__info-value">
-                                    Số 123 Đường ABC, Khu phố A, Tỉnh ABC
+                                    {selectedAddress?.detail} - {selectedAddress?.ward} -{' '}
+                                    {selectedAddress?.province}
                                 </div>
                             </div>
                             <button
@@ -95,7 +132,7 @@ export const OrderClient = () => {
                     <div className="client-order-detail__payment-options">
                         <div
                             className="client-order-detail__payment-option"
-                            onClick={() => setStatusPayment('cod')}
+                            onClick={() => setStatusPayment('COD')}
                         >
                             <input type="radio" name="payment" id="payment-cash" defaultChecked />
                             <label htmlFor="payment-cash">
@@ -105,7 +142,7 @@ export const OrderClient = () => {
                         </div>
                         <div
                             className="client-order-detail__payment-option"
-                            onClick={() => setStatusPayment('card')}
+                            onClick={() => setStatusPayment('VNPAY')}
                         >
                             <input type="radio" name="payment" id="payment-qrcode" />
                             <label htmlFor="payment-qrcode">
@@ -140,7 +177,12 @@ export const OrderClient = () => {
                     Đặt hàng
                 </div>
             </div>
-            {formChangeAddress && <ChangeAddressPage setFormChangeAddress={setFormChangeAddress} />}
+            {formChangeAddress && (
+                <ChangeAddressPage
+                    setFormChangeAddress={setFormChangeAddress}
+                    setSelectedAddress={setSelectedAddress}
+                />
+            )}
         </div>
     );
 };

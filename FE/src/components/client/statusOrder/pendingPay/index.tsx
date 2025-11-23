@@ -9,9 +9,8 @@ import { message } from 'antd';
 
 type Props = {
     orders: DataInOrder | null;
-    setRefresh: React.Dispatch<React.SetStateAction<boolean>>
+    setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
 };
-
 
 export const PendingPay = ({ orders, setRefresh }: Props) => {
     const orderPending = orders?.orders.filter(item => item?.status === 'PENDING');
@@ -52,8 +51,8 @@ export const PendingPay = ({ orders, setRefresh }: Props) => {
             const res = await orderAPI.cancelOrder(selectedOrderId);
 
             if (res) {
-                message.success('Hủy đơn hàng thành công')
-                setRefresh(r => !r)
+                message.success('Hủy đơn hàng thành công');
+                setRefresh(r => !r);
                 closeCancelModal();
                 // Có thể thêm logic reload data hoặc update UI
             }
@@ -94,7 +93,7 @@ export const PendingPay = ({ orders, setRefresh }: Props) => {
 
                     <div className="client-order__price-status">
                         <div className="client-order__price">
-                            Giá: {ord?.total?.toLocaleString()} VNĐ
+                            Giá: {ord?.total?.toLocaleString()} đ
                         </div>
                         <div className="btn-rebuy" onClick={() => HandlePayment(ord?.id)}>
                             Thanh toán ngay

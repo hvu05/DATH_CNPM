@@ -11,16 +11,14 @@ import type { DataInOrder, OrderAllResponse } from '@/types/clients/client.order
 import { useClientOrder } from '@/hooks/client/useClientOrder';
 
 type OptionsFilter =
-    | 'all'
-    | 'pending_pay'
-    | 'shipping'
-    | 'processing'
-    | 'succeeded'
-    | 'return'
-    | 'cancelled';
+    | 'ALL'
+    | 'PENDING'
+    | 'DELIVERING'
+    | 'PROCESSING'
+    | 'COMPLETED'
+    | 'RETURN'
+    | 'CANCELLED';
 
-
-    
 // export enum OrderItemStatus {
 //   PENDING = 'PENDING',
 //   COMPLETED = 'COMPLETED',
@@ -40,35 +38,35 @@ type OptionsFilter =
 //   REFUNDED = 'REFUNDED'
 // }
 export const ClientOrder = () => {
-    const [filter, setFilter] = useState<OptionsFilter>('all');
-    const [refresh, setRefresh] = useState<boolean>(true)
-    const [orders, setOrder] = useState<DataInOrder | null>(null)
-    const {data: res, loading: loading} = useClientOrder(refresh)
+    const [filter, setFilter] = useState<OptionsFilter>('ALL');
+    const [refresh, setRefresh] = useState<boolean>(true);
+    const [orders, setOrder] = useState<DataInOrder | null>(null);
+    const { data: res, loading: loading } = useClientOrder(refresh);
 
-    const ref = useRef<OptionsFilter>()
+    const ref = useRef<OptionsFilter>();
     useEffect(() => {
-        setOrder(res?.data ?? null)
-    }, [res])
+        setOrder(res?.data ?? null);
+    }, [res]);
 
     useEffect(() => {
-        ref.current = filter
-    }, [filter])
-    
-    if(loading) return <p> Loading ...</p>
+        ref.current = filter;
+    }, [filter]);
+
+    if (loading) return <p> Loading ...</p>;
     const renderFillter = () => {
         switch (filter) {
-            case 'pending_pay':
-                return <PendingPay orders={orders} setRefresh={setRefresh}/>;
-            case 'shipping':
+            case 'PENDING':
+                return <PendingPay orders={orders} setRefresh={setRefresh} />;
+            case 'DELIVERING':
                 return <ShippingOrder orders={orders} />;
-            case 'processing':
+            case 'PROCESSING':
                 return <ProcessingOrder orders={orders} />;
-            case 'succeeded':
+            case 'COMPLETED':
                 return <SuccessOrder orders={orders} />;
-            case 'return':
-                return <ReturnOrder  orders={orders} />;
-            case 'cancelled':
-                return <CancelOrders  orders={orders} />;
+            case 'RETURN':
+                return <ReturnOrder orders={orders} />;
+            case 'CANCELLED':
+                return <CancelOrders orders={orders} />;
             default:
                 return <AllOrders orders={orders} />;
         }
@@ -80,44 +78,44 @@ export const ClientOrder = () => {
 
             <div className="client-order__filter">
                 <button
-                    className={`client-order__filter-option ${filter == 'all' ? 'client-order__filter-option--active' : ''}`}
-                    onClick={() => setFilter('all')}
+                    className={`client-order__filter-option ${filter == 'ALL' ? 'client-order__filter-option--active' : ''}`}
+                    onClick={() => setFilter('ALL')}
                 >
                     Tất cả
                 </button>
                 <button
-                    className={`client-order__filter-option ${filter == 'pending_pay' ? 'client-order__filter-option--active' : ''}`}
-                    onClick={() => setFilter('pending_pay')}
+                    className={`client-order__filter-option ${filter == 'PENDING' ? 'client-order__filter-option--active' : ''}`}
+                    onClick={() => setFilter('PENDING')}
                 >
-                    Đang chờ thanh toán
+                    Chờ thanh toán
                 </button>
                 <button
-                    className={`client-order__filter-option ${filter == 'processing' ? 'client-order__filter-option--active' : ''}`}
-                    onClick={() => setFilter('processing')}
+                    className={`client-order__filter-option ${filter == 'PROCESSING' ? 'client-order__filter-option--active' : ''}`}
+                    onClick={() => setFilter('PROCESSING')}
                 >
                     Đang xử lý
                 </button>
                 <button
-                    className={`client-order__filter-option ${filter == 'shipping' ? 'client-order__filter-option--active' : ''}`}
-                    onClick={() => setFilter('shipping')}
+                    className={`client-order__filter-option ${filter == 'DELIVERING' ? 'client-order__filter-option--active' : ''}`}
+                    onClick={() => setFilter('DELIVERING')}
                 >
                     Đang giao
                 </button>
                 <button
-                    className={`client-order__filter-option ${filter == 'succeeded' ? 'client-order__filter-option--active' : ''}`}
-                    onClick={() => setFilter('succeeded')}
+                    className={`client-order__filter-option ${filter == 'COMPLETED' ? 'client-order__filter-option--active' : ''}`}
+                    onClick={() => setFilter('COMPLETED')}
                 >
                     Giao hàng thành công
                 </button>
                 <button
-                    className={`client-order__filter-option ${filter == 'return' ? 'client-order__filter-option--active' : ''}`}
-                    onClick={() => setFilter('return')}
+                    className={`client-order__filter-option ${filter == 'RETURN' ? 'client-order__filter-option--active' : ''}`}
+                    onClick={() => setFilter('RETURN')}
                 >
                     Trả hàng
                 </button>
                 <button
-                    className={`client-order__filter-option ${filter == 'cancelled' ? 'client-order__filter-option--active' : ''}`}
-                    onClick={() => setFilter('cancelled')}
+                    className={`client-order__filter-option ${filter == 'CANCELLED' ? 'client-order__filter-option--active' : ''}`}
+                    onClick={() => setFilter('CANCELLED')}
                 >
                     Đã hủy
                 </button>

@@ -49,7 +49,7 @@ export const ReOrderClient = () => {
                         Sản phẩm trong đơn ({order.order_items.length})
                     </h2>
                     <div className="client-order-detail__product-list">
-                        {order.order_items.map((ord, index )=> (
+                        {order.order_items.map((ord, index) => (
                             <Fragment key={ord.id}>
                                 <div className="client-order-detail__product-item">
                                     <div className="client-order-detail__product-info">
@@ -131,7 +131,9 @@ export const ReOrderClient = () => {
                     <h2 className="client-order-detail__summary-title">Thông tin đơn hàng</h2>
                     <div className="client-order-detail__summary-row">
                         <span>Tổng tiền</span>
-                        <span className="client-order-detail__summary-price">{order.total.toLocaleString()} VND</span>
+                        <span className="client-order-detail__summary-price">
+                            {order.total.toLocaleString()} VND
+                        </span>
                     </div>
                     <div className="client-order-detail__summary-row">
                         <span>Tổng khuyến mãi</span>

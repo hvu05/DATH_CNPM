@@ -17,7 +17,7 @@ export const clientRoutes: RouteObject[] = [
         path: '/client',
         element: (
             <ProtectedRoute allow={'CUSTOMER'}>
-                <ClientLayout /> 
+                <ClientLayout />
             </ProtectedRoute>
         ),
         children: [
@@ -57,8 +57,8 @@ export const clientRoutes: RouteObject[] = [
             },
             {
                 path: '/client/info/:id',
-                element: <ReOrderClient />
-            }
+                element: <ReOrderClient />,
+            },
         ],
     },
 ];

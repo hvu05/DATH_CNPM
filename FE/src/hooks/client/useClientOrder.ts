@@ -10,11 +10,11 @@ export const useClientOrder = (refresh: boolean) => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const res = await orderAPI.getOrderByUser()
+                const res = await orderAPI.getOrderByUser();
                 if (res) {
                     setLoading(false);
                     setOrder(res);
-                    console.log('res fetch', res)
+                    console.log('res fetch', res);
                 }
             } catch (err) {
                 setLoading(false);

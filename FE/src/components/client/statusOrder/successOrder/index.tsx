@@ -10,11 +10,9 @@ export const SuccessOrder = ({ orders }: Props) => {
     const navigate = useNavigate();
 
     // Filter orders that are in "SUCCEEDED" status
-    const successOrders = orders?.orders?.filter(item => item?.status === 'DELIVERED');
+    const successOrders = orders?.orders?.filter(item => item?.status === 'COMPLETED');
 
-    const handleEvaluate = (id: string) => {
-
-    };
+    const handleEvaluate = (id: string) => {};
     const handleRebuy = (order: OrdersInOrder) => {
         navigate(`/client/order/${order.id}`, { state: { order: order } });
     };
@@ -57,7 +55,9 @@ export const SuccessOrder = ({ orders }: Props) => {
                                 Mua lại
                             </div>
                         </div>
-
+                        <button className="client-order__return">
+                            Đơn hàng đã được giao đến bạn
+                        </button>
                         <button
                             onClick={() =>
                                 navigate(`/client/info/${order?.id}`, { state: { order: order } })

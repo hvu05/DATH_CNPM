@@ -12,8 +12,19 @@ export const OrderSuccess = () => {
                 Vui mắc thắc về đơn hàng quý khách vui vòng liên hệ hotline hoặc hệ thống cửa hàng
                 gần nhất
             </p>
-            <div className="btn-rebuy order-success-container__btn" onClick={() => navigate('/')}>
-                Trang chủ
+            <div style={{display: 'flex', gap: '10px'}}>
+                <div
+                    className="btn-rebuy order-success-container__btn"
+                    onClick={() => navigate('/')}
+                >
+                    Trang chủ
+                </div>
+                <div
+                    className="btn-rebuy order-success-container__btn"
+                    onClick={() => navigate('/client/my-orders')}
+                >
+                    Lịch sử mua hàng
+                </div>
             </div>
         </div>
     );

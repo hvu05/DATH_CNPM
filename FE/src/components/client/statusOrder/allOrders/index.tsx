@@ -1,7 +1,7 @@
 import default_order from '@/assets/seller/default_order.webp';
 // import { useNavigate } from 'react-router';
 import '@/styles/client/clientOrderList.scss';
-import type { DataInOrder } from '@/types/clients/client.order.types';
+import type { DataInOrder, StatusOrder } from '@/types/clients/client.order.types';
 import { useNavigate } from 'react-router';
 
 type Props = {
@@ -11,26 +11,29 @@ type Props = {
 export const AllOrders = ({ orders }: Props) => {
     //   const navigate = useNavigate();
 
-    const getStatusButton = (status: string) => {
+    const getStatusButton = (status: StatusOrder) => {
         switch (status) {
             case 'PENDING':
-                return <div className="btn-pending-pay">Đang chờ thanh toán</div>;
+                return <div className="btn-cancel">Đang chờ thanh toán</div>;
             case 'DELIVERING':
-                return <div className="btn-shipping">Đang giao</div>;
+                return <div className="btn-cancel">Đang giao</div>;
             case 'PROCESSING':
-                return <div className="btn-processing">Đang xử lý</div>;
-            case 'DELIVERED':
-                return <div className="btn-success">Thành công</div>;
+                return <div className="btn-cancel">Đang xử lý</div>;
+            case 'COMPLETED':
+                return <div className="btn-cancel">Thành công</div>;
             case 'RETURNED':
-                return <div className="btn-return">Trả hàng</div>;
+                return <div className="btn-cancel">Đơn hàng đã hoàn trả</div>;
             case 'CANCELLED':
                 return <div className="btn-cancel">Đã hủy</div>;
+            case 'RETURN_REQUEST':
+                return <div className="btn-cancel">Đơn hàng hoàn trả đang chờ xác nhận</div>;
+            
             default:
                 return <div className="btn-default">Chưa xác định</div>;
         }
     };
 
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     return (
         <div className="client-order__list">
             {orders?.orders.map(order => (
@@ -65,7 +68,9 @@ export const AllOrders = ({ orders }: Props) => {
                         {getStatusButton(order?.status)}
 
                         <button
-                            onClick={() => navigate(`/client/info/${order?.id}`, {state: {order: order}})}
+                            onClick={() =>
+                                navigate(`/client/info/${order?.id}`, { state: { order: order } })
+                            }
                             className="client-order__detail-link"
                         >
                             Chi tiết đơn hàng

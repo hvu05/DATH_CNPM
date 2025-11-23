@@ -41,9 +41,9 @@ export const addressAPI = {
 
         return res.data;
     },
-    deleteAddress: async(id: string) => {
+    deleteAddress: async (id: string) => {
         const res = await axios.delete<ApiResponse<AddressResponse>>(`/users/address/${id}`);
 
-        return res
-    }
+        return res;
+    },
 };

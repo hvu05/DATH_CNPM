@@ -64,3 +64,31 @@ values
 (4, 2, 2000, 'VNPAY', 'SUCCESS', 'vnpay4', '2025-12-30 12:00:04', '2025-12-30 12:00:04', 4),
 (5, 3, 3000, 'VNPAY', 'SUCCESS', 'vnpay5', '2025-12-30 12:00:05', '2025-12-30 12:00:05', 3),
 (6, 6, 1000, 'COD', 'SUCCESS', 'cod6', '2025-12-30 12:00:05', '2025-12-30 12:00:05', 1);
+-- Product image table
+USE project1;
+INSERT INTO ProductImage(id, product_id, image_url, image_public_id, is_thumbnail)
+values
+ -- image of macbook1
+(1, 10,'https://res.cloudinary.com/djnfuzqou/image/upload/v1763917995/product/image_1763917994566_j6a1iwk.webp','product/image_1763917994566_j6a1iwk', 1),
+-- img of dell3
+(2, 12,'https://res.cloudinary.com/djnfuzqou/image/upload/v1763918037/product/image_1763918033669_mr6ps46.webp', 'product/image_1763918033669_mr6ps46', 1 ), 
+-- img of asus
+(3, 14, 'https://res.cloudinary.com/djnfuzqou/image/upload/v1763917957/product/image_1763917954735_wwx375l.webp', 'product/image_1763917954735_wwx375l', 1), 
+-- img of mac2 == ipad :D
+(4, 11, 'https://res.cloudinary.com/djnfuzqou/image/upload/v1763917811/product/image_1763917808870_t8szspk.webp', 'product/image_1763917808870_t8szspk', 1), 
+-- img of dell4 == ip
+(5, 13, 'https://res.cloudinary.com/djnfuzqou/image/upload/v1763917910/product/image_1763917908878_zpi9y7n.webp', 'product/image_1763917908878_zpi9y7n', 1); 
+-- ReturnOrderRequest
+USE project1;
+INSERT INTO ReturnOrderRequest(order_id, order_item_id, reason, approved_by, create_at, update_at)
+values
+(2, 4, 'Đồ gì mà đắt quá đi huhu', '1', '2025-12-30 10:00:01', '2025-12-30 10:00:01'),
+(2, 5, 'chán quá đi huhu', '1', '2025-12-30 10:00:01', '2025-12-30 10:00:01'),
+(6, 9, 'Đồ gì mà đắt quá đi huhu', '1', '2025-12-30 10:00:01', '2025-12-30 10:00:01');
+-- ReturnOrderImage
+USE project1;
+INSERT INTO ReturnOrderImage(public_id, image_url, order_id, order_item_id)
+values
+('product/image_1763917994566_j6a1iwk', 'https://res.cloudinary.com/djnfuzqou/image/upload/v1763917995/product/image_1763917994566_j6a1iwk.webp', 2, 4),
+('product/image_1763917954735_wwx375l', 'https://res.cloudinary.com/djnfuzqou/image/upload/v1763917957/product/image_1763917954735_wwx375l.webp', 2, 5),
+('product/image_1763917808870_t8szspk', 'https://res.cloudinary.com/djnfuzqou/image/upload/v1763917811/product/image_1763917808870_t8szspk.webp', 6, 9);

@@ -53,7 +53,18 @@ export const createOrder = async (
         include: {
           variant: {
             include: {
-              product: true,
+              product: {
+                include: {
+                  product_image: {
+                    where: {
+                      is_thumbnail: true
+                    },
+                    select: {
+                      image_url: true
+                    }
+                  }
+                }
+              }
             },
           },
         },
@@ -93,7 +104,18 @@ export const getOrdersByUser = async (
         include: {
           variant: {
             include: {
-              product: true,
+              product: {
+                include: {
+                  product_image: {
+                    where: {
+                      is_thumbnail: true
+                    },
+                    select: {
+                      image_url: true
+                    }
+                  }
+                }
+              }
             },
           },
         },
@@ -185,7 +207,18 @@ export const getAllOrders = async (
           include: {
             variant: {
               include: {
-                product: true,
+                product: {
+                  include: {
+                    product_image: {
+                      where: {
+                        is_thumbnail: true
+                      },
+                      select: {
+                        image_url: true
+                      }
+                    }
+                  }
+                }
               },
             },
           },

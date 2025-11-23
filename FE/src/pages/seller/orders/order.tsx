@@ -18,7 +18,6 @@ import {
     Skeleton,
     Empty,
     Select,
-    message,
     Image,
     Pagination,
     App,
@@ -95,6 +94,7 @@ export const OrderPage = () => {
             currency: 'VND',
         }).format(amount);
     };
+
     // Action buttons for order
     const getActionItems = (order: IOrder): MenuProps['items'] => {
         const items: MenuProps['items'] = [
@@ -235,6 +235,7 @@ export const OrderPage = () => {
             const result = await getAllOrders(requestParams);
             if (result.success && result.data) {
                 setOrders(result.data.orders || []);
+                console.log(result.data.orders);
                 setTotalOrders(result.data.count || 0);
             }
         } catch (error) {
@@ -285,7 +286,7 @@ export const OrderPage = () => {
             }
         >
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', width: '100%' }}>
-                <Image src={defaulProduct} width={100} />
+                <Image src={order.order_items[0].product_variant.thumbnail} width={100} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                     <div
                         style={{

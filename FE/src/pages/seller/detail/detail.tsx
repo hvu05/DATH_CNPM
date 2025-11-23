@@ -2,10 +2,15 @@ import { useLocation, useNavigate } from 'react-router';
 import './detail.scss';
 import defaultItem from '@/assets/seller/default_order.webp';
 import { Fragment } from 'react/jsx-runtime';
-import { Button, message, Typography, Skeleton } from 'antd';
+import { Button, Typography, Skeleton, App } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import type { ICustomer, IOrder, OrderStatus } from '@/services/seller/seller.service';
-import { getUserById } from '@/services/seller/seller.service';
+import {
+    acceptDeliverAPI,
+    acceptReturnRqAPI,
+    completeDeliverAPI,
+    getUserById,
+} from '@/services/seller/seller.service';
 import { useEffect, useState } from 'react';
 
 const { Title } = Typography;
@@ -16,7 +21,9 @@ export const DetailPage = () => {
     const orderData = location.state?.order as IOrder;
     const [customerInfo, setCustomerInfo] = useState<ICustomer | null>(null);
     const [loadingCustomer, setLoadingCustomer] = useState(false);
+    const { message, notification } = App.useApp();
 
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
     // Redirect back if no order data is provided
     useEffect(() => {
         if (!orderData) {
@@ -59,7 +66,7 @@ export const DetailPage = () => {
     const getStatusColor = (status: OrderStatus) => {
         const colors: Record<OrderStatus, string> = {
             PENDING: 'orange',
-            PROCESSING: 'cyan',
+            PROCESSING: 'orange',
             DELIVERING: 'purple',
             COMPLETED: 'green',
             CANCELLED: 'red',
@@ -344,6 +351,57 @@ export const DetailPage = () => {
                                 <button
                                     className="btn-rebuy seller-order-detail__action-btn"
                                     style={{ backgroundColor: '#1677ff', marginBottom: '12px' }}
+                                    onClick={async () => {
+                                        try {
+                                            // Handle multiple items in the order
+                                            const returnPromises =
+                                                orderData.order_items?.map(item =>
+                                                    acceptReturnRqAPI(orderData.id, item.id)
+                                                ) || [];
+
+                                            if (returnPromises.length === 0) {
+                                                message.warning(
+                                                    'Không có sản phẩm nào để trả hàng'
+                                                );
+                                                return;
+                                            }
+
+                                            message.loading('Đang xử lý trả hàng...', 0);
+
+                                            // Execute all return requests in parallel
+                                            const results =
+                                                await Promise.allSettled(returnPromises);
+
+                                            // Check if all were successful
+                                            const successful = results.filter(
+                                                result => result.status === 'fulfilled'
+                                            ).length;
+
+                                            message.destroy();
+
+                                            if (successful === returnPromises.length) {
+                                                message.success(
+                                                    `Xác nhận trả hàng thành công cho ${successful} sản phẩm`
+                                                );
+                                            } else {
+                                                message.warning(
+                                                    `Xác nhận trả hàng thành công cho ${successful}/${returnPromises.length} sản phẩm`
+                                                );
+                                            }
+
+                                            // await delay(1000);
+                                            // window.location.reload();
+                                        } catch (error: any) {
+                                            message.destroy();
+                                            console.error('Return request error:', error);
+                                            notification.error({
+                                                message: 'Lỗi xác nhận trả hàng',
+                                                description:
+                                                    error.response?.data?.error ||
+                                                    'Không thể xác nhận yêu cầu trả hàng',
+                                            });
+                                        }
+                                    }}
                                 >
                                     Xác nhận yêu cầu trả hàng
                                 </button>
@@ -353,6 +411,21 @@ export const DetailPage = () => {
                             <button
                                 className="btn-rebuy seller-order-detail__action-btn"
                                 style={{ backgroundColor: '#722ed1' }}
+                                onClick={async () => {
+                                    try {
+                                        await acceptDeliverAPI(orderData.id);
+                                        message.success('Thành công');
+                                        await delay(1000);
+
+                                        window.location.reload();
+                                    } catch (error: any) {
+                                        console.log(error);
+                                        notification.error({
+                                            message: 'Error',
+                                            description: error.response.data.error,
+                                        });
+                                    }
+                                }}
                             >
                                 Bắt đầu giao hàng
                             </button>
@@ -361,6 +434,19 @@ export const DetailPage = () => {
                             <button
                                 className="btn-rebuy seller-order-detail__action-btn"
                                 style={{ backgroundColor: '#13c2c2' }}
+                                onClick={async () => {
+                                    try {
+                                        await completeDeliverAPI(orderData.id);
+                                        message.success('Thành công');
+                                        await delay(1000);
+                                        window.location.href = '/seller/myOrders';
+                                    } catch (error: any) {
+                                        notification.error({
+                                            message: 'Error',
+                                            description: error.response.data.error,
+                                        });
+                                    }
+                                }}
                             >
                                 Giao hàng thành công
                             </button>

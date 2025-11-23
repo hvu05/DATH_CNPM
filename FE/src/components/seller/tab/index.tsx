@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from 'react-router';
 import './index.scss';
 import '@/assets/seller/user.svg';
 
-type PathName = 'orders' | 'status' | 'seller';
+type PathName = 'myOrders' | 'status' | 'seller';
 
 export const Tab = () => {
     const location = useLocation();
@@ -55,8 +55,8 @@ export const Tab = () => {
                         <span>Xem hồ sơ</span>
                     </li>
                     <li
-                        className={`${isActiveLink('orders') ? 'tab--active' : ''}`}
-                        onClick={() => navigate('/seller/orders')}
+                        className={`${isActiveLink('myOrders') ? 'tab--active' : ''}`}
+                        onClick={() => navigate('/seller/myOrders')}
                     >
                         <span>
                             <svg

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import './order.scss';
 import default_order from '@/assets/seller/default_order.webp';
 import { useNavigate } from 'react-router';
+import { ProductOutlined } from '@ant-design/icons';
 
 type OptionsFilter = 'all' | 'confirmed' | 'waiting' | 'rejected';
 
@@ -11,7 +12,9 @@ export const OrderPage = () => {
 
     return (
         <div className="seller-order">
-            <h1 className="seller-order__title">Đơn hàng</h1>
+            <h1 className="seller-order__title text-2xl">
+                <ProductOutlined /> Quản lí đơn hàng
+            </h1>
 
             <div className="seller-order__filter">
                 <button

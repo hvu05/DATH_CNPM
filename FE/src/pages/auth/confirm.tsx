@@ -25,7 +25,7 @@ export const ConfirmPage = () => {
         };
 
         try {
-            const res = await authAPI.sendOtp(obj); 
+            const res = await authAPI.sendOtp(obj);
             if (res.success) {
                 navigate('/otp');
             } else {
@@ -48,7 +48,8 @@ export const ConfirmPage = () => {
                         value={email}
                         onChange={handleEmailChange} // Lắng nghe sự kiện thay đổi của input
                     />
-                    {error && <div className="auth__error">{error}</div>} {/* Hiển thị lỗi nếu có */}
+                    {error && <div className="auth__error">{error}</div>}{' '}
+                    {/* Hiển thị lỗi nếu có */}
                     <button className="auth__button" type="submit">
                         Tiếp theo
                     </button>

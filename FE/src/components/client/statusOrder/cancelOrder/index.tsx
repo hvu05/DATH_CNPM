@@ -13,8 +13,8 @@ export const CancelOrders = ({ orders }: Props) => {
     const cancelledOrders = orders?.orders?.filter(item => item?.status === 'CANCELLED');
 
     const handleRebuy = (order: OrdersInOrder) => {
-        navigate(`/client/order/${order.id}`, {state: {order: order}})
-    }
+        navigate(`/client/order/${order.id}`, { state: { order: order } });
+    };
     return (
         <div className="client-order__list">
             {cancelledOrders?.map(order => (
@@ -51,7 +51,9 @@ export const CancelOrders = ({ orders }: Props) => {
                         </div>
 
                         <button
-                            onClick={() => navigate(`/client/info/${order?.id}`, {state: {order: order}})}
+                            onClick={() =>
+                                navigate(`/client/info/${order?.id}`, { state: { order: order } })
+                            }
                             className="client-order__detail-link"
                         >
                             Chi tiết đơn hàng

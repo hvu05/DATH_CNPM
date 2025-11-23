@@ -1,7 +1,7 @@
 import default_order from '@/assets/seller/default_order.webp';
 import { useNavigate } from 'react-router';
 import '@/styles/client/clientOrderList.scss';
-import type { DataInOrder, OrdersInOrder } from '@/types/clients/client.order.types';
+import type { DataInOrder, OrdersInOrder, StatusOrder } from '@/types/clients/client.order.types';
 
 type Props = {
     orders: DataInOrder | null;
@@ -10,11 +10,24 @@ export const ReturnOrder = ({ orders }: Props) => {
     const navigate = useNavigate();
 
     // Filter orders that are in "RETURNED" status
-    const returnedOrders = orders?.orders?.filter(item => item?.status === 'RETURNED');
+    const returnedOrders = orders?.orders?.filter(
+        item => item?.status === 'RETURNED' || item?.status === 'RETURN_REQUEST'
+    );
 
     const handleRebuy = (order: OrdersInOrder) => {
-        navigate(`/client/order/${order.id}`, {state: {order: order}})
-    }
+        navigate(`/client/order/${order.id}`, { state: { order: order } });
+    };
+    const convertView = (status: StatusOrder) => {
+        switch (status) {
+            case 'RETURNED':
+                return 'Đã được xác nhận trả hàng';
+
+            case 'RETURN_REQUEST':
+                return 'Đang chờ nhân viên xác nhận trả hàng';
+            default:
+                break;
+        }
+    };
     return (
         <div className="client-order__list">
             {returnedOrders?.map(order => (
@@ -49,8 +62,13 @@ export const ReturnOrder = ({ orders }: Props) => {
                         <div className="btn-rebuy" onClick={() => handleRebuy(order)}>
                             Mua lại
                         </div>
+                        <button className="client-order__return">
+                            {convertView(order.status)}
+                        </button>
                         <button
-                            onClick={() => navigate(`/client/info/${order?.id}`, {state: {order: order}})}
+                            onClick={() =>
+                                navigate(`/client/info/${order?.id}`, { state: { order: order } })
+                            }
                             className="client-order__detail-link"
                         >
                             Chi tiết đơn hàng

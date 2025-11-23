@@ -15,6 +15,7 @@ export const EditProfileClient = () => {
         birth_month: '',
         birth_year: '',
         email: '',
+        phone: ''
     });
 
     useEffect(() => {
@@ -26,6 +27,7 @@ export const EditProfileClient = () => {
                 birth_month: '',
                 birth_year: '',
                 email: profile.email ?? '',
+                phone: profile.phone ?? ''
             });
         }
     }, [profile]);
@@ -69,9 +71,10 @@ export const EditProfileClient = () => {
                     <div className="client-edit-profile__row">
                         <label className="client-edit-profile__label">Số điện thoại</label>
                         <input
-                            className="client-edit-profile__input disabled"
-                            disabled
-                            value={profile?.phone ?? 'Chưa có'}
+                            className="client-edit-profile__input "
+                            onChange={handleChange}
+                            value={form.phone}
+                            name='phone'
                         />
                     </div>
 
@@ -110,7 +113,7 @@ export const EditProfileClient = () => {
                             type="email"
                             value={form.email}
                             onChange={handleChange}
-                            className="client-edit-profile__input"
+                            className="client-edit-profile__input disabled"
                         />
                     </div>
 

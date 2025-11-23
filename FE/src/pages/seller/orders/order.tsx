@@ -88,7 +88,7 @@ export const OrderPage = () => {
             {
                 key: 'detail',
                 label: 'Chi tiết đơn hàng',
-                onClick: () => navigate(`/client/client/order/${order.id}`),
+                onClick: () => navigate(`/seller/order/${order.id}`, { state: { order } }),
             },
         ];
 

@@ -39,6 +39,15 @@ export const ProfilePageClient = () => {
                             {profile?.email ?? 'Chưa có email'}
                         </div>
                     </div>
+
+                    <div className="client-profile__hr"></div>
+                    <div className="client-profile__info-row">
+                        <div className="client-profile__label">Tài khoản được tạo ngày</div>
+                        <div className="client-profile__value">
+                            {(profile?.create_at.toLocaleString().split('T')[0]) ?? ''}
+                        </div>
+                    </div>
+
                     <div className="client-profile__hr"></div>
                     <div className="client-profile__button-container">
                         <button

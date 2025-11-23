@@ -8,7 +8,7 @@ type Props = {
 };
 export const ShippingOrder = ({ orders }: Props) => {
     const orderPending = orders?.orders?.filter(item => item?.status === 'DELIVERING');
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     // const navigate = useNavigate();
     return (
         <div className="client-order__list">
@@ -42,10 +42,16 @@ export const ShippingOrder = ({ orders }: Props) => {
                             Giá: {ord?.total?.toLocaleString()}đ
                         </div>
                         <div className="btn-processing">Đang giao</div>
+                        <button className="client-order__return">
+                            Đơn hàng đã được giao đến bưu cục
+                        </button>
                         <button
-                            onClick={() => navigate(`/client/info/${ord?.id}`, {state: {order: ord}})}
+                            onClick={() =>
+                                navigate(`/client/info/${ord?.id}`, { state: { order: ord } })
+                            }
                             className="client-order__detail-link"
                         >
+
                             Chi tiết đơn hàng
                         </button>
                     </div>

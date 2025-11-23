@@ -32,60 +32,60 @@ export const OrderClient = () => {
 
     const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
 
-// const orderItems: OrderItem[] = [
-//     {
-//         id: 1,
-//         price_per_item: 25000000,
-//         quantity: 2,
-//         product_variant: {
-//             id: 1,
-//             product_id: 101,
-//             color: "Đen",
-//             storage: "128GB",
-//             name: "iPhone 15 Pro",
-//             price: 25000000
-//         }
-//     },
-//     {
-//         id: 2,
-//         price_per_item: 28000000,
-//         quantity: 1,
-//         product_variant: {
-//             id: 2,
-//             product_id: 101,
-//             color: "Trắng",
-//             storage: "256GB",
-//             name: "iPhone 15 Pro",
-//             price: 28000000
-//         }
-//     },
-//     {
-//         id: 3,
-//         price_per_item: 22000000,
-//         quantity: 3,
-//         product_variant: {
-//             id: 3,
-//             product_id: 102,
-//             color: "Xanh",
-//             storage: "512GB",
-//             name: "Samsung Galaxy S24",
-//             price: 22000000
-//         }
-//     },
-//     {
-//         id: 4,
-//         price_per_item: 5000000,
-//         quantity: 1,
-//         product_variant: {
-//             id: 4,
-//             product_id: 103,
-//             color: "Đỏ",
-//             storage: "64GB",
-//             name: "Xiaomi Redmi Note 13",
-//             price: 5000000
-//         }
-//     }
-// ];
+    // const orderItems: OrderItem[] = [
+    //     {
+    //         id: 1,
+    //         price_per_item: 25000000,
+    //         quantity: 2,
+    //         product_variant: {
+    //             id: 1,
+    //             product_id: 101,
+    //             color: "Đen",
+    //             storage: "128GB",
+    //             name: "iPhone 15 Pro",
+    //             price: 25000000
+    //         }
+    //     },
+    //     {
+    //         id: 2,
+    //         price_per_item: 28000000,
+    //         quantity: 1,
+    //         product_variant: {
+    //             id: 2,
+    //             product_id: 101,
+    //             color: "Trắng",
+    //             storage: "256GB",
+    //             name: "iPhone 15 Pro",
+    //             price: 28000000
+    //         }
+    //     },
+    //     {
+    //         id: 3,
+    //         price_per_item: 22000000,
+    //         quantity: 3,
+    //         product_variant: {
+    //             id: 3,
+    //             product_id: 102,
+    //             color: "Xanh",
+    //             storage: "512GB",
+    //             name: "Samsung Galaxy S24",
+    //             price: 22000000
+    //         }
+    //     },
+    //     {
+    //         id: 4,
+    //         price_per_item: 5000000,
+    //         quantity: 1,
+    //         product_variant: {
+    //             id: 4,
+    //             product_id: 103,
+    //             color: "Đỏ",
+    //             storage: "64GB",
+    //             name: "Xiaomi Redmi Note 13",
+    //             price: 5000000
+    //         }
+    //     }
+    // ];
     const order_fake: OrderRequest = {
         province: selectedAddress?.province || 'Chưa chọn',
         ward: selectedAddress?.ward || 'Chưa chọn',
@@ -221,7 +221,9 @@ export const OrderClient = () => {
                     <h2 className="client-order-detail__summary-title">Thông tin đơn hàng</h2>
                     <div className="client-order-detail__summary-row">
                         <span>Tổng tiền</span>
-                        <span className="client-order-detail__summary-price">{location.state.order.total.toLocaleString()} VNĐ</span>
+                        <span className="client-order-detail__summary-price">
+                            {location.state.order.total.toLocaleString()} VNĐ
+                        </span>
                     </div>
                     <div className="client-order-detail__summary-row">
                         <span>Tổng khuyến mãi</span>

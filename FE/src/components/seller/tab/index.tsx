@@ -17,7 +17,9 @@ export const Tab = () => {
 
     return (
         <>
-            <div className="seller-tab-container">
+            <div
+                className={`seller-tab-container ${location.pathname.includes('seller/order') && 'invisible'}`}
+            >
                 <ul>
                     <li
                         className={`${isActiveLink('seller') ? 'tab--active' : ''}`}

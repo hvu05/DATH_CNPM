@@ -56,6 +56,25 @@ export const updateProfileHandler = async (req: Request, res: Response<ApiRespon
   }
 }
 
+export const getUserByIdHandler = async (req: Request, res: Response<ApiResponse<userDto.UserResponse>>, next: NextFunction) => {
+  try {
+    const userId = req.params.user_id;
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        error: "User ID is required"
+      });
+    }
+
+    const user: userDto.UserResponse = await userService.getUserInfo(userId);
+    const response: ApiResponse<userDto.UserResponse> = { success: true, data: user };
+    res.status(200).json(response);
+  }
+  catch (error: Error | any) {
+    next(error);
+  }
+}
+
 export const createAddressHandler = async (req: Request, res: Response<ApiResponse<userDto.AddressListResponse>>, next: NextFunction) => {
   const parsed = userDto.AddressCreateSchema.safeParse(req.body);
   if (!parsed.success) {

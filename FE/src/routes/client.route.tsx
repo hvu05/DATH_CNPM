@@ -1,4 +1,4 @@
-import { type RouteObject } from 'react-router';
+import { type RouteObject } from 'react-router-dom';
 import { ClientLayout } from '@/pages/client/layout/layout.tsx';
 import { ClientOrder } from '@/pages/client/myOrders/orders.tsx';
 import { ClientAddress } from '@/pages/client/address';
@@ -47,7 +47,7 @@ export const clientRoutes: RouteObject[] = [
             {
                 path: '/client/order/payment',
                 element: <PaymentClient />,
-            },  
+            },
             {
                 path: '/client/order/success',
                 element: <OrderSuccess />,

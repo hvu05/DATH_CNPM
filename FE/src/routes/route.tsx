@@ -25,6 +25,11 @@ import { PaymentClient } from '@/pages/client/payment';
 import { OrderSuccess } from '@/pages/client/order-success';
 import { RegisterPage } from '@/pages/auth/register';
 import { ProtectedRoute } from './protected.route';
+import MainLayout from '@/layout/MainLayout';
+import HomePage from '@/pages/HomePage';
+import ProductDetailPage from '@/pages/ProductDetailPage';
+import CartPage from '@/pages/CartPage';
+import SearchPage from '@/pages/SearchPage';
 
 const authRoutes: RouteObject[] = [
     {
@@ -150,11 +155,23 @@ const adminRoutes: RouteObject[] = [
 export const router = createBrowserRouter([
     {
         path: '/',
-        element: <AppLayout />,
+        element: <MainLayout />,
         children: [
             {
                 index: true,
-                element: <div className="h-screen">This is homepage</div>,
+                element: <HomePage />,
+            },
+            {
+                path: 'product/:id',
+                element: <ProductDetailPage />,
+            },
+            {
+                path: 'cart',
+                element: <CartPage />,
+            },
+            {
+                path: 'search',
+                element: <SearchPage />,
             },
             {
                 path: '/seller/order/:id',

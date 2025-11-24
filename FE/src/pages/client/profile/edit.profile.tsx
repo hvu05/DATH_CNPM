@@ -3,7 +3,7 @@ import { useClientProfile } from '@/hooks/client/useClientProfile';
 import defaultAvatar from '@/assets/seller/user.svg';
 import '@/pages/client/profile/edit.profile.scss';
 import { message } from 'antd';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 export const EditProfileClient = () => {
     const navigate = useNavigate();

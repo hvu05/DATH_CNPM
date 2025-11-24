@@ -20,7 +20,7 @@ export const productService = {
         description: data.description,
         quantity: data.quantity,
         brand_id: data.brand_id,
-        series_id: data.series_id,
+        series_id: data.series_id ,
         category_id: data.category_id,
         is_active: data.is_active ?? true,
       },
@@ -133,11 +133,19 @@ export const productService = {
 
     const publicId = `products/product_${id}_${Date.now()}`;
     const uploaded = await uploadFile(file.buffer, publicId, "products");
+    const lastId = await prisma.productImage.findFirst({
+        where: {
+            product_id: productId as number
+        },
+        orderBy: { id: "desc" }, 
+        select: { id: true } 
+    });
+    const nextId = (lastId?.id ?? 0) + 1;
     const newImage = await prisma.productImage.create({
       data: {
-        id: Date.now(), // tự generate id
+        id:nextId,
         product_id: id,
-        image_url: uploaded.url,       // từ uploadFile()
+        image_url: uploaded.url,
         image_public_id: uploaded.public_id,
         is_thumbnail,
       },

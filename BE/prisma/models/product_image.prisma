@@ -1,5 +1,5 @@
 model ProductImage{
-  id Int
+  id Int           
   product_id Int
   image_url String
   image_public_id String

@@ -1,13 +1,12 @@
 // FE/src/pages/ProductDetailPage.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { products } from '@/services/MockData';
 import { useCart } from '@/contexts/CartContext';
-import { Button, message, Rate, Tabs, Form, Input, Avatar, Divider } from 'antd';
+import { Button, message, Rate, Tabs, Form, Input, Avatar, Divider, Popconfirm } from 'antd';
 import ProductCard from '@/components/common/ProductCard';
-import { UserOutlined } from '@ant-design/icons';
+import { UserOutlined, DeleteOutlined } from '@ant-design/icons';
 import './ProductDetailPage.scss';
-import { getProductById, getProducts } from '@/services/productsApi';
-import type { Product } from '@/services/productsApi';
 
 const { TextArea } = Input;
 
@@ -28,81 +27,8 @@ const ProductDetailPage: React.FC = () => {
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     const [reviewForm] = Form.useForm();
 
-    const [product, setProduct] = useState<Product | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [allProducts, setAllProducts] = useState<Product[]>([]);
-    const [reviews, setReviews] = useState<Review[]>([]);
+    const product = products.find(p => p.id === Number(id));
 
-    useEffect(() => {
-        if (!id) return;
-        let mounted = true;
-        getProductById(id)
-            .then(p => {
-                if (mounted) setProduct(p);
-            })
-            .finally(() => mounted && setLoading(false));
-        return () => {
-            mounted = false;
-        };
-    }, [id]);
-
-    // load all products once (used for related products)
-    useEffect(() => {
-        let mounted = true;
-        getProducts()
-            .then(list => {
-                if (mounted) setAllProducts(list);
-            })
-            .catch(() => {
-                if (mounted) setAllProducts([]);
-            });
-        return () => {
-            mounted = false;
-        };
-    }, []);
-
-    // initialize or restore reviews whenever product changes
-    useEffect(() => {
-        if (!product) {
-            setReviews([]);
-            return;
-        }
-        try {
-            const saved = localStorage.getItem(`reviews_product_${String(product.id)}`);
-            if (saved) {
-                setReviews(JSON.parse(saved) as Review[]);
-                return;
-            }
-        } catch {
-            // ignore parse errors
-        }
-
-        if (product.reviews && Array.isArray(product.reviews)) {
-            setReviews(
-                product.reviews.map((r: any) => ({
-                    id: r.id,
-                    user: r.user,
-                    rating: r.rating,
-                    comment: r.comment,
-                    date: r.date,
-                    avatar: r.avatar ?? '',
-                }))
-            );
-        } else {
-            setReviews([]);
-        }
-    }, [product]);
-
-    const persistReviews = (list: Review[]) => {
-        try {
-            localStorage.setItem(
-                `reviews_product_${String(product?.id ?? '')}`,
-                JSON.stringify(list)
-            );
-        } catch {}
-    };
-
-    if (loading) return <div className="container">Đang tải...</div>;
     if (!product) {
         return (
             <div className="container">
@@ -111,22 +37,47 @@ const ProductDetailPage: React.FC = () => {
         );
     }
 
+    // Reviews per-product: ưu tiên localStorage, nếu không có dùng product.reviews hoặc mảng rỗng
+    const [reviews, setReviews] = useState<Review[]>(() => {
+        try {
+            const saved = localStorage.getItem(`reviews_product_${product.id}`);
+            if (saved) return JSON.parse(saved) as Review[];
+        } catch {
+            /* ignore parse errors */
+        }
+        if (product.reviews && Array.isArray(product.reviews)) {
+            return product.reviews.map(r => ({
+                id: r.id,
+                user: r.user,
+                rating: r.rating,
+                comment: r.comment,
+                date: r.date,
+                avatar: r.avatar ?? '',
+            }));
+        }
+        return [];
+    });
+
+    const persistReviews = (list: Review[]) => {
+        try {
+            localStorage.setItem(`reviews_product_${product.id}`, JSON.stringify(list));
+        } catch {}
+    };
+
     const productImages = [
-        product.imageUrl ??
-            `https://placehold.co/600x600.png?text=${encodeURIComponent(product.name ?? 'Product')}`,
-        `https://placehold.co/600x600.png?text=${encodeURIComponent(product.name ?? 'Product')}+Image+2`,
-        `https://placehold.co/600x600.png?text=${encodeURIComponent(product.name ?? 'Product')}+Image+3`,
-        `https://placehold.co/600x600.png?text=${encodeURIComponent(product.name ?? 'Product')}+Image+4`,
+        product.imageUrl,
+        `https://placehold.co/600x600.png?text=${encodeURIComponent(product.name)}+Image+2`,
+        `https://placehold.co/600x600.png?text=${encodeURIComponent(product.name)}+Image+3`,
+        `https://placehold.co/600x600.png?text=${encodeURIComponent(product.name)}+Image+4`,
     ];
 
     const handleAddToCart = () => {
-        // prefer single call if CartContext supports quantity, otherwise add multiple times
         for (let i = 0; i < quantity; i++) {
             addToCart({
                 id: product.id,
                 name: product.name,
                 price: product.price,
-                imageUrl: product.imageUrl ?? '',
+                imageUrl: product.imageUrl,
             });
         }
         message.success(`${product.name} đã được thêm vào giỏ hàng!`);
@@ -149,16 +100,25 @@ const ProductDetailPage: React.FC = () => {
         setActiveTab('2');
     };
 
-    // related products computed from allProducts (exclude current)
-    const relatedProducts = allProducts
-        .filter((p: Product) => {
-            return (
+    // Xóa review theo id, cập nhật state và localStorage
+    {
+        /*const removeReview = (reviewId: number | string) => {
+    const newList = reviews.filter((r) => r.id !== reviewId);
+    setReviews(newList);
+    persistReviews(newList);
+    message.success("Đã xóa đánh giá.");
+  };*/
+    }
+
+    // related products (simple same-brand/same-keyword heuristic)
+    const relatedProducts = products
+        .filter(
+            p =>
                 p.id !== product.id &&
                 (p.brand === product.brand ||
                     p.category === product.category ||
-                    (product.brand && p.name.includes(product.brand)))
-            );
-        })
+                    p.name.includes(product.brand || ''))
+        )
         .slice(0, 4);
 
     const averageRating =
@@ -181,7 +141,9 @@ const ProductDetailPage: React.FC = () => {
                                 key={index}
                                 src={image}
                                 alt={`${product.name} ${index + 1}`}
-                                className={`thumbnail ${selectedImageIndex === index ? 'active' : ''}`}
+                                className={`thumbnail ${
+                                    selectedImageIndex === index ? 'active' : ''
+                                }`}
                                 onClick={() => setSelectedImageIndex(index)}
                             />
                         ))}
@@ -236,7 +198,7 @@ const ProductDetailPage: React.FC = () => {
                             <input
                                 type="number"
                                 value={quantity}
-                                min={1}
+                                min="1"
                                 onChange={e =>
                                     setQuantity(Math.max(1, parseInt(e.target.value) || 1))
                                 }
@@ -381,6 +343,19 @@ const ProductDetailPage: React.FC = () => {
                                                         </div>
                                                     </div>
                                                     <Rate disabled value={review.rating} />
+                                                    {/* nút xóa ở cạnh phải */}
+                                                    {/*<Popconfirm
+                            title="Xác nhận xóa đánh giá này?"
+                            onConfirm={() => removeReview(review.id)}
+                            okText="Xóa"
+                            cancelText="Hủy"
+                          >
+                            <Button
+                              type="text"
+                              danger
+                              icon={<DeleteOutlined />}
+                            />
+                          </Popconfirm> */}
                                                 </div>
                                                 <div className="review-content">
                                                     {review.comment}
@@ -398,14 +373,8 @@ const ProductDetailPage: React.FC = () => {
             <section className="related-products">
                 <h2 className="section-title">Sản phẩm liên quan</h2>
                 <div className="product-grid">
-                    {relatedProducts.map((rp: Product) => (
-                        <ProductCard
-                            key={rp.id}
-                            id={rp.id}
-                            name={rp.name}
-                            price={rp.price}
-                            imageUrl={rp.imageUrl ?? '/placeholder.png'}
-                        />
+                    {relatedProducts.map(rp => (
+                        <ProductCard key={rp.id} {...rp} />
                     ))}
                 </div>
             </section>

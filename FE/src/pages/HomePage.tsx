@@ -1,47 +1,13 @@
 // FE/src/pages/HomePage.tsx
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { getProducts } from '@/services/productsApi';
-import type { Product } from '@/services/productsApi';
+import { products } from '@/services/MockData';
 import ProductCard from '@/components/common/ProductCard';
 import BannerSlider from '@/components/common/BannerSlider';
 import './HomePage.scss';
 
 const HomePage: React.FC = () => {
-    // Hooks must always run in the same order — move all hooks to top level
     const carouselRef = useRef<HTMLDivElement | null>(null);
-    const [productsList, setProductsList] = useState<Product[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [searchParams] = useSearchParams(); // moved here (must not be after conditional return)
-
-    useEffect(() => {
-        let mounted = true;
-        getProducts()
-            .then(data => {
-                if (mounted) setProductsList(data);
-            })
-            .catch(() => {
-                if (mounted) setProductsList([]);
-            })
-            .finally(() => mounted && setLoading(false));
-        return () => {
-            mounted = false;
-        };
-    }, []);
-
-    if (loading) return <div className="container">Đang tải...</div>;
-
-    const pageParam = parseInt(searchParams.get('page') || '1', 10);
-    const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
-
-    const pageSize = 20;
-    const totalPages = Math.max(1, Math.ceil(productsList.length / pageSize));
-    const start = (page - 1) * pageSize;
-    const pagedProducts = productsList.slice(start, start + pageSize);
-    const topPicks = productsList.slice(0, 8);
-
-    const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
-
     const scrollByCard = (dir: 'left' | 'right') => {
         const el = carouselRef.current;
         if (!el) return;
@@ -54,6 +20,20 @@ const HomePage: React.FC = () => {
             behavior: 'smooth',
         });
     };
+
+    const [searchParams] = useSearchParams();
+    const pageParam = parseInt(searchParams.get('page') || '1', 10);
+    const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
+
+    const pageSize = 20;
+    const productsList = products;
+    const totalPages = Math.max(1, Math.ceil(productsList.length / pageSize));
+    const start = (page - 1) * pageSize;
+    const pagedProducts = productsList.slice(start, start + pageSize);
+
+    const topPicks = productsList.slice(0, 8);
+
+    const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
 
     return (
         <div className="homepage-wrapper">
@@ -83,7 +63,7 @@ const HomePage: React.FC = () => {
                         ]}
                     />
                 </section>
-                {/* === KHU VỰC 2: 2 BANNER NHỎ === */}
+                {/* === KHU VỨC 2: 2 BANNER NHỎ === */}
                 <section className="small-banners-section">
                     <Link to="/search?q=iPhone%2015" className="small-banner-item">
                         <img

@@ -13,12 +13,12 @@ async function fetchJson<T>(url: string): Promise<T> {
 }
 
 export async function getProducts(): Promise<Product[]> {
-    return fetchJson<Product[]>(`${API_BASE}/api/products`);
+    return fetchJson<Product[]>(`${API_BASE}/products`);
 }
 
 export async function getProductById(id: string | number): Promise<Product | null> {
     try {
-        return await fetchJson<Product>(`${API_BASE}/api/products/${id}`);
+        return await fetchJson<Product>(`${API_BASE}/products/${id}`);
     } catch (e) {
         return null;
     }

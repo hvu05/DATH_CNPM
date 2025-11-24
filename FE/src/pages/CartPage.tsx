@@ -1,36 +1,15 @@
 // FE/src/pages/CartPage.tsx
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useCart } from '@/contexts/CartContext';
 import { Link } from 'react-router-dom';
 import { Button, Empty, message, Divider } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import ProductCard from '@/components/common/ProductCard';
-import { getProducts } from '@/services/productsApi';
-import type { Product } from '@/services/productsApi';
+import { products } from '@/services/MockData';
 import './CartPage.scss';
 
 const CartPage: React.FC = () => {
     const { cartItems, updateQuantity, removeFromCart } = useCart();
-    const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
-
-    useEffect(() => {
-        let mounted = true;
-        getProducts()
-            .then(all => {
-                if (!mounted) return;
-                const filtered = all
-                    .filter(p => !cartItems.some(item => item.id === p.id))
-                    .sort(() => Math.random() - 0.5)
-                    .slice(0, 4);
-                setRecommendedProducts(filtered);
-            })
-            .catch(() => {
-                if (mounted) setRecommendedProducts([]);
-            });
-        return () => {
-            mounted = false;
-        };
-    }, [cartItems]);
 
     if (cartItems.length === 0) {
         return (
@@ -50,6 +29,12 @@ const CartPage: React.FC = () => {
         removeFromCart(id);
         message.success('Đã xóa sản phẩm khỏi giỏ hàng');
     };
+
+    // Lấy các sản phẩm đề xuất (ngẫu nhiên)
+    const recommendedProducts = products
+        .filter(p => !cartItems.some(item => item.id === p.id))
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 4);
 
     return (
         <div className="container cart-page">

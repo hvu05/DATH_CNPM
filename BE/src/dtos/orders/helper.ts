@@ -10,7 +10,18 @@ type OrderWithItemPrisma = Prisma.OrderGetPayload<{
       include: {
         variant: {
           include: {
-            product: true;
+            product: {
+              include: {
+                product_image: {
+                  where: {
+                    is_thumbnail: true
+                  },
+                  select: {
+                    image_url: true
+                  }
+                }
+              }
+            }
           };
         };
       };
@@ -67,6 +78,7 @@ const mapProductVariantToDTO = (
     storage: variant.storage ?? undefined,
     name: variant.product.name,
     price: variant.price,
+    thumbnail: variant.product.product_image[0].image_url
   };
 };
 
@@ -78,7 +90,18 @@ type OrderReturnWithItemPrisma = Prisma.ReturnOrderRequestGetPayload<{
       include: {
         variant: {
           include: {
-            product: true
+            product: {
+              include: {
+                product_image: {
+                  where: {
+                    is_thumbnail: true
+                  },
+                  select: {
+                    image_url: true
+                  }
+                }
+              }
+            }
           }
         }
       }

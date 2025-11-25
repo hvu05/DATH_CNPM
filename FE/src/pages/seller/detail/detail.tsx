@@ -21,7 +21,7 @@ export const DetailPage = () => {
     const orderData = location.state?.order as IOrder;
     const [customerInfo, setCustomerInfo] = useState<ICustomer | null>(null);
     const [loadingCustomer, setLoadingCustomer] = useState(false);
-    const [returnData, setReturnData] = useState<IOrderReturnRequest | null>(null);
+    const [returnData, setReturnData] = useState<IOrderReturnRequest[]>([]);
     const [loadingReturn, setLoadingReturn] = useState(false);
     const { message } = App.useApp();
 
@@ -63,13 +63,29 @@ export const DetailPage = () => {
 
                 setLoadingReturn(true);
                 try {
-                    const result = await getInforOrderReq(orderData.id, orderData.order_items[0].id);
-                    if (result.success && result.data) {
-                        setReturnData(result.data);
+                    // Fetch return info for all order items
+                    const returnPromises = orderData.order_items.map(item =>
+                        getInforOrderReq(orderData.id, item.id)
+                    );
+
+                    const results = await Promise.allSettled(returnPromises);
+
+                    const successfulReturns = results
+                        .filter(
+                            (result): result is PromiseFulfilledResult<any> =>
+                                result.status === 'fulfilled'
+                        )
+                        .map(result => result.value.data);
+
+                    setReturnData(successfulReturns);
+
+                    if (successfulReturns.length === 0) {
+                        message.warning('Không tìm thấy thông tin trả hàng nào');
                     }
                 } catch (error) {
                     console.error('Failed to fetch return info:', error);
                     message.warning('Không thể tải thông tin trả hàng');
+                    setReturnData([]);
                 } finally {
                     setLoadingReturn(false);
                 }

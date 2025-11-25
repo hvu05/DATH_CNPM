@@ -106,12 +106,16 @@ export interface IOrders {
     orders: IOrder[];
 }
 
+export interface IOrderItemReq {
+    orders: IOrder;
+}
 export interface IOrderReturnRequest {
-    order: IOrder;
+    order: IOrderItemReq;
     reason: string;
     images: string[];
     create_at: Date;
     update_at: Date;
+    order_item: IOrderItem;
 }
 
 export const updateProfileSellerAPI = async (full_name: string, phone: string) => {

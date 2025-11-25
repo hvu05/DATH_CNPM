@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router';
 const { Text } = Typography;
 
 export const Header = () => {
-    const { isLoggedIn, logout } = useAuthContext();
+    const { isLoggedIn, logout, user } = useAuthContext();
     const navigate = useNavigate();
 
     const profileMenu: MenuProps['items'] = [
@@ -28,12 +28,10 @@ export const Header = () => {
             style={{
                 zIndex: '100',
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                boxShadow: '0 4px 12px rgba(102, 126, 234, 0.4)'
+                boxShadow: '0 4px 12px rgba(102, 126, 234, 0.4)',
             }}
         >
-            <div className="seller-header__left">
-                {/* Empty space for balance */}
-            </div>
+            <div className="seller-header__left">{/* Empty space for balance */}</div>
 
             <div className="seller-header__right">
                 <Dropdown
@@ -43,20 +41,21 @@ export const Header = () => {
                     <a onClick={e => e.preventDefault()}>
                         <div className="flex items-center gap-3">
                             <Avatar
+                                src={user?.avatar}
                                 size={32}
-                                icon={<UserOutlined />}
+                                icon={!user?.avatar && <UserOutlined />}
                                 style={{
                                     backgroundColor: '#f0f2ff',
                                     borderColor: '#667eea',
                                     borderWidth: 2,
-                                    color: '#667eea'
+                                    color: '#667eea',
                                 }}
                             />
                             <Text
                                 className="hidden sm:inline"
                                 style={{
                                     color: '#ffffff',
-                                    fontWeight: '500'
+                                    fontWeight: '500',
                                 }}
                             >
                                 Hello, Seller 🎉

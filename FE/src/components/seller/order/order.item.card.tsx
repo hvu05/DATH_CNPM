@@ -32,7 +32,7 @@ export const OrderCard = ({ order }: { order: IOrder }) => (
                 </div>
                 <div style={{ marginBottom: '6px' }}>
                     <Text strong className="text-base">
-                        {order.order_items?.[0]?.product_variant?.name || 'Sản phẩm'}
+                        Tên sản phẩm: {order.order_items?.[0]?.product_variant?.name || 'Sản phẩm'}
                     </Text>
                     {order.order_items && order.order_items.length > 1 && (
                         <Text type="secondary" style={{ fontSize: '13px', marginLeft: '6px' }}>
@@ -56,11 +56,11 @@ export const OrderCard = ({ order }: { order: IOrder }) => (
                         alignItems: 'center',
                     }}
                 >
-                    <Text strong className="text-red-400 text-[1.25rem]">
+                    <Text strong className="text-red-600 text-[1.25rem]">
                         {formatCurrency(order.total)}
                     </Text>
                     <Text type="secondary" className="text-base">
-                        {dayjs(order.create_at).format('DD/MM/YYYY HH:mm')}
+                        Ngày tạo: {dayjs(order.create_at).format('DD/MM/YYYY HH:mm')}
                     </Text>
                 </div>
                 {order.note && (

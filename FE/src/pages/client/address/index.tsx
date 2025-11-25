@@ -34,8 +34,8 @@ export const ClientAddress = () => {
                             />
                         </div>
                         <div className="client-address__details">
-                            <div className="client-address__name">Tên khách hàng</div>
-                            <div className="client-address__phone">Số điện thoai: 0123456789</div>
+                            <div className="client-address__name">{adr.receive_name}</div>
+                            <div className="client-address__phone">Số điện thoai: {adr.phone}</div>
                             <div className="client-address__detailaddress">
                                 {adr.detail} - {adr.ward} - {adr.province}
                             </div>

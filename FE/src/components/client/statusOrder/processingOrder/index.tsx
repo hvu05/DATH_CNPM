@@ -8,9 +8,10 @@ import { message } from 'antd';
 
 type Props = {
     orders: DataInOrder | null;
+    setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export const ProcessingOrder = ({ orders }: Props) => {
+export const ProcessingOrder = ({ orders, setRefresh }: Props) => {
     const navigate = useNavigate();
 
     // Filter orders that are in "PROCESSING" status
@@ -45,6 +46,7 @@ export const ProcessingOrder = ({ orders }: Props) => {
             const res = await orderAPI.cancelOrder(selectedOrderId); // Assuming cancelOrder API exists
 
             if (res) {
+                setRefresh(r => !r)
                 message.success('Hủy đơn hàng thành công');
                 // Trigger a refresh or update UI here (you can call a parent callback like `setRefresh`)
                 closeCancelModal();

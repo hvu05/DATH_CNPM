@@ -41,4 +41,5 @@ export const userAPI = {
 
         return res.data;
     },
+
 };

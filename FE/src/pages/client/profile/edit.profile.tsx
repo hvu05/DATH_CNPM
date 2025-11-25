@@ -1,13 +1,16 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useClientProfile } from '@/hooks/client/useClientProfile';
 import defaultAvatar from '@/assets/seller/user.svg';
 import '@/pages/client/profile/edit.profile.scss';
 import { message } from 'antd';
 import { useNavigate } from 'react-router';
+import { UploadImage } from '@/components/admin/upload.img'; // Đảm bảo import UploadImage đúng đường dẫn
+import { uploadImageAPI } from '@/services/global'; // Đảm bảo import đúng API upload ảnh
 
 export const EditProfileClient = () => {
     const navigate = useNavigate();
     const { data: profile, loading, updating, updateProfile } = useClientProfile();
+    const cloudinary = import.meta.env.VITE_CLOUDINARY_NAME;
     const [form, setForm] = useState({
         full_name: '',
         gender: 'male',
@@ -15,8 +18,9 @@ export const EditProfileClient = () => {
         birth_month: '',
         birth_year: '',
         email: '',
-        phone: ''
+        phone: '',
     });
+    const [fileList, setFileList] = useState<any[]>([]); // Dùng để lưu trữ ảnh đã chọn
 
     useEffect(() => {
         if (profile) {
@@ -27,8 +31,17 @@ export const EditProfileClient = () => {
                 birth_month: '',
                 birth_year: '',
                 email: profile.email ?? '',
-                phone: profile.phone ?? ''
+                phone: profile.phone ?? '',
             });
+            if (profile.avatar) {
+                setFileList([
+                    {
+                        url: profile.avatar, // Đảm bảo avatar là URL ảnh hoặc đường dẫn
+                        name: profile.avatar,
+                        uid: profile.avatar, // Dùng UID là avatar cho tính duy nhất
+                    },
+                ]);
+            }
         }
     }, [profile]);
 
@@ -38,9 +51,40 @@ export const EditProfileClient = () => {
     };
 
     const handleSubmit = async () => {
-        await updateProfile(form);
-        message.success('Cập nhật thành công!');
-        navigate('/client');
+        try {
+            let avatarUrl: string | null = null;
+
+            // Kiểm tra nếu người dùng đã chọn avatar mới
+            if (fileList && fileList[0] && fileList[0].originFileObj) {
+                // Upload ảnh mới lên Cloudinary
+                const uploadResult = await uploadImageAPI(fileList[0].originFileObj, 'avatar');
+                avatarUrl = uploadResult.data?.public_id ?? null;
+
+                // Cập nhật fileList với URL hoặc public_id của ảnh
+                setFileList([
+                    {
+                        ...fileList[0],
+                        url: `https://res.cloudinary.com/${cloudinary}/image/upload/${avatarUrl}.jpg`, // Sử dụng URL Cloudinary hoàn chỉnh
+                        uid: avatarUrl, // Cập nhật UID để giữ tính duy nhất
+                        name: 'avatar', // Tên ảnh (có thể tùy chỉnh)
+                    },
+                ]);
+            }
+
+            // Cập nhật thông tin profile với dữ liệu mới và avatar (nếu có)
+            const updatedProfile = {
+                ...form,
+                avatar: avatarUrl, // Gửi avatar mới nếu có
+            };
+
+            console.log('updatedProfile', updatedProfile);
+            await updateProfile(updatedProfile); // Cập nhật dữ liệu profile
+            message.success('Cập nhật thành công!');
+            navigate('/client'); // Điều hướng lại trang sau khi cập nhật thành công
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            message.error('Đã xảy ra lỗi khi cập nhật thông tin');
+        }
     };
 
     if (loading) return <p>Loading...</p>;
@@ -52,11 +96,13 @@ export const EditProfileClient = () => {
                 <div className="client-edit-profile__main">
                     <div className="client-edit-profile__avatar-container">
                         <img
-                            src={profile?.avatar ?? defaultAvatar}
+                            src={`${cloudinary}/${profile?.avatar}`}
                             alt="avatar"
                             className="client-edit-profile__avatar"
                         />
                     </div>
+
+                    <UploadImage maxImage={1} fileList={fileList} setFileList={setFileList} />
 
                     <div className="client-edit-profile__row">
                         <label className="client-edit-profile__label">Họ và tên</label>
@@ -74,7 +120,7 @@ export const EditProfileClient = () => {
                             className="client-edit-profile__input "
                             onChange={handleChange}
                             value={form.phone}
-                            name='phone'
+                            name="phone"
                         />
                     </div>
 

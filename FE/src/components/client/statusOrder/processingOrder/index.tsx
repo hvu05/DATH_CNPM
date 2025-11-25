@@ -46,7 +46,7 @@ export const ProcessingOrder = ({ orders, setRefresh }: Props) => {
             const res = await orderAPI.cancelOrder(selectedOrderId); // Assuming cancelOrder API exists
 
             if (res) {
-                setRefresh(r => !r)
+                setRefresh(r => !r);
                 message.success('Hủy đơn hàng thành công');
                 // Trigger a refresh or update UI here (you can call a parent callback like `setRefresh`)
                 closeCancelModal();

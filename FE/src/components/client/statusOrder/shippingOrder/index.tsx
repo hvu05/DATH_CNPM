@@ -51,7 +51,6 @@ export const ShippingOrder = ({ orders }: Props) => {
                             }
                             className="client-order__detail-link"
                         >
-
                             Chi tiết đơn hàng
                         </button>
                     </div>

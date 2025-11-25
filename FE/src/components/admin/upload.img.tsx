@@ -56,7 +56,13 @@ export const UploadImage = (props: IProps) => {
             file.preview = await getBase64(file.originFileObj as FileType);
         }
 
-        setPreviewImage(file.url || (file.preview as string));
+        console.log('file', file)
+        // Kiểm tra và chỉ set previewImage khi có giá trị hợp lệ
+        if (file.url) {
+            setPreviewImage(file.url);
+        } else if (file.preview) {
+            setPreviewImage(file.preview as string);
+        }
         setPreviewOpen(true);
     };
 

@@ -20,14 +20,9 @@ import { message } from 'antd';
 
 type OptionsPayment = 'COD' | 'VNPAY';
 
-
-
 //?================================================================================================
 //! LÚC GHÉP GIỎ HÀNG VÔ THÌ BẬT DÒNG (1) LÊN VÀ BỎ DÒNG (2). SAU ĐÓ BẬT CHỖ "TỔNG TIỀN" VÀ "CẦN THANH TOÁN" LÊN LÀ XONG
 //?================================================================================================
-
-
-
 
 export const OrderClient = () => {
     const [formChangeAddress, setFormChangeAddress] = useState<boolean>(false);
@@ -50,11 +45,11 @@ export const OrderClient = () => {
             product_variant: {
                 id: 1,
                 product_id: 101,
-                color: "Đen",
-                storage: "128GB",
-                name: "iPhone 15 Pro",
-                price: 25000000
-            }
+                color: 'Đen',
+                storage: '128GB',
+                name: 'iPhone 15 Pro',
+                price: 25000000,
+            },
         },
         {
             id: 2,
@@ -63,11 +58,11 @@ export const OrderClient = () => {
             product_variant: {
                 id: 2,
                 product_id: 101,
-                color: "Trắng",
-                storage: "256GB",
-                name: "iPhone 15 Pro",
-                price: 28000000
-            }
+                color: 'Trắng',
+                storage: '256GB',
+                name: 'iPhone 15 Pro',
+                price: 28000000,
+            },
         },
         {
             id: 3,
@@ -76,11 +71,11 @@ export const OrderClient = () => {
             product_variant: {
                 id: 3,
                 product_id: 102,
-                color: "Xanh",
-                storage: "512GB",
-                name: "Samsung Galaxy S24",
-                price: 22000000
-            }
+                color: 'Xanh',
+                storage: '512GB',
+                name: 'Samsung Galaxy S24',
+                price: 22000000,
+            },
         },
         {
             id: 4,
@@ -89,14 +84,14 @@ export const OrderClient = () => {
             product_variant: {
                 id: 4,
                 product_id: 103,
-                color: "Đỏ",
-                storage: "64GB",
-                name: "Xiaomi Redmi Note 13",
-                price: 5000000
-            }
-        }
+                color: 'Đỏ',
+                storage: '64GB',
+                name: 'Xiaomi Redmi Note 13',
+                price: 5000000,
+            },
+        },
     ];
-    
+
     const order_fake: OrderRequest = {
         province: selectedAddress?.province || 'Chưa chọn',
         ward: selectedAddress?.ward || 'Chưa chọn',
@@ -127,7 +122,8 @@ export const OrderClient = () => {
     };
 
     if (loadingProfile) return <p>Loading...</p>;
-    if(!orderItems) return <h1 style={{fontSize: '30px'}}>Mua lòng chọn sản phẩm trước khi vào trang này</h1>;
+    if (!orderItems)
+        return <h1 style={{ fontSize: '30px' }}>Mua lòng chọn sản phẩm trước khi vào trang này</h1>;
     return (
         <div className="client-order-detail">
             <div className="client-order-detail__main">
@@ -170,7 +166,9 @@ export const OrderClient = () => {
                             <p>
                                 <span className="client-order-detail__info-label">Họ và tên:</span>{' '}
                                 <span className="client-order-detail__info-value">
-                                    {selectedAddress?.receive_name || profile?.full_name || 'Chưa xác định'}
+                                    {selectedAddress?.receive_name ||
+                                        profile?.full_name ||
+                                        'Chưa xác định'}
                                 </span>
                             </p>
                             <p>

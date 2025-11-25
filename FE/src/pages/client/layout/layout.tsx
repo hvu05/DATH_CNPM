@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router';
-import { Header } from '@/components/seller/layout/header';
+import { Header } from '@/components/layout/header';
 import { TabClient } from '@/components/client/tab';
 
 export const ClientLayout = () => {

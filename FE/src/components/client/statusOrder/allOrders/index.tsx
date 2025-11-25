@@ -27,7 +27,7 @@ export const AllOrders = ({ orders }: Props) => {
                 return <div className="btn-cancel">Đã hủy</div>;
             case 'RETURN_REQUEST':
                 return <div className="btn-cancel">Đơn hàng hoàn trả đang chờ xác nhận</div>;
-            
+
             default:
                 return <div className="btn-default">Chưa xác định</div>;
         }

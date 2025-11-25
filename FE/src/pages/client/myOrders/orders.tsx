@@ -39,18 +39,13 @@ type OptionsFilter =
 // }
 export const ClientOrder = () => {
     const [filter, setFilter] = useState<OptionsFilter>('ALL');
-    const [refresh, setRefresh] = useState<boolean>(true);
+    const [refresh, setRefresh] = useState<boolean>(false);
     const [orders, setOrder] = useState<DataInOrder | null>(null);
     const { data: res, loading: loading } = useClientOrder(refresh);
 
-    const ref = useRef<OptionsFilter>();
     useEffect(() => {
         setOrder(res?.data ?? null);
-    }, [res]);
-
-    useEffect(() => {
-        ref.current = filter;
-    }, [filter]);
+    }, [res, refresh]);
 
     if (loading) return <p> Loading ...</p>;
     const renderFillter = () => {
@@ -60,7 +55,7 @@ export const ClientOrder = () => {
             case 'DELIVERING':
                 return <ShippingOrder orders={orders} />;
             case 'PROCESSING':
-                return <ProcessingOrder orders={orders} />;
+                return <ProcessingOrder orders={orders} setRefresh={setRefresh} />;
             case 'COMPLETED':
                 return <SuccessOrder orders={orders} />;
             case 'RETURN':

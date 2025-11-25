@@ -1,6 +1,5 @@
 import { createBrowserRouter } from 'react-router';
 import { AppLayout } from '@/layout';
-import { DetailPage } from '@/pages/seller/detail/detail';
 
 import { adminRoutes } from './admin.route';
 import { authRoutes } from './auth.route';
@@ -16,10 +15,6 @@ export const router = createBrowserRouter([
             {
                 index: true,
                 element: <div className="h-screen">This is homepage</div>,
-            },
-            {
-                path: '/seller/order/:id',
-                element: <DetailPage />,
             },
         ],
     },

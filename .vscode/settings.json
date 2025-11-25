@@ -1,3 +1,7 @@
 {
-    "editor.suggestLineHeight": 20
+  "editor.suggestLineHeight": 20,
+  "[sql]": {
+    "editor.formatOnSave": false,
+    "editor.defaultFormatter": null
+  }
 }

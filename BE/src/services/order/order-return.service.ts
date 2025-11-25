@@ -151,3 +151,29 @@ export const confirmReturned = async (
     `[ORDER REFUNDED] GỬi yêu cầu hoàn tiền của order ${orderId} với số tiền ${order.order.total} đến bộ phần kế toán`,
   );
 };
+
+export const getOrderReturnDetail = async (orderId: string, orderItemId: number) => {
+  const order = await prisma.returnOrderRequest.findFirst({
+    where: {
+      order_id: orderId,
+      order_item_id: orderItemId,
+    },
+    include: {
+      order: true,
+      order_item: {
+        include: {
+          variant: {
+            include: {
+              product: true
+            }
+          }
+        }
+      },
+      images: true
+    }
+  });
+  if (!order) {
+    throw new AppError(ErrorCode.NOT_FOUND, 'Không tìm thấy Order');
+  }
+  return orderDto.mapOrderReturnToDTO(order);
+}

@@ -53,7 +53,18 @@ export const createOrder = async (
         include: {
           variant: {
             include: {
-              product: true,
+              product: {
+                include: {
+                  product_image: {
+                    where: {
+                      is_thumbnail: true
+                    },
+                    select: {
+                      image_url: true
+                    }
+                  }
+                }
+              }
             },
           },
         },
@@ -93,7 +104,18 @@ export const getOrdersByUser = async (
         include: {
           variant: {
             include: {
-              product: true,
+              product: {
+                include: {
+                  product_image: {
+                    where: {
+                      is_thumbnail: true
+                    },
+                    select: {
+                      image_url: true
+                    }
+                  }
+                }
+              }
             },
           },
         },
@@ -163,8 +185,18 @@ export const getAllOrders = async (
 
   if (search) {
     where.OR = [
-      { id: { contains: search, mode: 'insensitive' } },
-      { product: { name: { contains: search, mode: 'insensitive' } } },
+      { id: { contains: search } },
+      {
+        order_items: {
+          some: {
+            variant: {
+              product: {
+                name: { contains: search }
+              }
+            }
+          }
+        }
+      }
     ];
   }
   const [totalOrders, orders] = await prisma.$transaction([
@@ -185,7 +217,18 @@ export const getAllOrders = async (
           include: {
             variant: {
               include: {
-                product: true,
+                product: {
+                  include: {
+                    product_image: {
+                      where: {
+                        is_thumbnail: true
+                      },
+                      select: {
+                        image_url: true
+                      }
+                    }
+                  }
+                }
               },
             },
           },

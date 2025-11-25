@@ -69,3 +69,22 @@ export const createReturnOrderRequestHandler = async (
     next(error);
   }
 };
+
+
+export const getReturnOrderDetailHandler = async (
+  req: Request,
+  res: Response<ApiResponse<orderDto.OrderReturnResponse>>,
+  next: NextFunction,
+) => {
+  try {
+    const orderId = req.params.order_id;
+    const orderItemId = Number(req.params.order_item_id);
+    const order = await orderReturnSerivce.getOrderReturnDetail(orderId, orderItemId);
+    res.json({
+      success: true,
+      data: order,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

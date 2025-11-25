@@ -16,7 +16,8 @@ export const AddressResponseSchema = z.object({
   ward: z.string(),
   detail: z.string(),
   receive_name: z.string().optional().nullable(),
-  phone: z.string().length(10, "Phone number must be 10 digits").optional().nullable(),
+  phone: z.string().length(10, "Phone number must be 10 digits").nullable(),
+  
   user: optional(UserResponseSchema.pick({
     id: true,
     full_name: true,

@@ -1,12 +1,14 @@
 import { useLocation, useNavigate } from 'react-router';
 import './index.scss';
 import '@/assets/seller/user.svg';
+import { useAuthContext } from '@/contexts/AuthContext';
 
-type PathName = 'orders' | 'status' | 'seller';
+type PathName = 'myOrders' | 'status' | 'seller';
 
 export const Tab = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const { logout } = useAuthContext();
 
     const isActiveLink = (path: PathName) => {
         if (path === 'seller') {
@@ -17,7 +19,9 @@ export const Tab = () => {
 
     return (
         <>
-            <div className="seller-tab-container">
+            <div
+                className={`seller-tab-container ${location.pathname.includes('seller/order') && 'invisible'}`}
+            >
                 <ul>
                     <li
                         className={`${isActiveLink('seller') ? 'tab--active' : ''}`}
@@ -55,8 +59,8 @@ export const Tab = () => {
                         <span>Xem hồ sơ</span>
                     </li>
                     <li
-                        className={`${isActiveLink('orders') ? 'tab--active' : ''}`}
-                        onClick={() => navigate('/seller/orders')}
+                        className={`${isActiveLink('myOrders') ? 'tab--active' : ''}`}
+                        onClick={() => navigate('/seller/myOrders')}
                     >
                         <span>
                             <svg
@@ -80,7 +84,7 @@ export const Tab = () => {
                         </span>
                         <span>Quản lí đơn hàng</span>
                     </li>
-                    <li
+                    {/* <li
                         onClick={() => navigate('/seller/status')}
                         className={`${isActiveLink('status') ? 'tab--active' : ''}`}
                     >
@@ -116,8 +120,8 @@ export const Tab = () => {
                             </svg>
                         </span>
                         <span>Cập nhật trạng thái</span>
-                    </li>
-                    <li>
+                    </li> */}
+                    <li onClick={logout}>
                         <span>
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"

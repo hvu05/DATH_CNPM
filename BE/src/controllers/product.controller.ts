@@ -17,6 +17,7 @@ import {
 } from "../dtos/product/product.response";
 
 import { uploadFile } from "../services/cloudinary.service";
+import { ProductListResponse } from "../dtos/product/product-list.response";
 
 // ------------------- CREATE PRODUCT -------------------
 export const createProductHandler = async (
@@ -25,7 +26,10 @@ export const createProductHandler = async (
   next: NextFunction
 ) => {
   try {
-    const parsed = ProductCreateSchema.safeParse(req.body);
+    const parsed = ProductCreateSchema.safeParse({
+      ...req.body,
+      images: (req.files ?? []) as Express.Multer.File[],
+  });
     if (!parsed.success) {
       throw new AppError(ErrorCode.BAD_REQUEST, parsed.error.issues[0].message);
     }
@@ -34,12 +38,12 @@ export const createProductHandler = async (
     const product = await productService.createProduct(data);
 
     // Validate bằng Zod
-    const validated = ProductResponseSchema.parse(product);
+    // const validated = ProductResponseSchema.parse(product);
 
     return res.status(201).json({
       success: true,
       message: "Product created successfully",
-      data: validated,
+      data: product,
     });
   } catch (error) {
     next(error);
@@ -106,26 +110,25 @@ export const getProductHandler = async (
     if (isNaN(id))
       throw new AppError(ErrorCode.BAD_REQUEST, "Invalid product id");
 
-    const product = await productService.getProductById(id, {
-      include: {
-        brand: true,
-        series: true,
-        category: true,
-        product_image: true,
-        product_variants: true,
-        product_specs: true,
-        reviews: true,
-      },
-    });
+    const product = await productService.getProductById(id);
 
     if (!product) throw new AppError(ErrorCode.NOT_FOUND, "Product not found");
 
-    const validated = ProductResponseSchema.parse(product);
+    // const validated = ProductResponseSchema.parse(product);
 
     return res.status(200).json({
       success: true,
       message: "Product fetched successfully",
-      data: validated,
+      data: {
+        ...product,
+        rate: {
+          avg: product.reviews.reduce(
+            (acc, review) => acc + review.vote,
+            0
+          ) / product.reviews.length,
+          count: product.reviews.length,
+        }
+      },
     });
   } catch (error) {
     next(error);
@@ -135,13 +138,7 @@ export const getProductHandler = async (
 // ------------------- GET ALL PRODUCTS -------------------
 export const getAllProductsHandler = async (
   req: Request,
-  res: Response<ApiResponse<{
-    page: number;
-    limit: number;
-    total_items: number;
-    total_pages: number;
-    results: ProductResponse[];
-  }>>,
+  res: Response<ApiResponse<ProductListResponse>>,
   next: NextFunction
 ) => {
   try {
@@ -175,7 +172,7 @@ export const getAllProductsHandler = async (
     });
 
     // Parse từng product
-    const validated = ProductResponseSchema.array().parse(products);
+    // const validated = ProductResponseSchema.array().parse(products);
 
     return res.status(200).json({
       success: true,
@@ -185,7 +182,7 @@ export const getAllProductsHandler = async (
         limit,
         total_items: total,
         total_pages: Math.ceil(total / limit),
-        results: validated,
+        results: products,
       },
     });
   } catch (error) {

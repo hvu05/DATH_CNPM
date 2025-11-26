@@ -10,21 +10,95 @@ import {
 import { checkRole } from "../middlewares/check-role.middleware";
 import { authenticateHandler } from "../middlewares/authenticate.middleware";
 import reviewRouter from './review.route'
-import multer from "multer";
 import { multerConfig } from "../config/multer.config";
+import { registry } from "../config/openapi.config";
+import { ProductCreateSchema } from "../dtos/product/product-create.request";
+import { ProductResponseSchema } from "../dtos/product/product.response";
+import { ApiResponseSchema } from "../dtos/common/api-response";
+import { ProductListResponseSchema } from "../dtos/product/product-list.response";
 
 const router = Router();
 
 // ------------------- PRODUCT ROUTES -------------------
 
 // Lấy danh sách sản phẩm (query, filter, phân trang) - ai cũng xem
+registry.registerPath({
+  tags: ['Product'],
+  path: '/products',
+  method: 'get',
+  responses: {
+    "200": {
+      description: "OK",
+      content: {
+        "application/json": {
+          schema: ApiResponseSchema(ProductListResponseSchema)
+        }
+      }
+    },
+  }
+})
 router.get("/", getAllProductsHandler);
 
 // Xem chi tiết sản phẩm theo id - ai cũng xem
+registry.registerPath({
+  tags: ['Product'],
+  path: '/products/{id}',
+  method: 'get',
+  parameters: [
+    {
+      name: "id",
+      in: "path",
+      required: true,
+      schema: { type: "string" },
+    },
+  ],
+  responses: {
+    "200": {
+      description: "OK",
+      content: {
+        "application/json": {
+          schema: ApiResponseSchema(ProductResponseSchema)
+        }
+      }
+    },
+  }
+})
 router.get("/:id", getProductHandler);
 
 // Thêm sản phẩm mới - chỉ admin
-router.post("/",authenticateHandler, checkRole(["ADMIN"]), createProductHandler);
+registry.registerPath({
+  tags: ['Product'],
+  path: '/products',
+  method: 'post',
+  security: [
+    {
+      bearerAuth: []
+    }
+  ],
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: (ProductCreateSchema)
+        }
+      }
+    }
+  }
+  ,
+  responses: {
+    "200": {
+      description: "Thêm sản phẩm mới",
+      content: {
+        "application/json": {
+          schema: ApiResponseSchema(ProductResponseSchema.omit({
+            reviews: true,
+          }))
+        }
+      }
+    },
+  }
+})
+router.post("/",authenticateHandler, checkRole(["ADMIN"]),multerConfig.array('images'), createProductHandler);
 
 // Cập nhật sản phẩm theo id - chỉ admin
 router.put("/:id",authenticateHandler, checkRole(["ADMIN"]), updateProductHandler);

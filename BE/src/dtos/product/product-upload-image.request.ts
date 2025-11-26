@@ -1,7 +1,8 @@
 import z from "zod";
+import { ImageFileSchema } from "../upload/image";
 
-export const ProductUploadImageSchema = z.object({
-  is_thumbnail: z.boolean().optional(),
-});
+export const ProductUploadImageSchema = ImageFileSchema.extend({
+  is_thumbnail: z.coerce.boolean().default(false),
+})
 
 export type ProductUploadImageRequest = z.infer<typeof ProductUploadImageSchema>;

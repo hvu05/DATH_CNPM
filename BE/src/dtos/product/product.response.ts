@@ -36,11 +36,11 @@ export type BrandResponse = z.infer<typeof BrandResponseSchema>;
    PRODUCT IMAGE RESPONSE
 ============================= */
 export const ProductImageResponseSchema = z.object({
-  id: z.number(),
-  product_id: z.number(),
+  // id: z.number(),
+  product_id: z.number().optional().nullable(),
   image_url: z.string(),
-  image_public_id: z.string(),
-  is_thumbnail: z.boolean(),
+  image_public_id: z.string().optional().nullable(),
+  is_thumbnail: z.boolean().optional().nullable(),
 });
 
 export type ProductImageResponse = z.infer<typeof ProductImageResponseSchema>;
@@ -97,6 +97,10 @@ export const ProductResponseSchema = z.object({
   product_image: ProductImageResponseSchema.array().optional(),
   product_specs: ProductSpecResponseSchema.array().optional(),
   product_variants: ProductVariantResponseSchema.array().optional(),
+  rate: z.object({
+    avg: z.number(),
+    count: z.number(),
+  }).optional(), // Tỷ lệ đánh giá
   reviews: z.any().array().optional(), // nếu muốn, tôi viết review.response luôn
 });
 

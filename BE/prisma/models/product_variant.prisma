@@ -13,4 +13,5 @@ model ProductVariant{
   order_items OrderItem[]
   cart_items CartItem[]
   product Product @relation(fields: [product_id], references: [id])
+  inventory_logs InventoryLog[]
 }

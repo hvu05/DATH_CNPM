@@ -1,15 +1,26 @@
-## How to run project:
+### api liên quan đến upload image đã có trong folder service -> global.ts nhé các bro
 
-### 1. clone
+### ipad
 
-### 2. cd FE
+https://res.cloudinary.com/djnfuzqou/image/upload/v1763917811/product/image_1763917808870_t8szspk.webp
+product/image_1763917808870_t8szspk
 
-### 3. npm i
+### iphone
 
-### 4. npm run dev
+https://res.cloudinary.com/djnfuzqou/image/upload/v1763917910/product/image_1763917908878_zpi9y7n.webp
+product/image_1763917908878_zpi9y7n
 
-### react router -> using data mode
+### asus
 
-### vite-ts-configPath -> absolute path
+https://res.cloudinary.com/djnfuzqou/image/upload/v1763917957/product/image_1763917954735_wwx375l.webp
+product/image_1763917954735_wwx375l
 
-### css style : scss + tailwindcss
+### macbook
+
+https://res.cloudinary.com/djnfuzqou/image/upload/v1763917995/product/image_1763917994566_j6a1iwk.webp
+product/image_1763917994566_j6a1iwk
+
+### dell
+
+https://res.cloudinary.com/djnfuzqou/image/upload/v1763918037/product/image_1763918033669_mr6ps46.webp
+product/image_1763918033669_mr6ps46

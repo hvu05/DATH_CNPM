@@ -7,7 +7,8 @@ export enum OrderStatus {
   COMPLETED = 'COMPLETED',
   CANCELLED = 'CANCELLED',
   RETURNED = 'RETURNED',
-  REFUNDED = 'REFUNDED'
+  REFUNDED = 'REFUNDED',
+  RETURN_REQUEST = 'RETURN_REQUEST',
 }
 
 export enum OrderItemStatus {
@@ -16,5 +17,5 @@ export enum OrderItemStatus {
   CANCELLED = 'CANCELLED',
   RETURN_REQUEST = 'RETURN_REQUEST',
   RETURNED = 'RETURNED',
-  REFUNDED = 'REFUNDED'
+  REFUNDED = 'REFUNDED',
 }

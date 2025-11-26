@@ -5,6 +5,7 @@ import { OrderPage } from '@/pages/seller/orders/order';
 import { StatusPage } from '@/pages/seller/status/status';
 import type { RouteObject } from 'react-router';
 import { ProtectedRoute } from './protected.route';
+import { DetailPage } from '@/pages/seller/detail/detail';
 
 export const sellerRoutes: RouteObject[] = [
     {
@@ -30,6 +31,10 @@ export const sellerRoutes: RouteObject[] = [
             {
                 path: 'status',
                 element: <StatusPage />,
+            },
+            {
+                path: 'order/:id',
+                element: <DetailPage />,
             },
         ],
     },

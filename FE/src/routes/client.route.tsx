@@ -9,6 +9,8 @@ import { OrderClient } from '@/pages/client/order';
 import { PaymentClient } from '@/pages/client/payment';
 import { OrderSuccess } from '@/pages/client/order-success';
 import { ProtectedRoute } from './protected.route';
+import { AppLayout } from '@/layout';
+import { ReOrderClient } from '@/pages/client/reOrder/reOrder';
 
 export const clientRoutes: RouteObject[] = [
     {
@@ -18,44 +20,45 @@ export const clientRoutes: RouteObject[] = [
                 <ClientLayout />
             </ProtectedRoute>
         ),
-        // element: <ClientLayout />,
         children: [
             {
                 index: true,
                 element: <ProfilePageClient />,
             },
             {
-                // have tab
                 path: 'edit-profile',
                 element: <EditProfileClient />,
             },
             {
-                // have tab
                 path: 'my-orders',
                 element: <ClientOrder />,
             },
             {
-                // have tab
                 path: 'address',
                 element: <ClientAddress />,
             },
-
+        ],
+    },
+    {
+        path: '/client',
+        element: <AppLayout />,
+        children: [
             {
-                path: '/client/order/:id',
+                path: 'order/:id',
                 element: <OrderClient />,
             },
             {
-                path: '/client/order/payment',
+                path: 'order/payment',
                 element: <PaymentClient />,
-            },  
+            },
             {
                 path: '/client/order/success',
                 element: <OrderSuccess />,
             },
-            // {
-            //     path: 'history',
-            //     element: <ClientHistory />
-            // },
+            {
+                path: '/client/info/:id',
+                element: <ReOrderClient />,
+            },
         ],
     },
 ];

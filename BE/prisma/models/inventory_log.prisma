@@ -1,9 +1,10 @@
 model InventoryLog{
   id Int @id @default(autoincrement())
   product_id Int
+  product_variant_id Int
   type String
   quantity Int
   reason String @db.Text
-
-  product Product @relation(fields: [product_id], references: [id])
+  
+  product_variant ProductVariant @relation(fields: [product_variant_id,product_id], references: [id, product_id])
 }

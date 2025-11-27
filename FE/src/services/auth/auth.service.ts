@@ -31,6 +31,7 @@ export const authAPI = {
     },
 
     sendOtp: async (data: SendOtpRequest) => {
+        console.log('data', data.email);
         const result = await axios.post<ApiResponse<any>>('/auth/send-otp', data);
         return result.data;
     },

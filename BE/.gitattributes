@@ -1,0 +1,22 @@
+# Đảm bảo tất cả file text dùng LF (chuẩn Linux/macOS)
+* text=auto eol=lf
+
+# Nếu muốn Windows dùng CRLF khi checkout
+# * text=auto eol=crlf
+
+# Định nghĩa riêng cho từng loại file
+*.sh text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+
+# File batch trên Windows nên dùng CRLF
+*.bat text eol=crlf
+
+# Giữ nguyên binary, không thay đổi
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary

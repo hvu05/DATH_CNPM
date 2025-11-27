@@ -1,19 +1,27 @@
 import default_order from '@/assets/seller/default_order.webp';
 import { useNavigate } from 'react-router';
 import '@/styles/client/clientOrderList.scss';
+import type { DataInOrder, OrdersInOrder } from '@/types/clients/client.order.types';
 
-export const SuccessOrder = ({ orders }) => {
+type Props = {
+    orders: DataInOrder | null;
+};
+export const SuccessOrder = ({ orders }: Props) => {
     const navigate = useNavigate();
 
     // Filter orders that are in "SUCCEEDED" status
-    const successOrders = orders?.data?.orders?.filter(item => item?.status === 'COMPLETED');
+    const successOrders = orders?.orders?.filter(item => item?.status === 'COMPLETED');
 
+    const handleEvaluate = (id: string) => {};
+    const handleRebuy = (order: OrdersInOrder) => {
+        navigate(`/client/order/${order.id}`, { state: { order: order } });
+    };
     return (
         <div className="client-order__list">
-            {successOrders?.map(order => 
-                order?.order_items?.map(item => (
-                    <div className="client-order__item" key={item?.id}>
-                        <div className="client-order__product-info">
+            {successOrders?.map(order => (
+                <div className="client-order__item" key={order?.id}>
+                    {order?.order_items?.map(item => (
+                        <div className="client-order__product-info" key={item?.id}>
                             <div className="client-order__img-container">
                                 <img
                                     className="client-order__img"
@@ -33,25 +41,34 @@ export const SuccessOrder = ({ orders }) => {
                                 </div>
                             </div>
                         </div>
-                        <div className="client-order__price-status">
-                            <div className="client-order__price">
-                                Giá: {item?.product_variant?.price.toLocaleString()}đ
-                            </div>
-                            <div className="client-order__status--dflex">
-                                <div className="btn-evaluate">Đánh giá</div>
-                                <div className="btn-rebuy">Mua lại</div>
-                            </div>
+                    ))}
 
-                            {/* <button
-                                onClick={() => navigate(`/client/order/${order?.id}`)}
-                                className="client-order__detail-link"
-                            >
-                                Chi tiết đơn hàng
-                            </button> */}
+                    <div className="client-order__price-status">
+                        <div className="client-order__price">
+                            Giá: {order?.total?.toLocaleString()}đ
                         </div>
+                        <div className="client-order__status--dflex">
+                            <div className="btn-evaluate" onClick={() => handleEvaluate(order?.id)}>
+                                Đánh giá
+                            </div>
+                            <div className="btn-rebuy" onClick={() => handleRebuy(order)}>
+                                Mua lại
+                            </div>
+                        </div>
+                        <button className="client-order__return">
+                            Đơn hàng đã được giao đến bạn
+                        </button>
+                        <button
+                            onClick={() =>
+                                navigate(`/client/info/${order?.id}`, { state: { order: order } })
+                            }
+                            className="client-order__detail-link"
+                        >
+                            Chi tiết đơn hàng
+                        </button>
                     </div>
-                ))
-            )}
+                </div>
+            ))}
         </div>
     );
 };

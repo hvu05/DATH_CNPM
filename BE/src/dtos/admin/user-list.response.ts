@@ -1,7 +1,7 @@
 import { UserResponse } from "../users";
 
 export interface UserListResponse {
-  users: UserResponse[];
+  results: UserResponse[];
   total: number;
   page: number;
   limit: number;

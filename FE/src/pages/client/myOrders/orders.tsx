@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import '@/pages/client/myOrders/index.scss';
 import { AllOrders } from '@/components/client/statusOrder/allOrders';
 import { PendingPay } from '@/components/client/statusOrder/pendingPay';
@@ -7,63 +7,61 @@ import { ProcessingOrder } from '@/components/client/statusOrder/processingOrder
 import { SuccessOrder } from '@/components/client/statusOrder/successOrder';
 import { CancelOrders } from '@/components/client/statusOrder/cancelOrder';
 import { ReturnOrder } from '@/components/client/statusOrder/returnOrder';
-import { orderAPI } from '@/services/user/orders/user.order.api';
+import type { DataInOrder, OrderAllResponse } from '@/types/clients/client.order.types';
+import { useClientOrder } from '@/hooks/client/useClientOrder';
 
 type OptionsFilter =
-    | 'all'
-    | 'pending_pay'
-    | 'shipping'
-    | 'processing'
-    | 'succeeded'
-    | 'return'
-    | 'cancelled';
+    | 'ALL'
+    | 'PENDING'
+    | 'DELIVERING'
+    | 'PROCESSING'
+    | 'COMPLETED'
+    | 'RETURN'
+    | 'CANCELLED';
 
-//     export enum PaymentStatus {
-//     PENDING = 'PENDING',
-//     SUCCESS = 'SUCCESS',
-//     FAILED = 'FAILED'
-// }
-
-
-// export enum OrderStatus {
+// export enum OrderItemStatus {
 //   PENDING = 'PENDING',
-//   CONFIRMED = 'CONFIRMED',
-//   PROCESSING = 'PROCESSING',
-//   DELIVERING = 'DELIVERING',
-//   DELIVERED = 'DELIVERED',
 //   COMPLETED = 'COMPLETED',
-//   CANCELLED = 'CANCELLED',
 //   RETURNED = 'RETURNED',
 //   REFUNDED = 'REFUNDED'
 // }
-export const ClientOrder = () => {
-    const [filter, setFilter] = useState<OptionsFilter>('all');
 
-    const [orders, setOrder] = useState()
+// export enum OrderStatus {
+//   PENDING = 'PENDING',//
+//   CONFIRMED = 'CONFIRMED',
+//   PROCESSING = 'PROCESSING',//
+//   DELIVERING = 'DELIVERING',//
+//   DELIVERED = 'DELIVERED',//
+//   COMPLETED = 'COMPLETED',
+//   CANCELLED = 'CANCELLED',//
+//   RETURNED = 'RETURNED',//
+//   REFUNDED = 'REFUNDED'
+// }
+export const ClientOrder = () => {
+    const [filter, setFilter] = useState<OptionsFilter>('ALL');
+    const [refresh, setRefresh] = useState<boolean>(false);
+    const [orders, setOrder] = useState<DataInOrder | null>(null);
+    const { data: res, loading: loading } = useClientOrder(refresh);
 
     useEffect(() => {
-        const fetchData = async () => {
-            const res = await orderAPI.getOrderByUser()
-            setOrder(res.data)
-        }
-        fetchData()
-    }, [])
-    if(!orders) return <p> Loading ...</p>
-    console.log('orders', orders)
+        setOrder(res?.data ?? null);
+    }, [res, refresh]);
+
+    if (loading) return <p> Loading ...</p>;
     const renderFillter = () => {
         switch (filter) {
-            case 'pending_pay':
-                return <PendingPay orders={orders} />;
-            case 'shipping':
+            case 'PENDING':
+                return <PendingPay orders={orders} setRefresh={setRefresh} />;
+            case 'DELIVERING':
                 return <ShippingOrder orders={orders} />;
-            case 'processing':
-                return <ProcessingOrder orders={orders} />;
-            case 'succeeded':
+            case 'PROCESSING':
+                return <ProcessingOrder orders={orders} setRefresh={setRefresh} />;
+            case 'COMPLETED':
                 return <SuccessOrder orders={orders} />;
-            case 'return':
-                return <ReturnOrder  orders={orders} />;
-            case 'cancelled':
-                return <CancelOrders  orders={orders} />;
+            case 'RETURN':
+                return <ReturnOrder orders={orders} />;
+            case 'CANCELLED':
+                return <CancelOrders orders={orders} />;
             default:
                 return <AllOrders orders={orders} />;
         }
@@ -75,46 +73,46 @@ export const ClientOrder = () => {
 
             <div className="client-order__filter">
                 <button
-                    className={`client-order__filter-option ${filter == 'all' ? 'client-order__filter-option--active' : ''}`}
-                    onClick={() => setFilter('all')}
+                    className={`client-order__filter-option ${filter == 'ALL' ? 'client-order__filter-option--active' : ''}`}
+                    onClick={() => setFilter('ALL')}
                 >
                     Tất cả
                 </button>
                 <button
-                    className={`client-order__filter-option ${filter == 'pending_pay' ? 'client-order__filter-option--active' : ''}`}
-                    onClick={() => setFilter('pending_pay')}
+                    className={`client-order__filter-option ${filter == 'PENDING' ? 'client-order__filter-option--active' : ''}`}
+                    onClick={() => setFilter('PENDING')}
                 >
-                    Đang chờ thanh toán
+                    Chờ thanh toán
                 </button>
                 <button
-                    className={`client-order__filter-option ${filter == 'processing' ? 'client-order__filter-option--active' : ''}`}
-                    onClick={() => setFilter('processing')}
+                    className={`client-order__filter-option ${filter == 'PROCESSING' ? 'client-order__filter-option--active' : ''}`}
+                    onClick={() => setFilter('PROCESSING')}
                 >
                     Đang xử lý
                 </button>
                 <button
-                    className={`client-order__filter-option ${filter == 'shipping' ? 'client-order__filter-option--active' : ''}`}
-                    onClick={() => setFilter('shipping')}
+                    className={`client-order__filter-option ${filter == 'DELIVERING' ? 'client-order__filter-option--active' : ''}`}
+                    onClick={() => setFilter('DELIVERING')}
                 >
                     Đang giao
                 </button>
                 <button
-                    className={`client-order__filter-option ${filter == 'succeeded' ? 'client-order__filter-option--active' : ''}`}
-                    onClick={() => setFilter('succeeded')}
+                    className={`client-order__filter-option ${filter == 'COMPLETED' ? 'client-order__filter-option--active' : ''}`}
+                    onClick={() => setFilter('COMPLETED')}
                 >
                     Giao hàng thành công
                 </button>
                 <button
-                    className={`client-order__filter-option ${filter == 'return' ? 'client-order__filter-option--active' : ''}`}
-                    onClick={() => setFilter('return')}
+                    className={`client-order__filter-option ${filter == 'RETURN' ? 'client-order__filter-option--active' : ''}`}
+                    onClick={() => setFilter('RETURN')}
                 >
                     Trả hàng
                 </button>
                 <button
-                    className={`client-order__filter-option ${filter == 'cancelled' ? 'client-order__filter-option--active' : ''}`}
-                    onClick={() => setFilter('cancelled')}
+                    className={`client-order__filter-option ${filter == 'CANCELLED' ? 'client-order__filter-option--active' : ''}`}
+                    onClick={() => setFilter('CANCELLED')}
                 >
-                    Hủy hàng
+                    Đã hủy
                 </button>
             </div>
 

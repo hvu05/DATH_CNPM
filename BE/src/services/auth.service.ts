@@ -5,11 +5,12 @@ import { JwtPayload } from 'jsonwebtoken';
 import * as authDto from '../dtos/auth';
 import { AppError } from '../exeptions/app-error';
 import { ErrorCode } from '../exeptions/error-status';
-import { generateToken } from '../utils/jwt.utils';
+import { generateToken, verifyToken } from '../utils/jwt.utils';
 import { generateOTP } from '../utils/otp.utils';
 import { transporter } from '../config/nodemailer.config';
 import { createUser } from './user.service';
 import { UserResponse } from '../dtos/users';
+import { AuthPayload } from '../types/auth-payload';
 
 /**
  * Đăng nhập với email và password
@@ -127,3 +128,28 @@ export const sendOtpForRegister = async (email: string): Promise<void> => {
       console.error(`❌ [OTP] Failed to send email:`, error);
     });
 }
+
+export const refreshToken = async (refreshToken: string): Promise<authDto.LoginResponse> => {
+  const decoded = verifyToken(refreshToken) as JwtPayload;
+  const user = await prisma.user.findUnique({
+    where: {
+      id: decoded.id
+    },
+    include: {
+      role: true
+    }
+  })
+  if (!user) throw new AppError(ErrorCode.NOT_FOUND, "Không tìm thấy người dùng");
+  const payload: JwtPayload = {
+    id: user.id,
+    email: user.email,
+    role: user.role.name,
+    full_name: user.full_name,
+  };
+  const access_token = generateToken(payload);
+  const refresh_token = generateToken({ id: user.id }, "7d");
+  return {
+    access_token: access_token,
+    refresh_token: refresh_token
+  };
+};

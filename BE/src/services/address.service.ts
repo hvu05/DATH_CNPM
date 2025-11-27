@@ -22,7 +22,9 @@ export const createAddress = async (data : AddressCreateRequest, id? : string) :
         connect : {
           id : user.id
         }
-      }
+      },
+      receive_name : data.receive_name? data.receive_name : user.full_name,
+      phone: data.phone? data.phone : user.phone? user.phone : ""
     },
   });
   const allAddresses = await prisma.address.findMany({
@@ -32,6 +34,8 @@ export const createAddress = async (data : AddressCreateRequest, id? : string) :
       province: true,
       ward: true,
       detail: true,
+      receive_name: true,
+      phone: true,
       user: {
         select: {
           id: true,
@@ -46,7 +50,6 @@ export const createAddress = async (data : AddressCreateRequest, id? : string) :
   });
 
    return {
-    user: allAddresses[0].user,
     addresses: allAddresses,
   };
 }
@@ -59,6 +62,8 @@ export const getAddressList = async (user_id: string) : Promise<AddressListRespo
       province: true,
       ward: true,
       detail: true,
+      receive_name: true,
+      phone: true,
       user: {
         select: {
           id: true,
@@ -72,27 +77,7 @@ export const getAddressList = async (user_id: string) : Promise<AddressListRespo
   },
     orderBy: { id: "asc" }, // sắp xếp tăng dần cho đẹp
   });
-  let user
-  if (addresses.length > 0) {
-    user = addresses[0].user
-  }
-  else {
-    user = await prisma.user.findUniqueOrThrow(
-      {
-        where: {
-          id: user_id
-        },
-        select: {
-          id: true,
-          full_name: true,
-          avatar: true,
-          email: true,
-          phone: true,
-        }
-      })
-  }
   return {
-    user: user,
     addresses
   }
 }

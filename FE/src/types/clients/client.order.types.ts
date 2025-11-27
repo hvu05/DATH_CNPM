@@ -48,5 +48,5 @@ export interface OrderResponse {
 
 // export interface OrderAllResponse {
 //     success: boolean,
-//     data: 
+//     data:
 // }

@@ -1,16 +1,16 @@
 @use '../../styles/variable.scss' as var;
 
 .service-bar {
-    background-color: #1c1c1e; 
+    background-color: #1c1c1e;
     color: var.$white-color;
     padding: 24px 0;
     margin-top: 50px;
 
     &__container {
         display: flex;
-        justify-content: space-around; 
+        justify-content: space-around;
         align-items: center;
-        flex-wrap: wrap; 
+        flex-wrap: wrap;
         gap: 20px;
     }
 
@@ -46,12 +46,12 @@
         font-weight: 600;
         margin: 0;
         margin-bottom: 4px;
-        white-space: nowrap; 
+        white-space: nowrap;
     }
 
     &__description {
         font-size: 13px;
-        color: #cccccc; 
+        color: #cccccc;
         margin: 0;
         white-space: nowrap;
     }

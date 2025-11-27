@@ -1,11 +1,11 @@
-import { Router } from 'express'
-import * as authController from '../controllers/auth.controller'
-import { registry } from '../config/openapi.config'
-import * as authDto from '../dtos/auth'
-import { email } from 'zod'
-import { ApiResponseSchema } from '../dtos/common/api-response'
+import { Router } from 'express';
+import * as authController from '../controllers/auth.controller';
+import { registry } from '../config/openapi.config';
+import * as authDto from '../dtos/auth';
+import { email } from 'zod';
+import { ApiResponseSchema } from '../dtos/common/api-response';
 
-const router = Router()
+const router = Router();
 
 registry.registerPath({
   tags: ['Auth'],
@@ -14,24 +14,24 @@ registry.registerPath({
   request: {
     body: {
       content: {
-        "application/json": {
-          schema: authDto.loginSchema
-        }
-      }
-    }
+        'application/json': {
+          schema: authDto.loginSchema,
+        },
+      },
+    },
   },
   responses: {
-    "200": {
-      description: "OK",
+    '200': {
+      description: 'OK',
       content: {
-        "application/json": {
-          schema: ApiResponseSchema(authDto.LoginResponseSchema)
-        }
-      }
-    }
-  }
-})
-router.post('/login', authController.loginHandler)
+        'application/json': {
+          schema: ApiResponseSchema(authDto.LoginResponseSchema),
+        },
+      },
+    },
+  },
+});
+router.post('/login', authController.loginHandler);
 
 registry.registerPath({
   tags: ['Auth'],
@@ -40,43 +40,43 @@ registry.registerPath({
   request: {
     body: {
       content: {
-        "application/json": {
+        'application/json': {
           schema: {
-            type: "object",
+            type: 'object',
             properties: {
               email: {
-                type: "string",
-                format: "email"
-              }
-            }
-          }
-        }
-      }
-    }
+                type: 'string',
+                format: 'email',
+              },
+            },
+          },
+        },
+      },
+    },
   },
   responses: {
-    "200": {
-      description: "OK",
+    '200': {
+      description: 'OK',
       content: {
-        "application/json": {
+        'application/json': {
           schema: {
-            type: "object",
+            type: 'object',
             properties: {
               success: {
-                type: "boolean"
+                type: 'boolean',
               },
               message: {
-                type: "string",
-                default: "OTP sent successfully"
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-})
-router.post('/send-otp', authController.sendOtpForRegisterHandler)
+                type: 'string',
+                default: 'OTP sent successfully',
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+});
+router.post('/send-otp', authController.sendOtpForRegisterHandler);
 
 registry.registerPath({
   tags: ['Auth'],
@@ -85,22 +85,22 @@ registry.registerPath({
   request: {
     body: {
       content: {
-        "application/json": {
-          schema: authDto.RegisterSchema
-        }
-      }
-    }
+        'application/json': {
+          schema: authDto.RegisterSchema,
+        },
+      },
+    },
   },
   responses: {
-    "200": {
-      description: "OK",
+    '200': {
+      description: 'OK',
       content: {
-        "application/json": {
-          schema: ApiResponseSchema(authDto.RegisterResponseSchema)
-        }
-      }
-    }
-  }
-})
-router.post('/register', authController.registerHandler)
-export default router
+        'application/json': {
+          schema: ApiResponseSchema(authDto.RegisterResponseSchema),
+        },
+      },
+    },
+  },
+});
+router.post('/register', authController.registerHandler);
+export default router;

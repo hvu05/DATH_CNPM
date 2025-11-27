@@ -24,7 +24,6 @@ type OptionsFilter =
 //     FAILED = 'FAILED'
 // }
 
-
 // export enum OrderStatus {
 //   PENDING = 'PENDING',
 //   CONFIRMED = 'CONFIRMED',
@@ -39,17 +38,17 @@ type OptionsFilter =
 export const ClientOrder = () => {
     const [filter, setFilter] = useState<OptionsFilter>('all');
 
-    const [orders, setOrder] = useState()
+    const [orders, setOrder] = useState();
 
     useEffect(() => {
         const fetchData = async () => {
-            const res = await orderAPI.getOrderByUser()
-            setOrder(res.data)
-        }
-        fetchData()
-    }, [])
-    if(!orders) return <p> Loading ...</p>
-    console.log('orders', orders)
+            const res = await orderAPI.getOrderByUser();
+            setOrder(res.data);
+        };
+        fetchData();
+    }, []);
+    if (!orders) return <p> Loading ...</p>;
+    console.log('orders', orders);
     const renderFillter = () => {
         switch (filter) {
             case 'pending_pay':
@@ -61,9 +60,9 @@ export const ClientOrder = () => {
             case 'succeeded':
                 return <SuccessOrder orders={orders} />;
             case 'return':
-                return <ReturnOrder  orders={orders} />;
+                return <ReturnOrder orders={orders} />;
             case 'cancelled':
-                return <CancelOrders  orders={orders} />;
+                return <CancelOrders orders={orders} />;
             default:
                 return <AllOrders orders={orders} />;
         }

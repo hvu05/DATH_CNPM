@@ -11,7 +11,7 @@ interface AddAddressProps {
     setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const AddAddress: React.FC<AddAddressProps> = ({setIsAddresses , setRefresh}) => {
+export const AddAddress: React.FC<AddAddressProps> = ({ setIsAddresses, setRefresh }) => {
     const [provinces, setProvinces] = useState<Province[]>([]);
     const [wards, setWards] = useState<Ward[]>([]);
     const [selectedProvince, setSelectedProvince] = useState<string>('');
@@ -64,7 +64,7 @@ export const AddAddress: React.FC<AddAddressProps> = ({setIsAddresses , setRefre
             const res = await addressAPI.createANewAddress(objRequest);
             if (res) {
                 message.success('Thêm địa chỉ thành công');
-                setRefresh(refresh => !refresh)
+                setRefresh(refresh => !refresh);
             }
         } catch (error) {
             message.error('Thêm địa chỉ thất bại');

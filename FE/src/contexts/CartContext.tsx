@@ -1,8 +1,9 @@
-import React, { createContext, useState, useContext, useMemo } from 'react';
-import type { ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
+// Dựa trên schema DB, Guest Cart cần lưu variantId để sau này checkout tạo OrderItem
 export interface CartItem {
-    id: number | string;
+    productId: number;
+    variantId: number; // Quan trọng
     name: string;
     price: number;
     imageUrl: string;
@@ -11,61 +12,63 @@ export interface CartItem {
 
 interface CartContextType {
     cartItems: CartItem[];
-    addToCart: (product: Omit<CartItem, 'quantity'>) => void;
-    removeFromCart: (productId: number | string) => void;
-    updateQuantity: (productId: number | string, newQuantity: number) => void;
+    addToCart: (item: CartItem) => void;
+    removeFromCart: (variantId: number) => void;
+    updateQuantity: (variantId: number, quantity: number) => void;
+    clearCart: () => void;
 }
 
-const CartContext = createContext<CartContextType | undefined>(undefined);
+const CartContext = createContext<CartContextType | null>(null);
 
-export const CartProvider = ({ children }: { children: ReactNode }) => {
-    const [cartItems, setCartItems] = useState<CartItem[]>([]);
+export const CartProvider = ({ children }: { children: React.ReactNode }) => {
+    const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+        try {
+            const stored = localStorage.getItem('GUEST_CART');
+            return stored ? JSON.parse(stored) : [];
+        } catch {
+            return [];
+        }
+    });
 
-    const addToCart = (product: Omit<CartItem, 'quantity'>) => {
-        setCartItems(prevItems => {
-            const existingItem = prevItems.find(item => item.id === product.id);
-            if (existingItem) {
-                return prevItems.map(item =>
-                    item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+    useEffect(() => {
+        localStorage.setItem('GUEST_CART', JSON.stringify(cartItems));
+    }, [cartItems]);
+
+    const addToCart = (newItem: CartItem) => {
+        setCartItems(prev => {
+            // Check trùng variantId thì cộng dồn số lượng
+            const exist = prev.find(i => i.variantId === newItem.variantId);
+            if (exist) {
+                return prev.map(i =>
+                    i.variantId === newItem.variantId
+                        ? { ...i, quantity: i.quantity + newItem.quantity }
+                        : i
                 );
             }
-            return [...prevItems, { ...product, quantity: 1 }];
+            return [...prev, newItem];
         });
     };
 
-    const removeFromCart = (productId: number | string) => {
-        setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
+    const removeFromCart = (variantId: number) => {
+        setCartItems(prev => prev.filter(i => i.variantId !== variantId));
     };
 
-    const updateQuantity = (productId: number | string, newQuantity: number) => {
-        if (newQuantity <= 0) {
-            removeFromCart(productId);
-        } else {
-            setCartItems(prevItems =>
-                prevItems.map(item =>
-                    item.id === productId ? { ...item, quantity: newQuantity } : item
-                )
-            );
-        }
+    const updateQuantity = (variantId: number, qty: number) => {
+        if (qty <= 0) return removeFromCart(variantId);
+        setCartItems(prev =>
+            prev.map(i => (i.variantId === variantId ? { ...i, quantity: qty } : i))
+        );
     };
 
-    const value = useMemo(
-        () => ({
-            cartItems,
-            addToCart,
-            removeFromCart,
-            updateQuantity,
-        }),
-        [cartItems]
+    const clearCart = () => setCartItems([]);
+
+    return (
+        <CartContext.Provider
+            value={{ cartItems, addToCart, removeFromCart, updateQuantity, clearCart }}
+        >
+            {children}
+        </CartContext.Provider>
     );
-
-    return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };
 
-export const useCart = () => {
-    const context = useContext(CartContext);
-    if (context === undefined) {
-        throw new Error('useCart must be used within a CartProvider');
-    }
-    return context;
-};
+export const useCart = () => useContext(CartContext)!;

@@ -1,6 +1,6 @@
-import { prisma } from "../../config/prisma.config";
-import { AppError, ErrorCode } from "../../exeptions";
-import * as orderDto from "../../dtos/orders";
+import { prisma } from '../../config/prisma.config';
+import { AppError, ErrorCode } from '../../exeptions';
+import * as orderDto from '../../dtos/orders';
 
 const updateHandler = async (
   orderId: string,
@@ -41,8 +41,8 @@ const updateHandler = async (
 };
 /**
  * Staff xác nhận đơn hàng
- * @param orderId 
- * @returns 
+ * @param orderId
+ * @returns
  */
 export const confirm = async (orderId: string) => {
   const order = await prisma.order.findFirst({
@@ -61,9 +61,9 @@ export const confirm = async (orderId: string) => {
 
 /**
  * Khách hàng hoặc Staff huỷ đơn hàng (Trước khi vận chuyển)
- * @param orderId 
- * @param userId 
- * @returns 
+ * @param orderId
+ * @param userId
+ * @returns
  */
 export const cancel = async (orderId: string, userId?: string) => {
   const order = await prisma.order.findFirst({
@@ -113,8 +113,8 @@ export const cancel = async (orderId: string, userId?: string) => {
 
 /**
  * Bắt đầu đóng gói hàng
- * @param orderId 
- * @returns 
+ * @param orderId
+ * @returns
  */
 export const process = async (orderId: string) => {
   const order = await prisma.order.findFirst({
@@ -133,8 +133,8 @@ export const process = async (orderId: string) => {
 
 /**
  * Đã giao cho đơn vị vận chuyển
- * @param orderId 
- * @returns 
+ * @param orderId
+ * @returns
  */
 export const deliver = async (orderId: string) => {
   const order = await prisma.order.findFirst({
@@ -153,8 +153,8 @@ export const deliver = async (orderId: string) => {
 
 /**
  * Bên vận chuyển confirm, hiện tại thì do staff làm thủ công
- * @param orderId 
- * @returns 
+ * @param orderId
+ * @returns
  */
 export const complete = async (orderId: string) => {
   const order = await prisma.order.findFirst({
@@ -203,4 +203,3 @@ export const refunded = async (orderId: string, order_item_id: string) => {
   }
   return updateHandler(orderId, orderDto.OrderStatus.REFUNDED);
 };
-

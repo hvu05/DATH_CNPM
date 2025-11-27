@@ -6,13 +6,13 @@
 //   "vnp_ReturnUrl": "http://localhost:8888/order/vnpay_return"
 // }
 
-import { VNPay, ignoreLogger, HashAlgorithm } from "vnpay";
+import { VNPay, ignoreLogger, HashAlgorithm } from 'vnpay';
 //? Hardcode vnpay
 export const vnpay = new VNPay({
-  tmnCode: "43QFYXL3",
-  secureSecret: "YL9UW56TK7COSV2V3U4092VR5S4UAMLM",
-  vnpayHost: "https://sandbox.vnpayment.vn",
+  tmnCode: '43QFYXL3',
+  secureSecret: 'YL9UW56TK7COSV2V3U4092VR5S4UAMLM',
+  vnpayHost: 'https://sandbox.vnpayment.vn',
   testMode: true,
   hashAlgorithm: HashAlgorithm.SHA512,
-  loggerFn: ignoreLogger
-})
+  loggerFn: ignoreLogger,
+});

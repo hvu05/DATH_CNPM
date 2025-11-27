@@ -5,7 +5,7 @@ import { toPaymentResponse } from '../payment';
 import { OrderReturnResponse } from './order-return.response';
 type OrderWithItemPrisma = Prisma.OrderGetPayload<{
   include: {
-    payment: true,
+    payment: true;
     order_items: {
       include: {
         variant: {
@@ -18,7 +18,6 @@ type OrderWithItemPrisma = Prisma.OrderGetPayload<{
   };
 }>;
 
-
 export const mapOrderToDTO = (order: OrderWithItemPrisma): OrderResponse => {
   return {
     id: order.id,
@@ -28,7 +27,7 @@ export const mapOrderToDTO = (order: OrderWithItemPrisma): OrderResponse => {
     // province: order.province,
     // ward: order.ward,
     // detail: order.detail,
-    address : mapAddressToDTO(order),
+    address: mapAddressToDTO(order),
     note: order.note ?? undefined,
     create_at: order.create_at,
     deliver_at: order.deliver_at ? order.deliver_at : undefined,
@@ -44,7 +43,7 @@ const mapAddressToDTO = (address: OrderWithItemPrisma | any): any => {
     ward: address.ward,
     detail: address.detail,
   };
-}
+};
 const mapOrderItemsToDTO = (
   item: OrderWithItemPrisma['order_items'][number],
 ): OrderItemResponse => {
@@ -71,21 +70,23 @@ const mapProductVariantToDTO = (
 
 type OrderReturnWithItemPrisma = Prisma.ReturnOrderRequestGetPayload<{
   include: {
-    images: true,
-    order: true,
+    images: true;
+    order: true;
     order_item: {
       include: {
         variant: {
           include: {
-            product: true
-          }
-        }
-      }
-    }
+            product: true;
+          };
+        };
+      };
+    };
   };
 }>;
 
-export const mapOrderReturnToDTO = (request: OrderReturnWithItemPrisma ): OrderReturnResponse => {
+export const mapOrderReturnToDTO = (
+  request: OrderReturnWithItemPrisma,
+): OrderReturnResponse => {
   return {
     create_at: request.create_at,
     update_at: request.update_at,
@@ -95,7 +96,9 @@ export const mapOrderReturnToDTO = (request: OrderReturnWithItemPrisma ): OrderR
       total: request.order.total,
       status: request.order.status,
       address: mapAddressToDTO(request.order),
-      deliver_at: request.order.deliver_at ? request.order.deliver_at : undefined,
+      deliver_at: request.order.deliver_at
+        ? request.order.deliver_at
+        : undefined,
     },
     order_item: {
       id: request.order_item.id,
@@ -105,5 +108,5 @@ export const mapOrderReturnToDTO = (request: OrderReturnWithItemPrisma ): OrderR
     },
     reason: request.reason,
     images: request.images.map((image) => image.image_url),
-  }
+  };
 };

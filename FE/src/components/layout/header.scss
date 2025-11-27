@@ -1,7 +1,11 @@
 @use '../../styles/variable.scss' as var;
 
 .header {
-    background: linear-gradient(90deg, var.$header-gradient-start 0%, var.$header-gradient-end 100%);
+    background: linear-gradient(
+        90deg,
+        var.$header-gradient-start 0%,
+        var.$header-gradient-end 100%
+    );
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -154,10 +158,10 @@
 
     &__menu {
         position: absolute;
-        top: calc(100% + 8px); 
+        top: calc(100% + 8px);
         left: 0;
         background-color: white;
-        min-width: 850px; 
+        min-width: 850px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         border-radius: 8px;
         z-index: 1001;
@@ -167,11 +171,11 @@
     }
 
     &__categories {
-        width: 240px; 
+        width: 240px;
         background-color: #f8f8f8;
         padding: 8px 0;
         border-right: 1px solid #eee;
-        flex-shrink: 0; 
+        flex-shrink: 0;
     }
 
     &__category-item {
@@ -180,7 +184,9 @@
         padding: 12px 20px;
         color: #333;
         cursor: pointer;
-        transition: background-color 0.2s, color 0.2s;
+        transition:
+            background-color 0.2s,
+            color 0.2s;
         width: 100%;
         border: none;
         background: transparent;
@@ -212,7 +218,7 @@
     &__content {
         display: flex;
         flex: 1;
-        gap: 32px; 
+        gap: 32px;
     }
 
     // Style cho từng cột
@@ -228,7 +234,7 @@
         color: #333;
         border-bottom: 1px solid #eee;
         padding-bottom: 8px;
-        white-space: nowrap; 
+        white-space: nowrap;
     }
 
     &__column-list {
@@ -237,7 +243,7 @@
         margin: 0;
         display: flex;
         flex-direction: column;
-        gap: 8px; 
+        gap: 8px;
 
         a {
             color: #666;
@@ -256,7 +262,7 @@
     &__promo {
         width: 180px;
         flex-shrink: 0;
-        background-color: #f0f0f0; 
+        background-color: #f0f0f0;
         border-radius: 6px;
         margin-left: 24px;
     }

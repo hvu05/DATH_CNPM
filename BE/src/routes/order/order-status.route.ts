@@ -108,9 +108,9 @@ registry.registerPath({
           schema: ApiResponseSchema(orderDto.OrderResponseSchema),
         },
       },
-    },  
-  }
-})
+    },
+  },
+});
 router.patch(
   '/process',
   authenticateHandler,
@@ -181,15 +181,14 @@ registry.registerPath({
         },
       },
     },
-  }
-})
+  },
+});
 router.patch(
   '/complete',
   authenticateHandler,
   checkRole(['ADMIN', 'STAFF']),
   orderActionController.staffCompleteOrderHandler,
 );
-
 
 registry.registerPath({
   tags: ['Order - Status'],
@@ -218,8 +217,8 @@ registry.registerPath({
         },
       },
     },
-  }
-})
+  },
+});
 router.patch(
   '/return-confirm/:order_item_id',
   authenticateHandler,
@@ -229,7 +228,8 @@ router.patch(
 registry.registerPath({
   tags: ['Order - Status'],
   path: '/orders/return-request/{order_item_id}',
-  description: 'Khách hàng tạo yêu cầu hoàn trả, hoặc Staff tạo yêu cầu hoàn trả trên hệ thống',
+  description:
+    'Khách hàng tạo yêu cầu hoàn trả, hoặc Staff tạo yêu cầu hoàn trả trên hệ thống',
   method: 'post',
   security: [
     {
@@ -251,7 +251,7 @@ registry.registerPath({
           schema: orderDto.OrderReturnRequestSchema,
         },
       },
-    }
+    },
   },
   responses: {
     '200': {
@@ -262,8 +262,8 @@ registry.registerPath({
         },
       },
     },
-  }
-})
+  },
+});
 router.post(
   '/return-request/:order_item_id',
   authenticateHandler,

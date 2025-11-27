@@ -1,10 +1,10 @@
-import { prisma } from "../../config/prisma.config";
-import { AppError, ErrorCode } from "../../exeptions";
-import { AuthPayload } from "../../types/auth-payload";
-import { uploadFile } from "../cloudinary.service";
-import * as orderDto from "../../dtos/orders";
-import { ReturnOrderImage } from "@prisma/client";
-import { map } from "zod";
+import { prisma } from '../../config/prisma.config';
+import { AppError, ErrorCode } from '../../exeptions';
+import { AuthPayload } from '../../types/auth-payload';
+import { uploadFile } from '../cloudinary.service';
+import * as orderDto from '../../dtos/orders';
+import { ReturnOrderImage } from '@prisma/client';
+import { map } from 'zod';
 /**
  * Khách hàng tạo yêu cầu hoàn trả trên hệ thống | Staff tạo yêu cầu hoàn trả trực tiếp tại cửa hàng
  * @param data
@@ -18,7 +18,7 @@ export const createOrderReturn = async (
   user: AuthPayload,
   orderId: string,
   orderItemId: number,
-) : Promise<orderDto.OrderReturnResponse> => {
+): Promise<orderDto.OrderReturnResponse> => {
   const { reason, images } = data;
   const order = await prisma.order.findFirst({
     where: {
@@ -31,7 +31,7 @@ export const createOrderReturn = async (
   if (!order) {
     throw new AppError(ErrorCode.NOT_FOUND, 'Không tìm thấy Order');
   }
-  let uploads : any[] = [];
+  let uploads: any[] = [];
   if (images?.length) {
     // Upload tất cả ảnh song song
     uploads = await Promise.all(
@@ -43,14 +43,14 @@ export const createOrderReturn = async (
         const { url, public_id } = await uploadFile(
           image.buffer,
           publicId,
-          "images/order-return"
+          'images/order-return',
         );
 
         return {
           public_id,
           image_url: url,
         };
-      })
+      }),
     );
   }
   const request = await prisma.returnOrderRequest.create({
@@ -61,8 +61,8 @@ export const createOrderReturn = async (
       images: {
         createMany: {
           data: uploads,
-        }
-      }
+        },
+      },
     },
     include: {
       order: true,
@@ -70,18 +70,18 @@ export const createOrderReturn = async (
         include: {
           variant: {
             include: {
-              product: true
-            }
-          }
-        }
+              product: true,
+            },
+          },
+        },
       },
-      images: true
-    }
+      images: true,
+    },
   });
   if (user.role === 'ADMIN' || user.role === 'STAFF') {
     await confirmReturned(orderId, orderItemId, user);
   }
-  
+
   return orderDto.mapOrderReturnToDTO(request);
 };
 

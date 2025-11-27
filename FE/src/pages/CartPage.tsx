@@ -11,7 +11,13 @@ import './CartPage.scss';
 const CartPage: React.FC = () => {
     const { cartItems, updateQuantity, removeFromCart } = useCart();
 
-    if (cartItems.length === 0) {
+    // helper to get product id from different cart item shapes
+    const getIdValue = (item: any): string | number => {
+        if (item == null) return '';
+        return item.id ?? item.productId ?? item.product_id ?? item.sku ?? '';
+    };
+
+    if (!cartItems || cartItems.length === 0) {
         return (
             <div className="container cart-empty">
                 <Empty description="Giỏ hàng của bạn đang trống">
@@ -23,16 +29,20 @@ const CartPage: React.FC = () => {
         );
     }
 
-    const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const total = cartItems.reduce(
+        (sum, item: any) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 0),
+        0
+    );
 
-    const handleRemoveFromCart = (id: number | string) => {
-        removeFromCart(id);
+    const handleRemoveFromCart = (rawId: string | number) => {
+        const idNum = typeof rawId === 'number' ? rawId : Number(rawId);
+        removeFromCart(idNum);
         message.success('Đã xóa sản phẩm khỏi giỏ hàng');
     };
 
-    // Lấy các sản phẩm đề xuất (ngẫu nhiên)
+    // Lấy các sản phẩm đề xuất (ngẫu nhiên) - keep MockData for suggestions or replace with API
     const recommendedProducts = products
-        .filter(p => !cartItems.some(item => item.id === p.id))
+        .filter(p => !cartItems.some((item: any) => String(getIdValue(item)) === String(p.id)))
         .sort(() => Math.random() - 0.5)
         .slice(0, 4);
 
@@ -41,36 +51,50 @@ const CartPage: React.FC = () => {
             <h1>Giỏ hàng</h1>
             <div className="cart-layout">
                 <div className="cart-items-list">
-                    {cartItems.map(item => (
-                        <div className="cart-item" key={item.id}>
-                            <img src={item.imageUrl} alt={item.name} className="cart-item__image" />
-                            <div className="cart-item__info">
-                                <h3 className="cart-item__name">{item.name}</h3>
-                                <p className="cart-item__price">
-                                    {item.price.toLocaleString('vi-VN')}₫
-                                </p>
-                            </div>
-                            <div className="cart-item__quantity">
-                                <input
-                                    type="number"
-                                    value={item.quantity}
-                                    min="1"
-                                    onChange={e =>
-                                        updateQuantity(item.id, Number.parseInt(e.target.value))
-                                    }
+                    {cartItems.map((item: any) => {
+                        const rawId = getIdValue(item);
+                        const idNum = typeof rawId === 'number' ? rawId : Number(rawId);
+                        return (
+                            <div className="cart-item" key={String(rawId)}>
+                                <img
+                                    src={item.imageUrl ?? item.image ?? '/placeholder.png'}
+                                    alt={item.name}
+                                    className="cart-item__image"
+                                />
+                                <div className="cart-item__info">
+                                    <h3 className="cart-item__name">{item.name}</h3>
+                                    <p className="cart-item__price">
+                                        {(Number(item.price) || 0).toLocaleString('vi-VN')}₫
+                                    </p>
+                                </div>
+                                <div className="cart-item__quantity">
+                                    <input
+                                        type="number"
+                                        value={Number(item.quantity) || 1}
+                                        min="1"
+                                        onChange={e =>
+                                            updateQuantity(
+                                                idNum,
+                                                Number.parseInt(e.target.value, 10) || 1
+                                            )
+                                        }
+                                    />
+                                </div>
+                                <div className="cart-item__total">
+                                    {(
+                                        (Number(item.price) || 0) * (Number(item.quantity) || 0)
+                                    ).toLocaleString('vi-VN')}
+                                    ₫
+                                </div>
+                                <Button
+                                    type="text"
+                                    danger
+                                    icon={<DeleteOutlined />}
+                                    onClick={() => handleRemoveFromCart(idNum)}
                                 />
                             </div>
-                            <div className="cart-item__total">
-                                {(item.price * item.quantity).toLocaleString('vi-VN')}₫
-                            </div>
-                            <Button
-                                type="text"
-                                danger
-                                icon={<DeleteOutlined />}
-                                onClick={() => handleRemoveFromCart(item.id)}
-                            />
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
                 <div className="cart-summary">
                     <h3>Thành tiền: {total.toLocaleString('vi-VN')}₫</h3>

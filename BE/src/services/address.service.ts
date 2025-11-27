@@ -1,28 +1,31 @@
-import { AddressCreateRequest, AddressListResponse } from "../dtos/users";
-import { prisma } from "../config/prisma.config";
-import { AppError, ErrorCode } from "../exeptions";
+import { AddressCreateRequest, AddressListResponse } from '../dtos/users';
+import { prisma } from '../config/prisma.config';
+import { AppError, ErrorCode } from '../exeptions';
 
-export const createAddress = async (data : AddressCreateRequest, id? : string) : Promise<AddressListResponse> => {
-  const user = await prisma.user.findUnique({where: {id}}) ;
-  if(!user) throw new Error("Không tìm thấy User") ;
-  
+export const createAddress = async (
+  data: AddressCreateRequest,
+  id?: string,
+): Promise<AddressListResponse> => {
+  const user = await prisma.user.findUnique({ where: { id } });
+  if (!user) throw new Error('Không tìm thấy User');
+
   const lastAddress = await prisma.address.findFirst({
     where: { user_id: id },
-    orderBy: { id: "desc" },  // Sắp xếp theo id giảm dần để lấy lớn nhất
+    orderBy: { id: 'desc' }, // Sắp xếp theo id giảm dần để lấy lớn nhất
   });
   const nextId = (lastAddress?.id ?? 0) + 1;
- 
+
   await prisma.address.create({
     data: {
       id: nextId,
       province: data.province,
       ward: data.ward,
       detail: data.detail,
-      user : {
-        connect : {
-          id : user.id
-        }
-      }
+      user: {
+        connect: {
+          id: user.id,
+        },
+      },
     },
   });
   const allAddresses = await prisma.address.findMany({
@@ -40,18 +43,20 @@ export const createAddress = async (data : AddressCreateRequest, id? : string) :
           email: true,
           phone: true,
         },
-      }
+      },
     },
-    orderBy: { id: "asc" }, // sắp xếp tăng dần cho đẹp
+    orderBy: { id: 'asc' }, // sắp xếp tăng dần cho đẹp
   });
 
-   return {
+  return {
     user: allAddresses[0].user,
     addresses: allAddresses,
   };
-}
+};
 
-export const getAddressList = async (user_id: string) : Promise<AddressListResponse> => {
+export const getAddressList = async (
+  user_id: string,
+): Promise<AddressListResponse> => {
   let addresses = await prisma.address.findMany({
     where: { user_id: user_id },
     select: {
@@ -67,43 +72,44 @@ export const getAddressList = async (user_id: string) : Promise<AddressListRespo
           email: true,
           phone: true,
         },
-      
+      },
     },
-  },
-    orderBy: { id: "asc" }, // sắp xếp tăng dần cho đẹp
+    orderBy: { id: 'asc' }, // sắp xếp tăng dần cho đẹp
   });
-  let user
+  let user;
   if (addresses.length > 0) {
-    user = addresses[0].user
-  }
-  else {
-    user = await prisma.user.findUniqueOrThrow(
-      {
-        where: {
-          id: user_id
-        },
-        select: {
-          id: true,
-          full_name: true,
-          avatar: true,
-          email: true,
-          phone: true,
-        }
-      })
+    user = addresses[0].user;
+  } else {
+    user = await prisma.user.findUniqueOrThrow({
+      where: {
+        id: user_id,
+      },
+      select: {
+        id: true,
+        full_name: true,
+        avatar: true,
+        email: true,
+        phone: true,
+      },
+    });
   }
   return {
     user: user,
-    addresses
-  }
-}
+    addresses,
+  };
+};
 
-export const updateAddress = async (id: number, user_id: string, data: AddressCreateRequest) => {
+export const updateAddress = async (
+  id: number,
+  user_id: string,
+  data: AddressCreateRequest,
+) => {
   await prisma.address.update({
     where: {
       id_user_id: {
         id: id,
-        user_id: user_id
-      }
+        user_id: user_id,
+      },
     },
     data: {
       province: data.province,
@@ -112,22 +118,20 @@ export const updateAddress = async (id: number, user_id: string, data: AddressCr
     },
   });
   return getAddressList(user_id);
-}
+};
 
 export const deleteAddress = async (id: number, user_id: string) => {
-  try{
+  try {
     await prisma.address.delete({
-        where: {
-          id_user_id: {
-            id: id,
-            user_id: user_id
-          }
-        }
-      });
-      return getAddressList(user_id);
-  }
-  catch(err: Error | any){
+      where: {
+        id_user_id: {
+          id: id,
+          user_id: user_id,
+        },
+      },
+    });
+    return getAddressList(user_id);
+  } catch (err: Error | any) {
     throw new AppError(ErrorCode.NOT_FOUND, err.message);
   }
- 
-}
+};

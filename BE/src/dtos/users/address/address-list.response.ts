@@ -1,5 +1,5 @@
-import z, { optional } from "zod";
-import { UserResponseSchema } from "../user.response";
+import z, { optional } from 'zod';
+import { UserResponseSchema } from '../user.response';
 
 // export interface AddressListResponse {
 //   user_id: string;
@@ -15,7 +15,7 @@ export const AddressResponseSchema = z.object({
   province: z.string(),
   ward: z.string(),
   detail: z.string(),
-})
+});
 export const AddressListResponseSchema = z.object({
   // user_id: z.string(),
   user: UserResponseSchema.pick({

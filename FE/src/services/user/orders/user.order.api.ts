@@ -8,8 +8,8 @@ export const orderAPI = {
         return res.data;
     },
     getOrderByUser: async () => {
-        const res = await axios.get('/orders')
+        const res = await axios.get('/orders');
 
-        return res 
-    }
+        return res;
+    },
 };

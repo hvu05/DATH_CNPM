@@ -51,8 +51,8 @@ export const PendingPay = ({ orders, setRefresh }: Props) => {
             const res = await orderAPI.cancelOrder(selectedOrderId);
 
             if (res) {
-                message.success('Hủy đơn hàng thành công');
                 setRefresh(r => !r);
+                message.success('Hủy đơn hàng thành công');
                 closeCancelModal();
                 // Có thể thêm logic reload data hoặc update UI
             }

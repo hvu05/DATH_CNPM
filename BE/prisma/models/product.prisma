@@ -14,7 +14,7 @@ model Product {
   brand Brand @relation(fields: [brand_id], references: [id])
   product_image ProductImage[]
   reviews Review[]
-  inventory_logs InventoryLog[]
+  // inventory_logs InventoryLog[]
   series Series @relation(fields: [series_id, brand_id],references: [id, brand_id])
   category Category @relation(fields: [category_id],references: [id])
   product_variants ProductVariant[]

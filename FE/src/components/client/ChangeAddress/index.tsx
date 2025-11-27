@@ -14,7 +14,7 @@ export const ChangeAddressPage: React.FC<ChangeAddressProps> = ({
 }) => {
     const [refresh, setRefresh] = useState<boolean>(true);
     const { data: address, loading: loadingAddress } = useGetClientAddress(refresh);
-    const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
+    const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
 
     if (loadingAddress) return <p>Loading ...</p>;
 
@@ -49,7 +49,7 @@ export const ChangeAddressPage: React.FC<ChangeAddressProps> = ({
                                         htmlFor={`radio-${adr.id}`}
                                         className="font-medium text-gray-900 dark:text-gray-300"
                                     >
-                                        Lâm Hoàng Vũ {/* Giả sử địa chỉ có tên */}
+                                        {adr.receive_name} - {adr.phone}
                                     </label>
                                     <p
                                         id="helper-radio-text"

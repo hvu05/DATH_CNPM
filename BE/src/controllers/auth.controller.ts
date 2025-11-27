@@ -77,3 +77,16 @@ export const registerHandler = async (
     next(error);
   }
 };
+
+export const refreshTokenHandler = async (req: Request, res: Response<ApiResponse<authDto.LoginResponse>>, next: NextFunction) => {
+  const { refresh_token } = req.body;
+  try {
+    const response : authDto.LoginResponse = await authService.refreshToken(refresh_token);
+    res.json({
+      success: true,
+      data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+}

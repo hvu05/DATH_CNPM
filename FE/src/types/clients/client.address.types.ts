@@ -33,6 +33,8 @@ export interface WardsResponse {
 
 // Address Request (Request Payload)
 export interface AddressRequest {
+    receive_name: string;
+    phone: string;
     province: string; // Example: "Long An"
     ward: string; // Example: "Kien Tuong"
     detail: string; // Example: "123 Duong so 2"
@@ -52,5 +54,7 @@ export interface Address {
     id: string; // Example: 1
     province: string; // Example: "Long An"
     ward: string; // Example: "Kien Tuong"
-    detail: string; // Example: "123 Duong so 2"
+    detail?: string; // Example: "123 Duong so 2"
+    receive_name: string;
+    phone: string;
 }

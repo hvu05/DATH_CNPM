@@ -3,6 +3,7 @@ import * as orderDto from '../../dtos/orders';
 import crypto from 'crypto';
 import { AppError, ErrorCode } from '../../exeptions';
 import { createPayment } from '../payment.service';
+import { PaymentMethod } from '../../dtos/payment';
 
 //! Tạm dùng được
 export const createOrder = async (
@@ -20,14 +21,14 @@ export const createOrder = async (
   const total = variants.reduce((sum, variant, i) => {
     return sum + variant.price * data.items[i].quantity;
   }, 0);
-
+  const status = data.method !== PaymentMethod.COD ? orderDto.OrderStatus.PENDING : orderDto.OrderStatus.PROCESSING;
   //? 3. Create order
   const order = await prisma.order.create({
     data: {
       id: id,
       user_id: user_id,
       total: total,
-      status: 'PENDING',
+      status: status,
       province: data.province,
       ward: data.ward,
       detail: data.detail,
@@ -40,7 +41,7 @@ export const createOrder = async (
             product_variant_id: item.product_variant_id,
             price_per_item: variants[index].price,
             quantity: item.quantity,
-            status: 'PENDING',
+            status: orderDto.OrderItemStatus.PENDING,
           })),
         },
       },
@@ -51,7 +52,18 @@ export const createOrder = async (
         include: {
           variant: {
             include: {
-              product: true,
+              product: {
+                include: {
+                  product_image: {
+                    where: {
+                      is_thumbnail: true
+                    },
+                    select: {
+                      image_url: true
+                    }
+                  }
+                }
+              }
             },
           },
         },
@@ -94,13 +106,35 @@ export const getOrdersByUser = async (
         include: {
           variant: {
             include: {
-              product: true,
+              product: {
+                include: {
+                  product_image: {
+                    where: {
+                      is_thumbnail: true
+                    },
+                    select: {
+                      image_url: true
+                    }
+                  }
+                }
+              }
             },
           },
         },
       },
     },
   });
+  let user
+  if (orders.length > 0) {
+    user = orders[0].user
+  }
+  else {
+    user = await prisma.user.findUniqueOrThrow({
+      where: {
+        id: userId
+      }
+    })
+  }
   return {
     count: orders.length,
     user: orders[0].user,
@@ -153,8 +187,18 @@ export const getAllOrders = async (
 
   if (search) {
     where.OR = [
-      { id: { contains: search, mode: 'insensitive' } },
-      { product: { name: { contains: search, mode: 'insensitive' } } },
+      { id: { contains: search } },
+      {
+        order_items: {
+          some: {
+            variant: {
+              product: {
+                name: { contains: search }
+              }
+            }
+          }
+        }
+      }
     ];
   }
   const [totalOrders, orders] = await prisma.$transaction([
@@ -175,7 +219,18 @@ export const getAllOrders = async (
           include: {
             variant: {
               include: {
-                product: true,
+                product: {
+                  include: {
+                    product_image: {
+                      where: {
+                        is_thumbnail: true
+                      },
+                      select: {
+                        image_url: true
+                      }
+                    }
+                  }
+                }
               },
             },
           },

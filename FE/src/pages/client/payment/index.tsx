@@ -1,6 +1,6 @@
 import './index.scss';
 import { QRCodeSVG } from 'qrcode.react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 
 export const PaymentClient = () => {
     const location = useLocation();

@@ -13,6 +13,7 @@ export const ClientAddress = () => {
     const { data: address, loading: loadingAddress } = useGetClientAddress(refresh);
 
     const HandleDeleteAddress = async (id: string) => {
+        // if (!window.confirm("Bạn có chắc chắn muốn xóa địa chỉ này không?")) return
         const res = await addressAPI.deleteAddress(id);
         if (res.data) {
             setRefresh(r => !r);
@@ -33,8 +34,8 @@ export const ClientAddress = () => {
                             />
                         </div>
                         <div className="client-address__details">
-                            <div className="client-address__name">Tên khách hàng</div>
-                            <div className="client-address__phone">Số điện thoai: 0123456789</div>
+                            <div className="client-address__name">{adr.receive_name}</div>
+                            <div className="client-address__phone">Số điện thoai: {adr.phone}</div>
                             <div className="client-address__detailaddress">
                                 {adr.detail} - {adr.ward} - {adr.province}
                             </div>

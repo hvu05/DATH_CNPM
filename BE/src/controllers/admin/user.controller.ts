@@ -1,14 +1,10 @@
-import * as adminDto from '../dtos/admin';
-import * as adminService from '../services/admin.service';
-import { NextFunction, Request, Response } from 'express';
-import { ApiResponse } from '../types/api-response';
+import * as adminDto from "../../dtos/admin";
+import * as adminService from "../../services/admin/users.service";
+import { NextFunction, Request, Response } from "express";
+import { ApiResponse } from "../../types/api-response";
 
-// Admin APIs - Hades
-export const getAllUsersHandler = async (
-  req: Request,
-  res: Response<ApiResponse<adminDto.UserListResponse>>,
-  next: NextFunction,
-) => {
+// Admin Users APIs - Hades
+export const getAllUsersHandler = async (req: Request, res: Response<ApiResponse<adminDto.UserListResponse>>, next: NextFunction) => {
   // Validate query parameters với Zod
   const parsed = adminDto.UserListQuerySchema.safeParse(req.query);
   if (!parsed.success) {
@@ -94,4 +90,4 @@ export const updateUserByAdminHandler = async (
   } catch (error: Error | any) {
     next(error);
   }
-};
+}

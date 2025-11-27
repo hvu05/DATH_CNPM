@@ -21,11 +21,13 @@ export const createAddress = async (
       province: data.province,
       ward: data.ward,
       detail: data.detail,
-      user: {
-        connect: {
-          id: user.id,
-        },
+      user : {
+        connect : {
+          id : user.id
+        }
       },
+      receive_name : data.receive_name? data.receive_name : user.full_name,
+      phone: data.phone? data.phone : user.phone? user.phone : ""
     },
   });
   const allAddresses = await prisma.address.findMany({
@@ -35,6 +37,8 @@ export const createAddress = async (
       province: true,
       ward: true,
       detail: true,
+      receive_name: true,
+      phone: true,
       user: {
         select: {
           id: true,
@@ -48,8 +52,7 @@ export const createAddress = async (
     orderBy: { id: 'asc' }, // sắp xếp tăng dần cho đẹp
   });
 
-  return {
-    user: allAddresses[0].user,
+   return {
     addresses: allAddresses,
   };
 };
@@ -64,6 +67,8 @@ export const getAddressList = async (
       province: true,
       ward: true,
       detail: true,
+      receive_name: true,
+      phone: true,
       user: {
         select: {
           id: true,
@@ -76,28 +81,10 @@ export const getAddressList = async (
     },
     orderBy: { id: 'asc' }, // sắp xếp tăng dần cho đẹp
   });
-  let user;
-  if (addresses.length > 0) {
-    user = addresses[0].user;
-  } else {
-    user = await prisma.user.findUniqueOrThrow({
-      where: {
-        id: user_id,
-      },
-      select: {
-        id: true,
-        full_name: true,
-        avatar: true,
-        email: true,
-        phone: true,
-      },
-    });
-  }
   return {
-    user: user,
-    addresses,
-  };
-};
+    addresses
+  }
+}
 
 export const updateAddress = async (
   id: number,

@@ -1,35 +1,45 @@
 import default_order from '@/assets/seller/default_order.webp';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router';
 import '@/styles/client/clientOrderList.scss';
+import type { DataInOrder, StatusOrder } from '@/types/clients/client.order.types';
+import { useNavigate } from 'react-router';
 
-export const AllOrders = ({ orders }) => {
-    const navigate = useNavigate();
+type Props = {
+    orders: DataInOrder | null; // Định nghĩa kiểu dữ liệu cho props.orders
+};
 
-    const getStatusButton = status => {
+export const AllOrders = ({ orders }: Props) => {
+    //   const navigate = useNavigate();
+
+    const getStatusButton = (status: StatusOrder) => {
         switch (status) {
             case 'PENDING':
-                return <div className="btn-pending-pay">Đang chờ thanh toán</div>;
+                return <div className="btn-cancel">Đang chờ thanh toán</div>;
             case 'DELIVERING':
-                return <div className="btn-shipping">Đang giao</div>;
+                return <div className="btn-cancel">Đang giao</div>;
             case 'PROCESSING':
-                return <div className="btn-processing">Đang xử lý</div>;
+                return <div className="btn-cancel">Đang xử lý</div>;
             case 'COMPLETED':
-                return <div className="btn-success">Thành công</div>;
+                return <div className="btn-cancel">Thành công</div>;
             case 'RETURNED':
-                return <div className="btn-return">Trả hàng</div>;
+                return <div className="btn-cancel">Đơn hàng đã hoàn trả</div>;
             case 'CANCELLED':
-                return <div className="btn-cancel">Hủy hàng</div>;
+                return <div className="btn-cancel">Đã hủy</div>;
+            case 'RETURN_REQUEST':
+                return <div className="btn-cancel">Đơn hàng hoàn trả đang chờ xác nhận</div>;
+
             default:
                 return <div className="btn-default">Chưa xác định</div>;
         }
     };
 
+    const navigate = useNavigate();
     return (
         <div className="client-order__list">
-            {orders?.data?.orders?.map(order =>
-                order?.order_items?.map(item => (
-                    <div className="client-order__item" key={item?.id}>
-                        <div className="client-order__product-info">
+            {orders?.orders.map(order => (
+                <div className="client-order__item" key={order?.id}>
+                    {order?.order_items?.map(item => (
+                        <div className="client-order__product-info" key={item?.id}>
                             <div className="client-order__img-container">
                                 <img
                                     className="client-order__img"
@@ -49,22 +59,25 @@ export const AllOrders = ({ orders }) => {
                                 </div>
                             </div>
                         </div>
-                        <div className="client-order__price-status">
-                            <div className="client-order__price">
-                                Giá: {item?.product_variant?.price.toLocaleString()}đ
-                            </div>
-                            {getStatusButton(order?.status)}
+                    ))}
 
-                            {/* <button
-                                onClick={() => navigate(`/client/order/${order?.id}`)}
-                                className="client-order__detail-link"
-                            >
-                                Chi tiết đơn hàng
-                            </button> */}
+                    <div className="client-order__price-status">
+                        <div className="client-order__price">
+                            Tổng giá: {order?.total?.toLocaleString()}đ
                         </div>
+                        {getStatusButton(order?.status)}
+
+                        <button
+                            onClick={() =>
+                                navigate(`/client/info/${order?.id}`, { state: { order: order } })
+                            }
+                            className="client-order__detail-link"
+                        >
+                            Chi tiết đơn hàng
+                        </button>
                     </div>
-                ))
-            )}
+                </div>
+            ))}
         </div>
     );
 };

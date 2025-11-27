@@ -5,24 +5,92 @@ import qrcodeIcon from '@/assets/client/qrcode.svg';
 import './index.scss';
 import { useState } from 'react';
 import { ChangeAddressPage } from '@/components/client/ChangeAddress';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 import { useClientProfile } from '@/hooks/client/useClientProfile';
 import type { Address } from '@/types/clients/client.address.types';
 import { orderAPI } from '@/services/user/orders/user.order.api';
-import type { OrderRequest } from '@/types/clients/client.order.types';
+import type {
+    OrderItem,
+    OrderItemInOrder,
+    OrderRequest,
+    OrdersInOrder,
+    ProductVariant,
+} from '@/types/clients/client.order.types';
 import { message } from 'antd';
 
 type OptionsPayment = 'COD' | 'VNPAY';
 
+//?================================================================================================
+//! LÚC GHÉP GIỎ HÀNG VÔ THÌ BẬT DÒNG (1) LÊN VÀ BỎ DÒNG (2). SAU ĐÓ BẬT CHỖ "TỔNG TIỀN" VÀ "CẦN THANH TOÁN" LÊN LÀ XONG
+//?================================================================================================
+
 export const OrderClient = () => {
     const [formChangeAddress, setFormChangeAddress] = useState<boolean>(false);
     const navigate = useNavigate();
-
+    const location = useLocation();
+    // const orderItems: OrderItem[] = location.state?.order?.order_items || null; //! (1)
+    // console.log('reere', location.state.order);
     const [statusPayment, setStatusPayment] = useState<OptionsPayment>('COD');
 
     const { data: profile, loading: loadingProfile } = useClientProfile();
 
     const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
+
+    //! (2)
+    const orderItems: OrderItem[] = [
+        {
+            id: 1,
+            price_per_item: 25000000,
+            quantity: 2,
+            product_variant: {
+                id: 1,
+                product_id: 101,
+                color: 'Đen',
+                storage: '128GB',
+                name: 'iPhone 15 Pro',
+                price: 25000000,
+            },
+        },
+        {
+            id: 2,
+            price_per_item: 28000000,
+            quantity: 1,
+            product_variant: {
+                id: 2,
+                product_id: 101,
+                color: 'Trắng',
+                storage: '256GB',
+                name: 'iPhone 15 Pro',
+                price: 28000000,
+            },
+        },
+        {
+            id: 3,
+            price_per_item: 22000000,
+            quantity: 3,
+            product_variant: {
+                id: 3,
+                product_id: 102,
+                color: 'Xanh',
+                storage: '512GB',
+                name: 'Samsung Galaxy S24',
+                price: 22000000,
+            },
+        },
+        {
+            id: 4,
+            price_per_item: 5000000,
+            quantity: 1,
+            product_variant: {
+                id: 4,
+                product_id: 103,
+                color: 'Đỏ',
+                storage: '64GB',
+                name: 'Xiaomi Redmi Note 13',
+                price: 5000000,
+            },
+        },
+    ];
 
     const order_fake: OrderRequest = {
         province: selectedAddress?.province || 'Chưa chọn',
@@ -54,6 +122,8 @@ export const OrderClient = () => {
     };
 
     if (loadingProfile) return <p>Loading...</p>;
+    if (!orderItems)
+        return <h1 style={{ fontSize: '30px' }}>Mua lòng chọn sản phẩm trước khi vào trang này</h1>;
     return (
         <div className="client-order-detail">
             <div className="client-order-detail__main">
@@ -61,7 +131,7 @@ export const OrderClient = () => {
                 <div className="client-order-detail__card">
                     <h2 className="client-order-detail__card-title">Sản phẩm trong đơn (2)</h2>
                     <div className="client-order-detail__product-list">
-                        {new Array(2).fill(0).map((_, index) => (
+                        {orderItems.map((item, index) => (
                             <Fragment key={index}>
                                 <div className="client-order-detail__product-item">
                                     <div className="client-order-detail__product-info">
@@ -70,19 +140,19 @@ export const OrderClient = () => {
                                         </div>
                                         <div className="client-order-detail__product-details">
                                             <h3 className="client-order-detail__product-name">
-                                                Tên sản phẩm
+                                                {item?.product_variant?.name}
                                             </h3>
                                             <div className="client-order-detail__product-attrs">
-                                                <span>Color: black</span>
-                                                <span>Quantity: 10</span>
+                                                <span>{item?.product_variant?.color}</span>
+                                                <span>{item?.quantity}</span>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="client-order-detail__product-price">
-                                        100.000VND
+                                        {item?.price_per_item.toLocaleString()} VNĐ
                                     </div>
                                 </div>
-                                {index < 1 && <hr className="client-order-detail__separator" />}
+                                {<hr className="client-order-detail__separator" />}
                             </Fragment>
                         ))}
                     </div>
@@ -96,7 +166,9 @@ export const OrderClient = () => {
                             <p>
                                 <span className="client-order-detail__info-label">Họ và tên:</span>{' '}
                                 <span className="client-order-detail__info-value">
-                                    {profile?.full_name || 'Chưa xác định'}
+                                    {selectedAddress?.receive_name ||
+                                        profile?.full_name ||
+                                        'Chưa xác định'}
                                 </span>
                             </p>
                             <p>
@@ -104,7 +176,7 @@ export const OrderClient = () => {
                                     Số điện thoại:
                                 </span>{' '}
                                 <span className="client-order-detail__info-value">
-                                    {profile?.phone || '0854747707'}
+                                    {selectedAddress?.phone || profile?.phone || '0854747707'}
                                 </span>
                             </p>
                         </div>
@@ -159,17 +231,19 @@ export const OrderClient = () => {
                     <h2 className="client-order-detail__summary-title">Thông tin đơn hàng</h2>
                     <div className="client-order-detail__summary-row">
                         <span>Tổng tiền</span>
-                        <span className="client-order-detail__summary-price">220.000VND</span>
+                        <span className="client-order-detail__summary-price">
+                            {/* {location.state.order.total.toLocaleString()} VNĐ */}
+                        </span>
                     </div>
                     <div className="client-order-detail__summary-row">
                         <span>Tổng khuyến mãi</span>
-                        <span className="client-order-detail__summary-price">-20.000VND</span>
+                        <span className="client-order-detail__summary-price">0 VND</span>
                     </div>
                     <hr className="client-order-detail__separator" />
                     <div className="client-order-detail__summary-row client-order-detail__summary-row--final">
                         <span>Cần thanh toán</span>
                         <span className="client-order-detail__summary-price--final">
-                            200.000VND
+                            {/* {location.state.order.total.toLocaleString()} VND */}
                         </span>
                     </div>
                 </div>

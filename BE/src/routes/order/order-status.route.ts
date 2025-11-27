@@ -11,41 +11,41 @@ const router = Router({
   mergeParams: true,
 });
 
-registry.registerPath({
-  tags: ['Order - Status'],
-  path: '/orders/{order_id}/confirm',
-  description: 'Staff xác nhận đơn hàng của người dùng',
-  method: 'patch',
-  security: [
-    {
-      bearerAuth: [],
-    },
-  ],
-  parameters: [
-    {
-      name: 'order_id',
-      in: 'path',
-      required: true,
-      schema: { type: 'string' },
-    },
-  ],
-  responses: {
-    '200': {
-      description: 'OK',
-      content: {
-        'application/json': {
-          schema: ApiResponseSchema(orderDto.OrderResponseSchema),
-        },
-      },
-    },
-  },
-});
-router.patch(
-  '/confirm',
-  authenticateHandler,
-  checkRole(['ADMIN', 'STAFF']),
-  orderActionController.staffConfirmOrderHandler,
-);
+// registry.registerPath({
+//   tags: ['Order - Status'],
+//   path: '/orders/{order_id}/confirm',
+//   description: 'Staff xác nhận đơn hàng của người dùng',
+//   method: 'patch',
+//   security: [
+//     {
+//       bearerAuth: [],
+//     },
+//   ],
+//   parameters: [
+//     {
+//       name: 'order_id',
+//       in: 'path',
+//       required: true,
+//       schema: { type: 'string' },
+//     },
+//   ],
+//   responses: {
+//     '200': {
+//       description: 'OK',
+//       content: {
+//         'application/json': {
+//           schema: ApiResponseSchema(orderDto.OrderResponseSchema),
+//         },
+//       },
+//     },
+//   },
+// });
+// router.patch(
+//   '/confirm',
+//   authenticateHandler,
+//   checkRole(['ADMIN', 'STAFF']),
+//   orderActionController.staffConfirmOrderHandler,
+// );
 
 registry.registerPath({
   tags: ['Order - Status'],
@@ -82,46 +82,46 @@ router.delete(
   orderActionController.cancelOrderHandler,
 );
 
-registry.registerPath({
-  tags: ['Order - Status'],
-  path: '/orders/{order_id}/process',
-  description: 'Staff xuất hóa đơn hàng',
-  method: 'patch',
-  security: [
-    {
-      bearerAuth: [],
-    },
-  ],
-  parameters: [
-    {
-      name: 'order_id',
-      in: 'path',
-      required: true,
-      schema: { type: 'string' },
-    },
-  ],
-  responses: {
-    '200': {
-      description: 'OK',
-      content: {
-        'application/json': {
-          schema: ApiResponseSchema(orderDto.OrderResponseSchema),
-        },
-      },
-    },
-  },
-});
-router.patch(
-  '/process',
-  authenticateHandler,
-  checkRole(['ADMIN', 'STAFF']),
-  orderActionController.staffProcessingOrderHandler,
-);
+// registry.registerPath({
+//   tags: ['Order - Status'],
+//   path: '/orders/{order_id}/process',
+//   description: 'Staff xuất hóa đơn hàng',
+//   method: 'patch',
+//   security: [
+//     {
+//       bearerAuth: [],
+//     },
+//   ],
+//   parameters: [
+//     {
+//       name: 'order_id',
+//       in: 'path',
+//       required: true,
+//       schema: { type: 'string' },
+//     },
+//   ],
+//   responses: {
+//     '200': {
+//       description: 'OK',
+//       content: {
+//         'application/json': {
+//           schema: ApiResponseSchema(orderDto.OrderResponseSchema),
+//         },
+//       },
+//     },  
+//   }
+// })
+// router.patch(
+//   '/process',
+//   authenticateHandler,
+//   checkRole(['ADMIN', 'STAFF']),
+//   orderActionController.staffProcessingOrderHandler,
+// );
 
 registry.registerPath({
   tags: ['Order - Status'],
   path: '/orders/{order_id}/deliver',
-  description: 'Staff giao hóa đơn hàng',
+  description: 'Staff giao đơn hàng cho đơn vị vận chuyển',
   method: 'patch',
   security: [
     {
@@ -192,7 +192,7 @@ router.patch(
 
 registry.registerPath({
   tags: ['Order - Status'],
-  path: '/orders/return-confirm/{order_item_id}',
+  path: '/orders/{order_id}/return-confirm/{order_item_id}',
   description: 'Staff chấp nhận yêu cầu hoàn trả',
   method: 'patch',
   security: [
@@ -201,6 +201,12 @@ registry.registerPath({
     },
   ],
   parameters: [
+    {
+      name: 'order_id',
+      in: 'path',
+      required: true,
+      schema: { type: 'string' },
+    },
     {
       name: 'order_item_id',
       in: 'path',
@@ -227,9 +233,8 @@ router.patch(
 
 registry.registerPath({
   tags: ['Order - Status'],
-  path: '/orders/return-request/{order_item_id}',
-  description:
-    'Khách hàng tạo yêu cầu hoàn trả, hoặc Staff tạo yêu cầu hoàn trả trên hệ thống',
+  path: '/orders/{order_id}/return-request/{order_item_id}',
+  description: 'Khách hàng tạo yêu cầu hoàn trả, hoặc Staff tạo yêu cầu hoàn trả trên hệ thống',
   method: 'post',
   security: [
     {
@@ -237,6 +242,12 @@ registry.registerPath({
     },
   ],
   parameters: [
+    {
+      name: 'order_id',
+      in: 'path',
+      required: true,
+      schema: { type: 'string' },
+    },
     {
       name: 'order_item_id',
       in: 'path',
@@ -270,4 +281,45 @@ router.post(
   multerConfig.array('images', 5),
   orderReturnController.createReturnOrderRequestHandler,
 );
+registry.registerPath({
+  tags: ['Order - Status'],
+  path: '/orders/{order_id}/return/{order_item_id}/detail',
+  description: 'Staff xem chi tiết yêu cầu hoàn trả',
+  method: 'get',
+  security: [
+    {
+      bearerAuth: [],
+    },
+  ],
+  parameters: [
+    {
+      name: 'order_id',
+      in: 'path',
+      required: true,
+      schema: { type: 'string' },
+    },
+    {
+      name: 'order_item_id',
+      in: 'path',
+      required: true,
+      schema: { type: 'string' },
+    },
+  ],  
+  responses: {
+    '200': {
+      description: 'OK',
+      content: {
+        'application/json': {
+          schema: ApiResponseSchema(orderDto.OrderReturnResponseSchema),
+        },
+      },
+    },
+  }
+})
+router.get(
+  '/return/:order_item_id/detail',
+  authenticateHandler,
+  checkRole(['ADMIN', 'STAFF']),
+  orderReturnController.getReturnOrderDetailHandler
+)
 export default router;

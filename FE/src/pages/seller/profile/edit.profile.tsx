@@ -1,70 +1,101 @@
+import { useAuthContext } from '@/contexts/AuthContext';
 import './edit.profile.scss';
 import defaultAvatar from '@/assets/seller/user.svg';
+import { useEffect, useState } from 'react';
+import { EditOutlined } from '@ant-design/icons';
+import { updateProfileSellerAPI } from '@/services/seller/seller.service';
+import { App, Breadcrumb } from 'antd';
+import { Link } from 'react-router';
 
 export const EditProfilePage = () => {
+    const { user, updateUser } = useAuthContext();
+    const [fullName, setFullname] = useState<string>(user?.full_name ?? '');
+    const [phone, setPhone] = useState<string>(user?.phone ?? '');
+    const [loading, setLoading] = useState<boolean>(false);
+    const { notification, message } = App.useApp();
+
+    const onSubmit = async () => {
+        try {
+            setLoading(true);
+            const result = await updateProfileSellerAPI(fullName, phone);
+            if (result.data) {
+                updateUser(result.data);
+                message.success('Cập nhật thành công');
+            }
+        } catch (error: any) {
+            setLoading(false);
+            console.log(error);
+            notification.error({
+                message: 'Error',
+                description: error.response.data.error,
+            });
+        }
+        setLoading(false);
+    };
+
+    useEffect(() => {
+        setFullname(user?.full_name ?? '');
+        setPhone(user?.phone ?? '');
+    }, [user]);
+
     return (
         <div className="seller-edit-profile">
-            <h1 className="seller-edit-profile__title">Thông tin cá nhân</h1>
+            <Breadcrumb
+                className="text-base"
+                items={[
+                    {
+                        title: <Link to={'/seller'}>Hồ sơ</Link>,
+                    },
+                    {
+                        title: 'Cập nhật',
+                    },
+                ]}
+            />
+            <h1 className="seller-edit-profile__title">
+                <EditOutlined /> Chỉnh sửa thông tin cá nhân
+            </h1>
             <div className="seller-edit-profile__card">
                 <div className="seller-edit-profile__main">
                     <div className="seller-edit-profile__avatar-container">
                         <img
-                            src={defaultAvatar}
+                            src={user?.avatar ?? defaultAvatar}
                             alt="avatar"
                             className="seller-edit-profile__avatar"
                         />
                     </div>
                     <div className="seller-edit-profile__row">
                         <label className="seller-edit-profile__label">Họ và tên</label>
-                        <input className="seller-edit-profile__input" />
+                        <input
+                            className="seller-edit-profile__input"
+                            value={fullName}
+                            onChange={e => setFullname(e.target.value)}
+                        />
                     </div>
                     <div className="seller-edit-profile__row">
                         <label className="seller-edit-profile__label">Số điện thoại</label>
                         <input
-                            className="seller-edit-profile__input disabled"
-                            disabled
-                            value={'09822222323'}
+                            className="seller-edit-profile__input"
+                            value={phone}
+                            onChange={e => setPhone(e.target.value)}
                         />
                     </div>
                     <div className="seller-edit-profile__row">
-                        <label className="seller-edit-profile__label">Giới tính</label>
-                        <div className="seller-edit-profile__gender-options">
-                            <div className="seller-edit-profile__gender-option">
-                                <input
-                                    className="seller-edit-profile__radio custom-radio-indicator"
-                                    type="radio"
-                                    id="gender-male"
-                                    name="gender"
-                                    value={'male'}
-                                />
-                                <label htmlFor="gender-male">Nam</label>
-                            </div>
-                            <div className="seller-edit-profile__gender-option">
-                                <input
-                                    className="seller-edit-profile__radio custom-radio-indicator"
-                                    type="radio"
-                                    id="gender-female"
-                                    name="gender"
-                                    value={'female'}
-                                />
-                                <label htmlFor="gender-female">Nữ</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="seller-edit-profile__row">
-                        <label className="seller-edit-profile__label">Ngày sinh</label>
-                        <div className="seller-edit-profile__birth-inputs">
-                            <input className="seller-edit-profile__input" placeholder="Ngày" />
-                            <input className="seller-edit-profile__input" placeholder="Tháng" />
-                            <input className="seller-edit-profile__input" placeholder="Năm" />
-                        </div>
-                    </div>
-                    <div className="seller-edit-profile__row">
                         <label className="seller-edit-profile__label">Email</label>
-                        <input className="seller-edit-profile__input" type="email" />
+                        <input
+                            className="seller-edit-profile__input disabled"
+                            type="email"
+                            disabled
+                            value={user?.email ?? ''}
+                        />
                     </div>
                     <div className="seller-edit-profile__button-container">
-                        <button className="seller-edit-profile__button">Cập nhật thông tin</button>
+                        <button
+                            className="seller-edit-profile__button"
+                            onClick={onSubmit}
+                            disabled={loading}
+                        >
+                            Cập nhật thông tin
+                        </button>
                     </div>
                 </div>
             </div>

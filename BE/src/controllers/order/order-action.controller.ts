@@ -4,28 +4,28 @@ import * as orderDto from '../../dtos/orders';
 import * as orderActionService from '../../services/order/order-action.service';
 import { AppError, ErrorCode } from '../../exeptions';
 
-export const staffConfirmOrderHandler = async (
-  req: Request,
-  res: Response<ApiResponse<orderDto.OrderResponse>>,
-  next: NextFunction,
-) => {
-  try {
-    const orderId = req.params.order_id;
-    const role = req.user?.role;
-    if (role !== 'ADMIN' && role !== 'STAFF')
-      throw new AppError(
-        ErrorCode.FORBIDDEN,
-        'Bạn không có quyền thực hiện thao tác này',
-      );
-    const order = await orderActionService.confirm(orderId);
-    res.json({
-      success: true,
-      data: order,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+// export const staffConfirmOrderHandler = async (
+//   req: Request,
+//   res: Response<ApiResponse<orderDto.OrderResponse>>,
+//   next: NextFunction,
+// ) => {
+//   try {
+//     const orderId = req.params.order_id;
+//     const role = req.user?.role;
+//     if (role !== 'ADMIN' && role !== 'STAFF')
+//       throw new AppError(
+//         ErrorCode.FORBIDDEN,
+//         'Bạn không có quyền thực hiện thao tác này',
+//       );
+//     const order = await orderActionService.confirm(orderId);
+//     res.json({
+//       success: true,
+//       data: order,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
 export const cancelOrderHandler = async (
   req: Request,
@@ -57,22 +57,22 @@ export const cancelOrderHandler = async (
   }
 };
 
-export const staffProcessingOrderHandler = async (
-  req: Request,
-  res: Response<ApiResponse<orderDto.OrderResponse>>,
-  next: NextFunction,
-) => {
-  try {
-    const orderId = req.params.order_id;
-    const order = await orderActionService.process(orderId);
-    res.json({
-      success: true,
-      data: order,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+// export const staffProcessingOrderHandler = async (
+//   req: Request,
+//   res: Response<ApiResponse<orderDto.OrderResponse>>,
+//   next: NextFunction,
+// ) => {
+//   try {
+//     const orderId = req.params.order_id;
+//     const order = await orderActionService.process(orderId);
+//     res.json({
+//       success: true,
+//       data: order,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
 export const staffDeliverOrderHandler = async (
   req: Request,

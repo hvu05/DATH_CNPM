@@ -1,5 +1,5 @@
-import * as adminDto from '../dtos/admin';
-import { prisma } from '../config/prisma.config';
+import * as adminDto from '../../dtos/admin';
+import { prisma } from '../../config/prisma.config';
 
 /**
  * Lấy danh sách tất cả users (chỉ admin mới được quyền)
@@ -42,7 +42,7 @@ export const getAllUsers = async (
     } else {
       // If no roles found, return empty result
       return {
-        users: [],
+        results: [],
         total: 0,
         page,
         limit,
@@ -106,7 +106,7 @@ export const getAllUsers = async (
   });
 
   return {
-    users: userResponses,
+    results: userResponses,
     total,
     page,
     limit,
@@ -206,4 +206,4 @@ export const updateUserByAdmin = async (
     create_at: updatedUser.create_at,
     update_at: updatedUser.update_at,
   };
-};
+}

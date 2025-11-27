@@ -1,39 +1,67 @@
 import './header.scss';
-import homeIcon from '@/assets/home-icon.svg';
-import menuIcon from '@/assets/menu-icon.svg';
-import searchIcon from '@/assets/search-icon.svg';
-import cartIcon from '@/assets/cart-icon.svg';
-import defaultAvatar from '@/assets/default-avatar-icon.svg';
-import { Link } from 'react-router-dom';
+import { UserOutlined } from '@ant-design/icons';
+import { Avatar, Dropdown, Typography } from 'antd';
+import type { MenuProps } from 'antd';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router';
+
+const { Text } = Typography;
 
 export const Header = () => {
-    return (
-        <header className="seller-header" style={{ zIndex: '100' }}>
-            <div className="seller-header__left">
-                <Link to={'/'} className="seller-header__home-link">
-                    <img src={homeIcon} alt="Home" />
-                </Link>
-                <button className="seller-header__button seller-header__button--category">
-                    <img src={menuIcon} alt="Menu" className="seller-header__button-icon" />
-                    <span className="seller-header__button-text">Danh mục</span>
-                </button>
-            </div>
+    const { isLoggedIn, logout } = useAuthContext();
+    const navigate = useNavigate();
 
-            <div className="seller-header__search">
-                <input
-                    type="text"
-                    className="seller-header__search-input"
-                    placeholder="Tìm kiếm sản phẩm..."
-                />
-                <img src={searchIcon} alt="Search" className="seller-header__search-icon" />
-            </div>
+    const profileMenu: MenuProps['items'] = [
+        ...(!isLoggedIn ? [{ key: 'login', label: 'Đăng nhập' }] : []),
+        { type: 'divider' },
+        { key: 'logout', danger: true, label: 'Đăng xuất' },
+    ];
+
+    const onProfileClick: MenuProps['onClick'] = ({ key }) => {
+        if (key === 'login') navigate('/login');
+        if (key === 'logout') logout();
+    };
+
+    return (
+        <header
+            className="seller-header"
+            style={{
+                zIndex: '100',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                boxShadow: '0 4px 12px rgba(102, 126, 234, 0.4)',
+            }}
+        >
+            <div className="seller-header__left">{/* Empty space for balance */}</div>
 
             <div className="seller-header__right">
-                {/* <button className="seller-header__button seller-header__button--cart">
-                    <img src={cartIcon} alt="Cart" className="seller-header__button-icon" />
-                    <span className="seller-header__button-text">Giỏ hàng</span>
-                </button> */}
-                <img src={defaultAvatar} alt="Avatar" className="seller-header__avatar" />
+                <Dropdown
+                    menu={{ items: profileMenu, onClick: onProfileClick }}
+                    trigger={['click']}
+                >
+                    <a onClick={e => e.preventDefault()}>
+                        <div className="flex items-center gap-3">
+                            <Avatar
+                                size={32}
+                                icon={<UserOutlined />}
+                                style={{
+                                    backgroundColor: '#f0f2ff',
+                                    borderColor: '#667eea',
+                                    borderWidth: 2,
+                                    color: '#667eea',
+                                }}
+                            />
+                            <Text
+                                className="hidden sm:inline"
+                                style={{
+                                    color: '#ffffff',
+                                    fontWeight: '500',
+                                }}
+                            >
+                                Hello, Seller 🎉
+                            </Text>
+                        </div>
+                    </a>
+                </Dropdown>
             </div>
         </header>
     );

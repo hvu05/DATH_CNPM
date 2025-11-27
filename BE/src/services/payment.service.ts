@@ -3,6 +3,7 @@ import { prisma } from '../config/prisma.config';
 import * as paymentDto from '../dtos/payment';
 import { AppError, ErrorCode } from '../exeptions';
 import { getPaymentUrl, verifyHash } from './vnpay.service';
+import { OrderStatus } from '../dtos/orders';
 /**
  *
  * @param data
@@ -18,6 +19,9 @@ export const createPayment = async (
     where: {
       id: data.order_id,
     },
+    include: {
+      payment: true
+    }
   });
   if (!order) throw new AppError(ErrorCode.NOT_FOUND, 'Không tìm thấy Order');
 
@@ -38,13 +42,34 @@ export const createPayment = async (
   //     payment_status: paymentDto.PaymentStatus.PENDING,
   //   },
   // });
-  const payment = await prisma.payment.findFirst({
-    where: {
-      order_id: data.order_id,
-    },
-  });
-  if (!payment)
-    throw new AppError(ErrorCode.NOT_FOUND, 'Không tìm thấy Payment');
+  // const payment = await prisma.payment.findFirst({
+  //   where: {
+  //     order_id: data.order_id,
+  //   }
+  // })
+  let payment
+  if (order.payment) {
+    payment = order.payment
+  }
+  else{
+    payment = await prisma.payment.create({
+      data: {
+        order: {
+          connect: {
+            id: data.order_id,
+          },
+        },
+        user: {
+          connect: {
+            id: user_id,
+          },
+        },
+        amount: order.total,
+        method: data.payment_method,
+        payment_status: paymentDto.PaymentStatus.PENDING,
+      },
+    });
+  }
   if (data.payment_method == paymentDto.PaymentMethod.VNPAY) {
     const url = await getPaymentUrl(order.total, order.id, payment.id);
     return {
@@ -87,8 +112,16 @@ export const verifyAndUpdatePayment = async (data: paymentDto.VnpayQuery) => {
       data: {
         transaction_code: verify.vnp_TransactionNo?.toString(),
         payment_status: paymentDto.PaymentStatus.SUCCESS,
+      }
+    })
+    await prisma.order.update({
+      where: {
+        id: payment.order_id,
       },
-    });
+      data: {
+        status: OrderStatus.PROCESSING,
+      }
+    })
     return paymentDto.toPaymentResponse(payment);
   } catch (error) {
     throw error;

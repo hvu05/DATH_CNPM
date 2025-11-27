@@ -100,6 +100,7 @@ router.put(
   userController.updateProfileHandler,
 );
 
+
 registry.registerPath({
   tags: ['User'],
   path: '/users/address',
@@ -225,16 +226,58 @@ registry.registerPath({
     '200': {
       description: 'OK',
       content: {
-        'application/json': {
-          schema: ApiResponseSchema(userDto.AddressListResponseSchema),
-        },
-      },
+        "application/json": {
+          schema: ApiResponseSchema(userDto.AddressListResponseSchema)
+        }
+      }
+    }
+  }
+})
+router.delete('/address/:address_id', authenticateHandler, userController.deleteAddressHandler)
+
+registry.registerPath({
+  tags: ['User'],
+  path: '/users/{user_id}',
+  method: 'get',
+  security: [
+    {
+      bearerAuth: []
+    }
+  ],
+  parameters: [
+    {
+      name: 'user_id',
+      in: 'path',
+      required: true,
+      schema: { type: 'string' },
+      description: 'ID của người dùng cần lấy thông tin'
     },
-  },
-});
-router.delete(
-  '/address/:address_id',
-  authenticateHandler,
-  userController.deleteAddressHandler,
-);
-export default router;
+  ],
+  responses: {
+    "200": {
+      description: "Lấy thông tin người dùng thành công",
+      content: {
+        "application/json": {
+          schema: ApiResponseSchema(userDto.UserResponseSchema)
+        }
+      }
+    },
+    "404": {
+      description: "Không tìm thấy người dùng",
+      content: {
+        "application/json": {
+          schema: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean', example: false },
+              error: { type: 'string', example: 'Không tìm thấy User' }
+            }
+          }
+        }
+      }
+    }
+  }
+})
+router.get('/:user_id', authenticateHandler, checkRole(["STAFF", "SELLER", "ADMIN"]), userController.getUserByIdHandler)
+
+export default router

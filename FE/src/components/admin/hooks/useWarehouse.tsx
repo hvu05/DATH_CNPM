@@ -20,6 +20,8 @@ export const useWarehouse = () => {
     const [categoriesList, setCategoriesList] = useState<{ value: string; label: string }[]>([]);
     const [brandsList, setBrandsList] = useState<IBrand[]>([]);
     const [openAddModal, setIsOpenAddModal] = useState<boolean>(false);
+    const [openEditModal, setIsOpenEditModal] = useState<boolean>(false);
+    const [editingProductId, setEditingProductId] = useState<number | string | null>(null);
     const [series, setSeries] = useState<{ id: number; name: string; brand_id: number }[]>([]);
     const [publishLoading, setPublishLoading] = useState<string | null>(null);
     const [filters, setFilters] = useState({
@@ -136,6 +138,18 @@ export const useWarehouse = () => {
         loadSelectOptions();
     };
 
+    // Handle opening edit modal
+    const handleOpenEditModal = (productId: number | string) => {
+        setEditingProductId(productId);
+        setIsOpenEditModal(true);
+    };
+
+    // Handle closing edit modal
+    const handleCloseEditModal = () => {
+        setEditingProductId(null);
+        setIsOpenEditModal(false);
+    };
+
     return {
         dataTable,
         filters,
@@ -145,6 +159,11 @@ export const useWarehouse = () => {
         handleTableChange,
         openAddModal,
         setIsOpenAddModal,
+        openEditModal,
+        setIsOpenEditModal,
+        editingProductId,
+        handleOpenEditModal,
+        handleCloseEditModal,
         categoriesList,
         brandsList,
         series,

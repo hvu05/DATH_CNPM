@@ -6,6 +6,7 @@ import {
     PlusOutlined,
     CloudUploadOutlined,
     CheckCircleOutlined,
+    EditOutlined,
 } from '@ant-design/icons';
 import {
     Card,
@@ -24,6 +25,7 @@ import {
 } from 'antd';
 import { useWarehouse } from '@/components/admin/hooks/useWarehouse';
 import { AddProductModal } from '@/components/admin/modal/add.product.modal';
+import { EditProductModal } from '@/components/admin/modal/edit.product.modal';
 import type { IProduct } from '@/types/admin/product';
 import default_product from '@/assets/seller/default_order.webp';
 
@@ -45,6 +47,10 @@ export const WarehousePage = () => {
         categoriesList,
         openAddModal,
         setIsOpenAddModal,
+        openEditModal,
+        editingProductId,
+        handleOpenEditModal,
+        handleCloseEditModal,
         brandsList,
         series,
         handlePublishProduct,
@@ -170,6 +176,14 @@ export const WarehousePage = () => {
             align: 'center',
             render: (_, record) => (
                 <Space>
+                    <Tooltip title="Chỉnh sửa">
+                        <Button
+                            type="text"
+                            icon={<EditOutlined />}
+                            className="text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                            onClick={() => handleOpenEditModal(record.id)}
+                        />
+                    </Tooltip>
                     {!record.is_active && (
                         <Tooltip title="Đưa lên website">
                             <Popconfirm
@@ -288,6 +302,18 @@ export const WarehousePage = () => {
             <AddProductModal
                 isModalOpen={openAddModal}
                 setIsOpenModal={setIsOpenAddModal}
+                brand_options={brandsList}
+                category_options={categoriesList}
+                serie_options={series}
+                onSuccess={refreshProducts}
+                onRefreshOptions={refreshSelectOptions}
+            />
+
+            {/* Edit Product Modal */}
+            <EditProductModal
+                isModalOpen={openEditModal}
+                setIsOpenModal={handleCloseEditModal}
+                productId={editingProductId}
                 brand_options={brandsList}
                 category_options={categoriesList}
                 serie_options={series}

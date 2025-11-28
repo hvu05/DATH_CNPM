@@ -68,6 +68,23 @@ router.post(
   productController.createNewProduct,
 );
 
+// GET product detail by ID
+router.get(
+  '/products/:id',
+  authenticateHandler,
+  checkRole(['ADMIN']),
+  productController.getProductDetailHandler,
+);
+
+// PUT to update product with full data (variants, specs, images)
+router.put(
+  '/products/:id',
+  authenticateHandler,
+  checkRole(['ADMIN']),
+  multerConfig.array('images', 10),
+  productController.updateProductHandler,
+);
+
 // PATCH to update product status (publish/unpublish)
 router.patch(
   '/products/:id/status',

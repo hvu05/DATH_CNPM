@@ -7,6 +7,7 @@ import type {
     IGetCategoriesParam,
     IGetProductsParam,
     IProduct,
+    IProductDetail,
     IProductSpec,
     IProductVariant,
     ISeriesRes,
@@ -168,6 +169,84 @@ export const createSeriesAPI = async (data: {
     const result = await axios.post<ApiResponse<{ id: number; name: string; brand_id: number }>>(
         `${import.meta.env.VITE_BACKEND_URL}/admin/series`,
         data
+    );
+    return result.data;
+};
+
+// ==================== GET PRODUCT DETAIL ====================
+export const getProductDetailAPI = async (
+    productId: string | number
+): Promise<ApiResponse<IProductDetail>> => {
+    const result = await axios.get<ApiResponse<IProductDetail>>(
+        `${import.meta.env.VITE_BACKEND_URL}/admin/products/${productId}`
+    );
+    return result.data;
+};
+
+// ==================== UPDATE PRODUCT FULL ====================
+export const updateProductFullAPI = async (
+    productId: string | number,
+    data: {
+        name?: string;
+        description?: string;
+        brand_id?: number;
+        series_id?: number;
+        category_id?: number;
+        is_active?: boolean;
+        keepImageIds?: number[];
+        thumbnailImageId?: number;
+        variants?: IProductVariant[];
+        specifications?: IProductSpec[];
+        images?: File[]; // New images to upload
+    }
+): Promise<ApiResponse<IProductDetail>> => {
+    const formData = new FormData();
+
+    // Append basic fields
+    if (data.name) formData.append('name', data.name);
+    if (data.description) formData.append('description', data.description);
+    if (data.brand_id) formData.append('brand_id', data.brand_id.toString());
+    if (data.series_id) formData.append('series_id', data.series_id.toString());
+    if (data.category_id) formData.append('category_id', data.category_id.toString());
+    if (data.is_active !== undefined) formData.append('is_active', data.is_active.toString());
+
+    // Append keepImageIds as JSON array
+    if (data.keepImageIds && data.keepImageIds.length > 0) {
+        formData.append('keepImageIds', JSON.stringify(data.keepImageIds));
+    } else {
+        formData.append('keepImageIds', JSON.stringify([]));
+    }
+
+    // Append thumbnailImageId
+    if (data.thumbnailImageId) {
+        formData.append('thumbnailImageId', data.thumbnailImageId.toString());
+    }
+
+    // Append variants as JSON string
+    if (data.variants) {
+        formData.append('variants', JSON.stringify(data.variants));
+    }
+
+    // Append specifications as JSON string
+    if (data.specifications) {
+        formData.append('specifications', JSON.stringify(data.specifications));
+    }
+
+    // Append new images
+    if (data.images && data.images.length > 0) {
+        data.images.forEach(file => {
+            formData.append('images', file);
+        });
+    }
+
+    const result = await axios.put<ApiResponse<IProductDetail>>(
+        `${import.meta.env.VITE_BACKEND_URL}/admin/products/${productId}`,
+        formData,
+        {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        }
     );
     return result.data;
 };

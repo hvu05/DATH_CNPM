@@ -25,7 +25,6 @@ export interface ICustomer {
     create_at: Date;
     update_at: Date;
 }
-
 export const DEFAULT_SORTBY: TSortColumn = 'create_at';
 export const DEFAUTLT_SORTORDER: SortOrder = 'asc';
 export type TSortColumn = 'create_at';
@@ -107,6 +106,18 @@ export interface IOrders {
     orders: IOrder[];
 }
 
+export interface IOrderItemReq {
+    orders: IOrder;
+}
+export interface IOrderReturnRequest {
+    order: IOrderItemReq;
+    reason: string;
+    images: string[];
+    create_at: Date;
+    update_at: Date;
+    order_item: IOrderItem;
+}
+
 export const updateProfileSellerAPI = async (full_name: string, phone: string) => {
     const result = await axios.put<ApiResponse<IUser>>(
         `${import.meta.env.VITE_BACKEND_URL}/users/profile`,
@@ -173,6 +184,13 @@ export const completeDeliverAPI = async (order_id: string) => {
 export const acceptReturnRqAPI = async (order_id: string, order_item_id: string) => {
     const result = await axios.patch(
         `${import.meta.env.VITE_BACKEND_URL}/orders/${order_id}/return-confirm/${order_item_id}`
+    );
+    return result.data;
+};
+
+export const getInforOrderReq = async (order_id: string, order_item_id: string) => {
+    const result = await axios.get<ApiResponse<IOrderReturnRequest>>(
+        `${import.meta.env.VITE_BACKEND_URL}/orders/${order_id}/return/${order_item_id}/detail`
     );
     return result.data;
 };

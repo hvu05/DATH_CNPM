@@ -5,7 +5,7 @@ import { DashboardPage } from '@/pages/admin/admin.dashboard';
 import { ProductPage } from '@/pages/admin/admin.products';
 import { UsersPage } from '@/pages/admin/admin.users';
 import { RevenuePage } from '@/pages/admin/admin.revenue';
-import { InventoryStoragePage } from '@/pages/admin/admin.invetory.storage';
+import { WarehousePage } from '@/pages/admin/admin.warehouse';
 import { InventoryHistoryPage } from '@/pages/admin/admin.inventory.history';
 
 export const adminRoutes: RouteObject[] = [
@@ -38,8 +38,8 @@ export const adminRoutes: RouteObject[] = [
                 element: <RevenuePage />,
             },
             {
-                path: 'inventory-static',
-                element: <InventoryStoragePage />,
+                path: 'warehouse',
+                element: <WarehousePage />,
             },
             {
                 path: 'inventory-history',

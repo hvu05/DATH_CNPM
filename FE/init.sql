@@ -2,11 +2,39 @@ USE project1;
 -- USER TABLE
 INSERT INTO User( id, full_name, email, password, phone, role_id, is_active, avatar, update_at, create_at )
 values 
-( 1, 'admin', 'admin@gmail.com', '123456', '0123456789', 3, 1, null, '2025-11-10 12:00:01', '2025-11-10 12:00:01' ),
-( 2, 'seller', 'seller@gmail.com', '123456', '0123456789', 2, 1, null, '2025-11-11 12:00:01', '2025-11-11 12:00:01' ),
-( 3, 'customer', 'customer@gmail.com', '123456', '0123456789', 1, 1, null, '2025-11-12 12:00:01', '2025-11-12 12:00:01' ),
-( 4, 'test4', 'test4@gmail.com', '123456', '0123456789', 1, 1, null, '2025-11-13 12:00:01', '2025-11-13 12:00:01' ),
-( 5, 'test5', 'test5@gmail.com', '123456', '0123456789', 1, 1, null, '2025-11-14 12:00:01', '2025-11-14 12:00:01' );
+( 1, 'admin', 'admin@gmail.com', '123456', '0123456789', 3, 1, null, '2025-11-10 12:00:01', '2025-11-10 12:00:01'),
+( 2, 'seller', 'seller@gmail.com', '123456', '0123456789', 2, 1, null, '2025-11-11 12:00:01', '2025-11-11 12:00:01'),
+( 3, 'customer', 'customer@gmail.com', '123456', '0123456789', 1, 1, null, '2025-11-12 12:00:01', '2025-11-12 12:00:01'),
+( 4, 'test4', 'test4@gmail.com', '123456', '0123456789', 1, 1, null, '2025-11-13 12:00:01', '2025-11-13 12:00:01'),
+( 5, 'test5', 'test5@gmail.com', '123456', '0123456789', 1, 1, null, '2025-11-14 12:00:01', '2025-11-14 12:00:01');
+-- Category table
+USE project1;
+INSERT INTO Category(id, name, create_at)
+values
+(1, 'Laptop', '2025-10-10 12:02:00'),
+(2, 'Phone', '2025-10-11 12:00:00'),
+(3, 'Tablet', '2025-10-12 12:01:00');
+-- Brand table
+USE project1;
+INSERT INTO Brand(id, name, description, category_id)
+values
+(1,'Macbook', 'Đắt chứ không được gì !', 1),
+(2,'Asus', 'Good', 1),
+(3,'Dell', 'Good', 1),
+(4,'Iphone', 'Đắt chứ không đươc gì !', 2),
+(5,'Samsung', 'Không thích đồ Hàn !!!', 2),
+(6,'Xiaomi', 'Chơi game tốt !!!', 2),
+(7,'Ipad', 'Đắt chứ không được gì !!!', 3);
+-- Series table
+USE project1;
+INSERT INTO Series(id, brand_id, name)
+values
+(1, 1, 'Macbook Pro M4'),
+(2, 1, 'Macbook Air M4'),
+(3, 2, 'Asus Zenbook'),
+(4, 2, 'Asus Rog'),
+(5, 3, 'Dell XPS'),
+(6, 3, 'Dell Inspiron');
 -- Order table
 USE project1;
 INSERT INTO `Order`( id, user_id, total, `status`, create_at, ward, detail, note, deliver_at, province )
@@ -19,13 +47,13 @@ values
 ( 5, 1, 1000, 'COMPLETED', '2025-10-15 12:00:01', 'New York', 'detail cai j', 'note cai gi', '2025-12-10 12:00:01', 'Quang Ngai' ),
 ( 6, 1, 1000, 'RETURN_REQUEST', '2025-10-15 12:00:01', 'New York', 'detail cai j', 'note cai gi', '2025-12-10 12:00:01', 'Quang Ngai' );
 -- Product table
-USE project1; 
+USE project1;
 INSERT INTO `Product`( id, name, description, quantity, brand_id, is_active, series_id, category_id, create_at, update_at ) values
-( 10, 'Macbook1', 'desc', 1000, 1, 1, 1, 1, '2025-10-11 11:00:01', '2025-10-11 11:00:01' ), 
+( 10, 'Macbook1', 'desc', 1000, 1, 1, 1, 1, '2025-10-11 11:00:01', '2025-10-11 11:00:01' ),
 ( 11, 'Macbook2', 'desc', 2000, 1, 1, 2, 1, '2025-10-11 11:00:02', '2025-10-11 11:00:02' ),
-( 12, 'Dell3', 'desc', 3000, 3, 1, 2, 1, '2025-10-11 11:00:03', '2025-10-11 11:00:03' ),
-( 13, 'Dell4', 'desc', 4000, 3, 1, 1, 1, '2025-10-11 11:00:02', '2025-10-11 11:00:02' ),
-( 14, 'Asus5', 'desc', 5000, 2, 1, 2, 1, '2025-10-11 11:00:02', '2025-10-11 11:00:02' );
+( 12, 'Dell3', 'desc', 3000, 3, 1, 5, 1, '2025-10-11 11:00:03', '2025-10-11 11:00:03' ),
+( 13, 'Dell4', 'desc', 4000, 3, 1, 6, 1, '2025-10-11 11:00:02', '2025-10-11 11:00:02' ),
+( 14, 'Asus5', 'desc', 5000, 2, 1, 3, 1, '2025-10-11 11:00:02', '2025-10-11 11:00:02' );
 -- Product variant
 USE project1;
 INSERT INTO `ProductVariant`(id, product_id, color, storage, import_price, price, quantity, create_at)

@@ -1,6 +1,6 @@
 import { useAuthContext } from '@/contexts/AuthContext';
 import './edit.profile.scss';
-import defaultAvatar from '@/assets/seller/user.svg';
+import defaultAvatar from '@/assets/default-avatar-icon.svg';
 import { useEffect, useState } from 'react';
 import { EditOutlined } from '@ant-design/icons';
 import { updateProfileSellerAPI } from '@/services/seller/seller.service';

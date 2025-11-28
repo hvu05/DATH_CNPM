@@ -19,6 +19,6 @@ router.use('/admin', adminRouter);
 router.use('/upload', uploadRouter);
 
 router.use('/category', categoryRouter);
-router.use('/product', productRouter);
+router.use('/products', productRouter);
 router.use('/brand', brandRouter);
 export default router;

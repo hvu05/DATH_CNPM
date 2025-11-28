@@ -1,14 +1,13 @@
 import { type TablePaginationConfig } from 'antd';
 import type { FilterValue, TableCurrentDataSource } from 'antd/es/table/interface';
-import type { IProduct, IProductStatics } from '@/pages/admin/admin.products';
 import { useCallback, useEffect, useState } from 'react';
 import {
     getAllCategoriesAPI,
     getAllProductsAPI,
     getBrandsAPI,
     getSeriesAPI,
-    type IBrand,
 } from '@/services/admin/products/admin.product.api';
+import type { IBrand, IProduct, IProductStatics } from '@/types/admin/product';
 
 export const useProductsPage = () => {
     const [dataTable, setDataTable] = useState<IProduct[]>([]);

@@ -1,60 +1,16 @@
-import type { IProduct } from '@/pages/admin/admin.products';
 import axios from '@/services/axios.customize';
-
-export interface IGetProductsParam {
-    page?: number;
-    limit?: number;
-    sortBy?: 'create_at';
-    sortOrder?: 'asc' | 'desc';
-    category?: string[] | null;
-    isActive?: boolean[] | null;
-    search?: string;
-}
-
-export interface IGetCategoriesParam {
-    page?: number;
-    limit?: number;
-}
-
-export interface ICategoriesResponse {
-    count: number;
-    results: {
-        id: number;
-        name: string;
-    }[];
-}
-
-export interface ISeriesRes {
-    count: number;
-    results: {
-        id: number;
-        name: string;
-        brand_id: number;
-    }[];
-}
-
-export interface IBrand {
-    id: number;
-    name: string;
-    description: string;
-    image_url: string;
-    category_id: number;
-}
-
-export interface IBrandsResponse {
-    count: number;
-    results: IBrand[];
-}
-
-export interface ICreateProductReq {
-    name: string;
-    description: string;
-    quantity: number;
-    brand_id: number;
-    series_id: number;
-    category_id: number;
-    is_active: boolean;
-}
+import type {
+    IBrandsResponse,
+    ICategoriesResponse,
+    ICreateProductReq,
+    ICreateProductResponse,
+    IGetCategoriesParam,
+    IGetProductsParam,
+    IProduct,
+    IProductSpec,
+    IProductVariant,
+    ISeriesRes,
+} from '@/types/admin/product';
 
 export const getAllProductsAPI = async (params: IGetProductsParam = {}) => {
     const { page = 1, limit = 10, sortBy, sortOrder, category, isActive, search } = params;
@@ -158,6 +114,22 @@ export const createProductFullAPI = async (data: {
                 'Content-Type': 'multipart/form-data',
             },
         }
+    );
+    return result.data;
+};
+
+/**
+ * Update product is_active status (publish/unpublish)
+ * @param productId - Product ID (string or number)
+ * @param isActive - true = publish to web, false = unpublish
+ */
+export const updateProductStatusAPI = async (
+    productId: string | number,
+    isActive: boolean
+): Promise<ApiResponse<{ id: number; is_active: boolean }>> => {
+    const result = await axios.patch<ApiResponse<{ id: number; is_active: boolean }>>(
+        `${import.meta.env.VITE_BACKEND_URL}/admin/products/${productId}/status`,
+        { is_active: isActive }
     );
     return result.data;
 };

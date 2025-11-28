@@ -134,3 +134,20 @@ export const getAllSeries = async (): Promise<adminDto.SeriesListRes> => {
     results: series,
   };
 };
+
+/**
+ * Update product is_active status
+ * @param productId Product ID
+ * @param isActive New status
+ * @returns Updated product
+ */
+export const updateProductStatus = async (
+  productId: number,
+  isActive: boolean,
+) => {
+  const updatedProduct = await prisma.product.update({
+    where: { id: productId },
+    data: { is_active: isActive },
+  });
+  return updatedProduct;
+};

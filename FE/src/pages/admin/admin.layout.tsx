@@ -6,9 +6,9 @@ import {
     MenuFoldOutlined,
     MenuUnfoldOutlined,
     PieChartOutlined,
-    ShopOutlined,
-    StockOutlined,
     UserOutlined,
+    AppstoreOutlined,
+    HddOutlined,
 } from '@ant-design/icons';
 import { Avatar, Dropdown, Layout, Menu, Space, Typography, Drawer, Grid } from 'antd';
 import type { MenuProps } from 'antd';
@@ -51,16 +51,20 @@ export const AdminLayout = () => {
         { key: 'dashboard', icon: <PieChartOutlined />, label: 'Dashboard' },
         { key: 'revenue', icon: <LineChartOutlined />, label: 'Doanh thu' },
         { key: 'users', icon: <UserOutlined />, label: 'Khách hàng' },
-        { key: 'inventory-static', icon: <ShopOutlined />, label: 'Sản phẩm' },
         {
             key: 'inventory',
             icon: <BankOutlined />,
-            label: 'Kho hàng',
+            label: 'Quản lí sản phẩm',
             children: [
                 {
+                    key: 'warehouse',
+                    label: 'Kho hàng',
+                    icon: <HddOutlined />,
+                },
+                {
                     key: 'products',
-                    label: 'Quản lí kho hàng',
-                    icon: <StockOutlined />,
+                    label: 'Sản phẩm Website',
+                    icon: <AppstoreOutlined />,
                 },
                 {
                     key: 'inventory-history',

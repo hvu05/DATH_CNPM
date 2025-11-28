@@ -173,3 +173,49 @@ export const createNewProduct = async (
     next(error);
   }
 };
+
+/**
+ * Update product is_active status
+ * PATCH /admin/products/:id/status
+ */
+export const updateProductStatus = async (
+  req: Request,
+  res: Response<ApiResponse<{ id: number; is_active: boolean }>>,
+  next: NextFunction,
+) => {
+  try {
+    const productId = parseInt(req.params.id, 10);
+    if (isNaN(productId)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid product ID',
+      });
+    }
+
+    const { is_active } = req.body;
+    if (typeof is_active !== 'boolean') {
+      return res.status(400).json({
+        success: false,
+        error: 'is_active must be a boolean',
+      });
+    }
+
+    const updatedProduct = await adminService.updateProductStatus(
+      productId,
+      is_active,
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: is_active
+        ? 'Product published successfully'
+        : 'Product unpublished successfully',
+      data: {
+        id: updatedProduct.id,
+        is_active: updatedProduct.is_active,
+      },
+    });
+  } catch (error: Error | any) {
+    next(error);
+  }
+};

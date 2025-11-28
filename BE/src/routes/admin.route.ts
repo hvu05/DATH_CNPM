@@ -68,4 +68,12 @@ router.post(
   productController.createNewProduct,
 );
 
+// PATCH to update product status (publish/unpublish)
+router.patch(
+  '/products/:id/status',
+  authenticateHandler,
+  checkRole(['ADMIN']),
+  productController.updateProductStatus,
+);
+
 export default router;

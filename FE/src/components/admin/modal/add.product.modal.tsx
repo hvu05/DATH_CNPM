@@ -1,8 +1,9 @@
-import { createProductFullAPI, type IBrand } from '@/services/admin/products/admin.product.api';
+import { createProductFullAPI } from '@/services/admin/products/admin.product.api';
 import { App, Form, Modal, Tabs, type FormProps, type UploadFile } from 'antd';
 import { useState } from 'react';
 import { AddProductTabItems } from './add.product.tabItem';
 import type { RcFile } from 'antd/es/upload';
+import type { IAddProductFormValues, IBrand, IProductVariant } from '@/types/admin/product';
 
 interface IProps {
     isModalOpen: boolean;

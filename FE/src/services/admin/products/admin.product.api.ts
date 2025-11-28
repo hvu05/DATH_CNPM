@@ -23,7 +23,7 @@ export const getAllProductsAPI = async (params: IGetProductsParam = {}) => {
     if (sortOrder) queryParams.append('sortOrder', sortOrder);
     if (category) queryParams.append('roles', category.join(','));
     if (isActive && isActive.length === 1)
-        queryParams.append('isActive', isActive[0] ? 'true' : 'false');
+        queryParams.append('is_active', isActive[0] ? 'true' : 'false');
     if (search) queryParams.append('search', search);
     console.log({ queryParams });
     const result = await axios.get<ApiResponse<IPagination<IProduct[]>>>(
@@ -130,6 +130,44 @@ export const updateProductStatusAPI = async (
     const result = await axios.patch<ApiResponse<{ id: number; is_active: boolean }>>(
         `${import.meta.env.VITE_BACKEND_URL}/admin/products/${productId}/status`,
         { is_active: isActive }
+    );
+    return result.data;
+};
+
+// ==================== CREATE CATEGORY ====================
+export const createCategoryAPI = async (data: {
+    name: string;
+    parent_id?: number;
+}): Promise<ApiResponse<{ id: number; name: string }>> => {
+    const result = await axios.post<ApiResponse<{ id: number; name: string }>>(
+        `${import.meta.env.VITE_BACKEND_URL}/admin/categories`,
+        data
+    );
+    return result.data;
+};
+
+// ==================== CREATE BRAND ====================
+export const createBrandAPI = async (data: {
+    name: string;
+    description: string;
+    category_id: number;
+    image_url?: string;
+}): Promise<ApiResponse<{ id: number; name: string }>> => {
+    const result = await axios.post<ApiResponse<{ id: number; name: string }>>(
+        `${import.meta.env.VITE_BACKEND_URL}/admin/brands`,
+        data
+    );
+    return result.data;
+};
+
+// ==================== CREATE SERIES ====================
+export const createSeriesAPI = async (data: {
+    name: string;
+    brand_id: number;
+}): Promise<ApiResponse<{ id: number; name: string; brand_id: number }>> => {
+    const result = await axios.post<ApiResponse<{ id: number; name: string; brand_id: number }>>(
+        `${import.meta.env.VITE_BACKEND_URL}/admin/series`,
+        data
     );
     return result.data;
 };

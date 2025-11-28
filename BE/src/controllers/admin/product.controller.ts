@@ -2,7 +2,10 @@ import * as adminDto from '../../dtos/admin';
 import * as adminService from '../../services/admin/products.service';
 import { NextFunction, Request, Response } from 'express';
 import { ApiResponse } from '../../dtos/common/api-response';
-import { productService } from '../../services/product.service';
+import {
+  productService,
+  updateProductStatus as updateProductStatusService,
+} from '../../services/product.service';
 
 // Admin Product APIs - Hades
 export const getAllProductsHandler = async (
@@ -28,6 +31,7 @@ export const getAllProductsHandler = async (
       sortOrder: queryData.sortOrder,
       categoryId: queryData.categoryId,
       search: queryData.search,
+      is_active: queryData.is_active,
     });
 
     const response: ApiResponse<adminDto.ProductListResponse> = {
@@ -200,7 +204,7 @@ export const updateProductStatus = async (
       });
     }
 
-    const updatedProduct = await adminService.updateProductStatus(
+    const updatedProduct = await updateProductStatusService(
       productId,
       is_active,
     );
@@ -216,6 +220,133 @@ export const updateProductStatus = async (
       },
     });
   } catch (error: Error | any) {
+    next(error);
+  }
+};
+
+// ==================== CREATE CATEGORY ====================
+export const createCategory = async (
+  req: Request,
+  res: Response<ApiResponse<{ id: number; name: string }>>,
+  next: NextFunction,
+) => {
+  try {
+    const { name, parent_id } = req.body;
+
+    if (!name || typeof name !== 'string' || name.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        error: 'Category name is required',
+      });
+    }
+
+    const category = await adminService.createCategory({
+      name: name.trim(),
+      parent_id: parent_id ? parseInt(parent_id, 10) : undefined,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: 'Category created successfully',
+      data: { id: category.id, name: category.name },
+    });
+  } catch (error: Error | any) {
+    if (error.message?.includes('already exists')) {
+      return res.status(409).json({
+        success: false,
+        error: error.message,
+      });
+    }
+    next(error);
+  }
+};
+
+// ==================== CREATE BRAND ====================
+export const createBrand = async (
+  req: Request,
+  res: Response<ApiResponse<{ id: number; name: string }>>,
+  next: NextFunction,
+) => {
+  try {
+    const { name, description, category_id, image_url } = req.body;
+
+    if (!name || typeof name !== 'string' || name.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        error: 'Brand name is required',
+      });
+    }
+
+    if (!category_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Category ID is required',
+      });
+    }
+
+    const brand = await adminService.createBrand({
+      name: name.trim(),
+      description: description || '',
+      category_id: parseInt(category_id, 10),
+      image_url: image_url || undefined,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: 'Brand created successfully',
+      data: { id: brand.id, name: brand.name },
+    });
+  } catch (error: Error | any) {
+    if (error.message?.includes('already exists')) {
+      return res.status(409).json({
+        success: false,
+        error: error.message,
+      });
+    }
+    next(error);
+  }
+};
+
+// ==================== CREATE SERIES ====================
+export const createSeries = async (
+  req: Request,
+  res: Response<ApiResponse<{ id: number; name: string; brand_id: number }>>,
+  next: NextFunction,
+) => {
+  try {
+    const { name, brand_id } = req.body;
+
+    if (!name || typeof name !== 'string' || name.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        error: 'Series name is required',
+      });
+    }
+
+    if (!brand_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Brand ID is required',
+      });
+    }
+
+    const series = await adminService.createSeries({
+      name: name.trim(),
+      brand_id: parseInt(brand_id, 10),
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: 'Series created successfully',
+      data: { id: series.id, name: series.name, brand_id: series.brand_id },
+    });
+  } catch (error: Error | any) {
+    if (error.message?.includes('already exists')) {
+      return res.status(409).json({
+        success: false,
+        error: error.message,
+      });
+    }
     next(error);
   }
 };

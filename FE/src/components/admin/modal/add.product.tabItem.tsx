@@ -7,6 +7,8 @@ import {
     Typography,
     type FormInstance,
     type UploadFile,
+    Button,
+    Space,
 } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { UploadImage } from '@/components/admin/upload.img';
@@ -17,8 +19,9 @@ import {
     AppstoreOutlined,
     PictureOutlined,
     SettingOutlined,
+    PlusOutlined,
 } from '@ant-design/icons';
-import type { IBrand } from '@/services/admin/products/admin.product.api';
+import type { IAddProductFormValues, IBrand, IProductVariant } from '@/types/admin/product';
 
 const { Text } = Typography;
 const MAX_THUMBNAILS = 1;
@@ -39,6 +42,10 @@ interface Props {
     brand_options: IBrand[];
     category_options: { label: string; value: string }[];
     serie_options: { id: number; name: string; brand_id: number }[];
+    // Callbacks for adding new metadata
+    onAddCategory?: () => void;
+    onAddBrand?: () => void;
+    onAddSeries?: () => void;
 }
 
 export const AddProductTabItems = ({
@@ -56,14 +63,17 @@ export const AddProductTabItems = ({
     brand_options,
     category_options,
     serie_options,
+    onAddCategory,
+    onAddBrand,
+    onAddSeries,
 }: Props) => {
     const tabItems = [
         {
             key: 'basic',
             label: (
-                <span>
+                <span className="gap-0.5">
                     <InfoCircleOutlined />
-                    Thông tin cơ bản
+                    <span>Thông tin cơ bản</span>
                 </span>
             ),
             children: (
@@ -93,7 +103,22 @@ export const AddProductTabItems = ({
                         <Col xs={24} md={12}>
                             <Form.Item
                                 name="category_id"
-                                label="Danh mục"
+                                label={
+                                    <Space>
+                                        <span>Danh mục</span>
+                                        {onAddCategory && (
+                                            <Button
+                                                type="link"
+                                                size="small"
+                                                icon={<PlusOutlined />}
+                                                onClick={onAddCategory}
+                                                className="p-0"
+                                            >
+                                                Thêm mới
+                                            </Button>
+                                        )}
+                                    </Space>
+                                }
                                 rules={[{ required: true, message: 'Vui lòng chọn danh mục' }]}
                             >
                                 <Select
@@ -129,7 +154,22 @@ export const AddProductTabItems = ({
                         <Col xs={24} md={12}>
                             <Form.Item
                                 name="brand_id"
-                                label="Thương hiệu"
+                                label={
+                                    <Space>
+                                        <span>Thương hiệu</span>
+                                        {onAddBrand && (
+                                            <Button
+                                                type="link"
+                                                size="small"
+                                                icon={<PlusOutlined />}
+                                                onClick={onAddBrand}
+                                                className="p-0"
+                                            >
+                                                Thêm mới
+                                            </Button>
+                                        )}
+                                    </Space>
+                                }
                                 rules={[{ required: true, message: 'Vui lòng chọn thương hiệu' }]}
                             >
                                 <Select
@@ -161,7 +201,22 @@ export const AddProductTabItems = ({
                         <Col xs={24} md={12}>
                             <Form.Item
                                 name="series_id"
-                                label="Dòng sản phẩm"
+                                label={
+                                    <Space>
+                                        <span>Dòng sản phẩm</span>
+                                        {onAddSeries && (
+                                            <Button
+                                                type="link"
+                                                size="small"
+                                                icon={<PlusOutlined />}
+                                                onClick={onAddSeries}
+                                                className="p-0"
+                                            >
+                                                Thêm mới
+                                            </Button>
+                                        )}
+                                    </Space>
+                                }
                                 rules={[{ required: true, message: 'Vui lòng chọn dòng sản phẩm' }]}
                             >
                                 <Select
@@ -200,14 +255,13 @@ export const AddProductTabItems = ({
         {
             key: 'variants',
             label: (
-                <span>
+                <span className="gap-0.5">
                     <AppstoreOutlined />
-                    Biến thể ({variants?.length || 0})
+                    <span>Biến thể ({variants?.length || 0})</span>
                 </span>
             ),
             children: (
                 <div className="py-4">
-                    {/* Total quantity display */}
                     <div className="mb-4 p-3 bg-blue-50 rounded-lg">
                         <Text>
                             Tổng số lượng tồn kho:{' '}
@@ -228,6 +282,7 @@ export const AddProductTabItems = ({
             label: (
                 <span>
                     <PictureOutlined />
+                    {'  '}
                     Hình ảnh ({thumbnailList.length + sliderList.length})
                 </span>
             ),
@@ -276,6 +331,7 @@ export const AddProductTabItems = ({
             label: (
                 <span>
                     <SettingOutlined />
+                    {'  '}
                     Thông số kỹ thuật
                 </span>
             ),

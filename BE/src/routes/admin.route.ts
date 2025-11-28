@@ -76,4 +76,28 @@ router.patch(
   productController.updateProductStatus,
 );
 
+// POST to create new category
+router.post(
+  '/categories',
+  authenticateHandler,
+  checkRole(['ADMIN']),
+  productController.createCategory,
+);
+
+// POST to create new brand
+router.post(
+  '/brands',
+  authenticateHandler,
+  checkRole(['ADMIN']),
+  productController.createBrand,
+);
+
+// POST to create new series
+router.post(
+  '/series',
+  authenticateHandler,
+  checkRole(['ADMIN']),
+  productController.createSeries,
+);
+
 export default router;

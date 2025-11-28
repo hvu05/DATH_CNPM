@@ -20,9 +20,12 @@ import {
     Empty,
     App,
     Popconfirm,
+    Image,
 } from 'antd';
 import { useWarehouse } from '@/components/admin/hooks/useWarehouse';
 import { AddProductModal } from '@/components/admin/modal/add.product.modal';
+import type { IProduct } from '@/types/admin/product';
+import default_product from '@/assets/seller/default_order.webp';
 
 /**
  * Warehouse Page - Quản lý kho hàng
@@ -46,6 +49,7 @@ export const WarehousePage = () => {
         series,
         handlePublishProduct,
         publishLoading,
+        refreshSelectOptions,
     } = useWarehouse();
 
     const handlePublish = async (record: IProduct) => {
@@ -75,7 +79,18 @@ export const WarehousePage = () => {
             sortDirections: ['ascend', 'descend'],
             render: (text, record) => (
                 <div className="flex items-center gap-3">
-                    <Avatar size={40} icon={<BoxPlotOutlined />} className="bg-blue-500" />
+                    {record.thumbnail ? (
+                        <Image
+                            src={record.thumbnail}
+                            alt={text}
+                            width={48}
+                            height={48}
+                            className="rounded-lg object-cover"
+                            fallback={default_product}
+                        />
+                    ) : (
+                        <Avatar size={48} icon={<BoxPlotOutlined />} className="bg-blue-500" />
+                    )}
                     <div>
                         <div className="font-semibold text-gray-900">{text}</div>
                         <div className="text-sm text-gray-500">ID: {record.id}</div>
@@ -96,7 +111,7 @@ export const WarehousePage = () => {
             dataIndex: 'quantity',
             key: 'quantity',
             width: 100,
-            align: 'center',
+            align: 'start',
             sorter: true,
             sortDirections: ['ascend', 'descend'],
             render: quantity => (
@@ -104,6 +119,14 @@ export const WarehousePage = () => {
                     {quantity}
                 </span>
             ),
+        },
+        {
+            title: 'Thương hiệu',
+            dataIndex: 'brand',
+            key: 'brand',
+            width: 100,
+            align: 'start',
+            render: (_, record) => <span>{record.brand?.name ?? 'unknown'}</span>,
         },
         {
             title: 'Trạng thái',
@@ -269,6 +292,7 @@ export const WarehousePage = () => {
                 category_options={categoriesList}
                 serie_options={series}
                 onSuccess={refreshProducts}
+                onRefreshOptions={refreshSelectOptions}
             />
         </>
     );

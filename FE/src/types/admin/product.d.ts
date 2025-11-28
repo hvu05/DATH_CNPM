@@ -18,6 +18,7 @@ export interface IProduct {
     is_active: boolean;
     create_at: Date;
     update_at: Date;
+    thumbnail?: string | null;
 }
 
 export interface IProductStatics {

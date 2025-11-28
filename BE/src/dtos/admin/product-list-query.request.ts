@@ -3,10 +3,14 @@ import { z } from 'zod';
 export const ProductListQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(10),
-  sortBy: z.enum(['create_at', 'name']).default('create_at'),
+  sortBy: z.enum(['create_at', 'name', 'quantity']).default('create_at'),
   sortOrder: z.enum(['asc', 'desc']).default('desc'),
   categoryId: z.coerce.number().int().min(1).optional(),
   search: z.string().optional(),
+  is_active: z
+    .string()
+    .transform((val) => val === 'true')
+    .optional(),
 });
 
 export const CategoriesQuerySchema = z.object({

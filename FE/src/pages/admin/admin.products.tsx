@@ -21,9 +21,11 @@ import {
     Empty,
     App,
     Popconfirm,
+    Image,
 } from 'antd';
 import { useProductListing } from '@/components/admin/hooks/useProductListing';
 import type { IProduct } from '@/types/admin/product';
+import { useState } from 'react';
 
 /**
  * Product Listing Page - Sản phẩm Website
@@ -33,9 +35,11 @@ import type { IProduct } from '@/types/admin/product';
 
 export const ProductPage = () => {
     const { message } = App.useApp();
+    const [searchValue, setSearchValue] = useState<string>('');
     const {
         dataTable,
         filters,
+        setFilters,
         handleSearch,
         refreshProducts,
         meta,
@@ -71,7 +75,18 @@ export const ProductPage = () => {
             sortDirections: ['ascend', 'descend'],
             render: (text, record) => (
                 <div className="flex items-center gap-3">
-                    <Avatar size={40} icon={<BoxPlotOutlined />} className="bg-green-500" />
+                    {record.thumbnail ? (
+                        <Image
+                            src={record.thumbnail}
+                            alt={text}
+                            width={48}
+                            height={48}
+                            className="rounded-lg object-cover"
+                            fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMIAAADDCAYAAADQvc6UAAABRWlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGASSSwoyGFhYGDIzSspCnJ3UoiIjFJgf8LAwSDCIMogwMCcmFxc4BgQ4ANUwgCjUcG3awyMIPqyLsis7PPOq3QdDFcvjV3jOD1boQVTPQrgSkktTgbSf4A4LbmgqISBgTEFyFYuLykAsTuAbJEioKOA7DkgdjqEvQHEToKwj4DVhAQ5A9k3gGyB5IxEoBmML4BsnSQk8XQkNtReEOBxcfXxUQg1Mjc0dyHgXNJBSWpFCYh2zi+oLMpMzyhRcASGUqqCZ16yno6CkYGRAQMDKMwhqj/fAIcloxgHQqxAjIHBEugw5sUIsSQpBobtQPdLciLEVJYzMPBHMDBsayhILEqEO4DxG0txmrERhM29nYGBddr//5/DGRjYNRkY/l7////39v///y4Dmn+LgesA1z8AAEJCU1eSBABBYklQAQQNAlVTRTAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                        />
+                    ) : (
+                        <Avatar size={48} icon={<BoxPlotOutlined />} className="bg-green-500" />
+                    )}
                     <div>
                         <div className="font-semibold text-gray-900">{text}</div>
                         <div className="text-sm text-gray-500">ID: {record.id}</div>
@@ -205,15 +220,18 @@ export const ProductPage = () => {
                             Danh sách sản phẩm đang bán
                         </span>
                         <div className="flex gap-2 items-center">
-                            <Input.Search
+                            <Input
                                 placeholder="Tìm kiếm sản phẩm..."
-                                allowClear
-                                enterButton={<SearchOutlined />}
                                 size="large"
                                 style={{ width: 300 }}
-                                value={filters.search || ''}
-                                onChange={e => handleSearch(e.target.value)}
-                                onSearch={handleSearch}
+                                value={searchValue}
+                                onChange={e => setSearchValue(e.target.value)}
+                            />
+                            <Button
+                                type="primary"
+                                icon={<SearchOutlined />}
+                                size="large"
+                                onClick={() => handleSearch(searchValue)}
                             />
                             <Tooltip title="Làm mới">
                                 <Button

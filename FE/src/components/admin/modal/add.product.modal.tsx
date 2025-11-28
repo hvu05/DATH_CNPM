@@ -2,8 +2,11 @@ import { createProductFullAPI } from '@/services/admin/products/admin.product.ap
 import { App, Form, Modal, Tabs, type FormProps, type UploadFile } from 'antd';
 import { useState } from 'react';
 import { AddProductTabItems } from './add.product.tabItem';
+import { AddMetadataModal } from './add.metadata.modal';
 import type { RcFile } from 'antd/es/upload';
 import type { IAddProductFormValues, IBrand, IProductVariant } from '@/types/admin/product';
+
+type MetadataModalType = 'category' | 'brand' | 'series' | null;
 
 interface IProps {
     isModalOpen: boolean;
@@ -12,6 +15,7 @@ interface IProps {
     category_options: { label: string; value: string }[];
     serie_options: { id: number; name: string; brand_id: number }[];
     onSuccess?: () => void;
+    onRefreshOptions?: () => void; // Callback to refresh categories, brands, series
 }
 
 export const AddProductModal = (props: IProps) => {
@@ -22,6 +26,7 @@ export const AddProductModal = (props: IProps) => {
         category_options,
         serie_options,
         onSuccess,
+        onRefreshOptions,
     } = props;
     const { message, notification } = App.useApp();
     const [loading, setLoading] = useState<boolean>(false);
@@ -31,6 +36,9 @@ export const AddProductModal = (props: IProps) => {
     const [thumbnailList, setThumbnailList] = useState<UploadFile[]>([]);
     const [sliderList, setSliderList] = useState<UploadFile[]>([]);
     const [form] = Form.useForm<IAddProductFormValues>();
+
+    // State for metadata modals
+    const [metadataModalType, setMetadataModalType] = useState<MetadataModalType>(null);
 
     // Reset form when modal closes
     const handleClose = () => {
@@ -43,11 +51,23 @@ export const AddProductModal = (props: IProps) => {
         setIsOpenModal(false);
     };
 
+    // Handlers for opening metadata modals
+    const handleAddCategory = () => setMetadataModalType('category');
+    const handleAddBrand = () => setMetadataModalType('brand');
+    const handleAddSeries = () => setMetadataModalType('series');
+    const handleCloseMetadataModal = () => setMetadataModalType(null);
+
+    const handleMetadataSuccess = () => {
+        // Refresh options list after adding new metadata
+        onRefreshOptions?.();
+    };
+
     // Calculate total quantity from variants
     const calculateTotalQuantity = (variants: IProductVariant[] = []) => {
         return variants.reduce((sum, v) => sum + (v?.quantity || 0), 0);
     };
 
+    // Quá oke
     const onFinish: FormProps<IAddProductFormValues>['onFinish'] = async values => {
         // Validate images
         if (thumbnailList.length === 0) {
@@ -156,7 +176,7 @@ export const AddProductModal = (props: IProps) => {
 
     return (
         <Modal
-            title={<span className="text-xl font-semibold">Thêm mới sản phẩm</span>}
+            title={<span className="text-xl font-semibold">Nhập hàng mới</span>}
             open={isModalOpen}
             onOk={onSubmit}
             onCancel={handleClose}
@@ -175,7 +195,7 @@ export const AddProductModal = (props: IProps) => {
                 onFinish={onFinish}
                 onFinishFailed={onFinishFailed}
                 initialValues={{
-                    is_active: true,
+                    is_active: false,
                     variants: [
                         {
                             color: '',
@@ -206,10 +226,22 @@ export const AddProductModal = (props: IProps) => {
                         brand_options,
                         category_options,
                         serie_options,
+                        onAddCategory: handleAddCategory,
+                        onAddBrand: handleAddBrand,
+                        onAddSeries: handleAddSeries,
                     })}
-                    className="add-product-tabs"
                 />
             </Form>
+
+            {/* Metadata Modal for adding Category/Brand/Series */}
+            <AddMetadataModal
+                type={metadataModalType || 'category'}
+                isOpen={metadataModalType !== null}
+                onClose={handleCloseMetadataModal}
+                onSuccess={handleMetadataSuccess}
+                categories={category_options}
+                brands={brand_options}
+            />
         </Modal>
     );
 };

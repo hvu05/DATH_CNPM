@@ -18,6 +18,7 @@ export const getAllProducts = async (
     sortOrder = 'desc',
     categoryId,
     search,
+    is_active,
   } = options;
   const skip = (page - 1) * limit;
 
@@ -27,6 +28,11 @@ export const getAllProducts = async (
   // Filter by category
   if (categoryId) {
     where.category_id = categoryId;
+  }
+
+  // Filter by is_active status
+  if (is_active !== undefined) {
+    where.is_active = is_active;
   }
 
   // Search by name
@@ -49,6 +55,11 @@ export const getAllProducts = async (
         category: true,
         brand: true,
         series: true,
+        product_image: {
+          where: { is_thumbnail: true },
+          select: { image_url: true },
+          take: 1,
+        },
       },
       orderBy,
     }),
@@ -78,6 +89,7 @@ export const getAllProducts = async (
         id: product.brand.id,
         name: product.brand.name,
       },
+      thumbnail: product.product_image?.[0]?.image_url || null,
     } as adminDto.ProductResponse;
   });
 
@@ -135,19 +147,75 @@ export const getAllSeries = async (): Promise<adminDto.SeriesListRes> => {
   };
 };
 
-/**
- * Update product is_active status
- * @param productId Product ID
- * @param isActive New status
- * @returns Updated product
- */
-export const updateProductStatus = async (
-  productId: number,
-  isActive: boolean,
-) => {
-  const updatedProduct = await prisma.product.update({
-    where: { id: productId },
-    data: { is_active: isActive },
+// ==================== CREATE CATEGORY ====================
+export const createCategory = async (data: {
+  name: string;
+  parent_id?: number;
+}) => {
+  const existing = await prisma.category.findFirst({
+    where: { name: data.name },
   });
-  return updatedProduct;
+  if (existing) {
+    throw new Error(`Category "${data.name}" already exists`);
+  }
+
+  const category = await prisma.category.create({
+    data: {
+      name: data.name,
+      parent_id: data.parent_id || null,
+    },
+  });
+  return category;
+};
+
+// ==================== CREATE BRAND ====================
+export const createBrand = async (data: {
+  name: string;
+  description: string;
+  category_id: number;
+  image_url?: string;
+}) => {
+  const existing = await prisma.brand.findFirst({ where: { name: data.name } });
+  if (existing) {
+    throw new Error(`Brand "${data.name}" already exists`);
+  }
+
+  const brand = await prisma.brand.create({
+    data: {
+      name: data.name,
+      description: data.description,
+      category_id: data.category_id,
+      image_url: data.image_url || null,
+    },
+  });
+  return brand;
+};
+
+// ==================== CREATE SERIES ====================
+export const createSeries = async (data: {
+  name: string;
+  brand_id: number;
+}) => {
+  const existing = await prisma.series.findFirst({
+    where: { name: data.name },
+  });
+  if (existing) {
+    throw new Error(`Series "${data.name}" already exists`);
+  }
+
+  // Get next series id for this brand
+  const lastSeries = await prisma.series.findFirst({
+    where: { brand_id: data.brand_id },
+    orderBy: { id: 'desc' },
+  });
+  const nextId = (lastSeries?.id ?? 0) + 1;
+
+  const series = await prisma.series.create({
+    data: {
+      id: nextId,
+      name: data.name,
+      brand_id: data.brand_id,
+    },
+  });
+  return series;
 };

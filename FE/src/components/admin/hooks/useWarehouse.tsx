@@ -1,14 +1,14 @@
 import { type TablePaginationConfig } from 'antd';
 import type { FilterValue, TableCurrentDataSource } from 'antd/es/table/interface';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     getAllCategoriesAPI,
     getAllProductsAPI,
     getBrandsAPI,
     getSeriesAPI,
     updateProductStatusAPI,
-    type IBrand,
 } from '@/services/admin/products/admin.product.api';
+import type { IBrand, IProduct } from '@/types/admin/product';
 
 /**
  * Hook for Warehouse page
@@ -31,62 +31,54 @@ export const useWarehouse = () => {
     });
     const [meta, setMeta] = useState<{ total: number; page: number; limit: number } | null>(null);
 
-    const loadProducts = useCallback(
-        async (params?: any) => {
-            try {
-                const queryParams = params || filters;
-                // Load ALL products (no isActive filter)
-                const result = await getAllProductsAPI(queryParams);
-                if (result.data) {
-                    setDataTable(result.data.results);
-                    setMeta({
-                        total: result.data.total,
-                        page: result.data.page,
-                        limit: result.data.limit,
-                    });
-                }
-            } catch (error) {
-                console.error('Failed to load products:', error);
+    const loadProducts = async (params?: any) => {
+        try {
+            const queryParams = params || filters;
+            // Load ALL products (no isActive filter)
+            const result = await getAllProductsAPI(queryParams);
+            if (result.data) {
+                setDataTable(result.data.results);
+                setMeta({
+                    total: result.data.total,
+                    page: result.data.page,
+                    limit: result.data.limit,
+                });
             }
-        },
-        [filters]
-    );
+        } catch (error) {
+            console.error('Failed to load products:', error);
+        }
+    };
 
-    const refreshProducts = useCallback(async () => {
+    const refreshProducts = async () => {
         await loadProducts();
-    }, [loadProducts]);
+    };
 
-    const handleSearch = useCallback(
-        (value: string) => {
-            const newFilters = { ...filters, search: value || undefined, page: 1 };
-            loadProducts(newFilters);
-        },
-        [filters, loadProducts]
-    );
+    const handleSearch = (value: string) => {
+        const newFilters = { ...filters, search: value || '', page: 1 };
+        setFilters(newFilters);
+        loadProducts(newFilters);
+    };
 
-    const handleTableChange = useCallback(
-        async (
-            pagination: TablePaginationConfig,
-            tableFilters: Record<string, FilterValue | null>,
-            sorter: any,
-            extra: TableCurrentDataSource<IProduct>
-        ) => {
-            const { current, pageSize } = pagination;
-            const newFilters = {
-                ...filters,
-                page: current,
-                limit: pageSize,
-            };
+    const handleTableChange = async (
+        pagination: TablePaginationConfig,
+        tableFilters: Record<string, FilterValue | null>,
+        sorter: any,
+        extra: TableCurrentDataSource<IProduct>
+    ) => {
+        const { current, pageSize } = pagination;
+        const newFilters = {
+            ...filters,
+            page: current,
+            limit: pageSize,
+        };
 
-            if (sorter.field && sorter.order) {
-                newFilters.sortBy = sorter.field;
-                newFilters.sortOrder = sorter.order === 'ascend' ? 'asc' : 'desc';
-            }
+        if (sorter.field && sorter.order) {
+            newFilters.sortBy = sorter.field;
+            newFilters.sortOrder = sorter.order === 'ascend' ? 'asc' : 'desc';
+        }
 
-            await loadProducts(newFilters);
-        },
-        [filters, loadProducts]
-    );
+        await loadProducts(newFilters);
+    };
 
     const handlePublishProduct = async (productId: string, isActive: boolean) => {
         setPublishLoading(productId);
@@ -139,6 +131,11 @@ export const useWarehouse = () => {
         loadSelectOptions();
     }, []);
 
+    // Refresh categories, brands, series options
+    const refreshSelectOptions = () => {
+        loadSelectOptions();
+    };
+
     return {
         dataTable,
         filters,
@@ -153,5 +150,6 @@ export const useWarehouse = () => {
         series,
         handlePublishProduct,
         publishLoading,
+        refreshSelectOptions,
     };
 };

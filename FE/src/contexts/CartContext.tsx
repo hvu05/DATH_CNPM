@@ -1,9 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-// Dựa trên schema DB, Guest Cart cần lưu variantId để sau này checkout tạo OrderItem
 export interface CartItem {
     productId: number;
-    variantId: number; // Quan trọng
+    variantId: number;
     name: string;
     price: number;
     imageUrl: string;
@@ -36,16 +35,15 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
     const addToCart = (newItem: CartItem) => {
         setCartItems(prev => {
-            // Check trùng variantId thì cộng dồn số lượng
-            const exist = prev.find(i => i.variantId === newItem.variantId);
-            if (exist) {
-                return prev.map(i =>
-                    i.variantId === newItem.variantId
-                        ? { ...i, quantity: i.quantity + newItem.quantity }
-                        : i
-                );
+            const existingItemIndex = prev.findIndex(item => item.variantId === newItem.variantId);
+
+            if (existingItemIndex > -1) {
+                const newCart = [...prev];
+                newCart[existingItemIndex].quantity += newItem.quantity;
+                return newCart;
+            } else {
+                return [...prev, newItem];
             }
-            return [...prev, newItem];
         });
     };
 

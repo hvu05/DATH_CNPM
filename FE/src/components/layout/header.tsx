@@ -1,3 +1,4 @@
+// FE/src/components/common/Header.tsx
 import './header.scss';
 import homeIcon from '@/assets/home-icon.svg';
 import menuIcon from '@/assets/menu-icon.svg';
@@ -5,7 +6,7 @@ import searchIcon from '@/assets/search-icon.svg';
 import cartIcon from '@/assets/cart-icon.svg';
 import defaultAvatar from '@/assets/default-avatar-icon.svg';
 import { Link, useNavigate } from 'react-router-dom';
-import { Dropdown, Avatar, Badge } from 'antd';
+import { Dropdown, Avatar, Badge, message } from 'antd';
 import type { MenuProps } from 'antd';
 import {
     UserOutlined,
@@ -21,44 +22,36 @@ import {
 import { useAuthContext } from '@/contexts/AuthContext';
 import { removeTokens } from '@/services/auth/auth.service';
 import { useCart } from '@/contexts/CartContext';
-import type { CartItem } from '@/contexts/CartContext';
 import React, { useState, useEffect, useRef } from 'react';
 
 const megaMenuData = [
     {
         id: 'phones',
-        name: 'Điện thoại, iPhone',
+        name: 'Điện thoại',
         icon: <MobileOutlined />,
         content: {
             columns: [
                 {
-                    title: 'Gợi ý cho bạn',
+                    title: 'Thương hiệu',
                     items: [
-                        { name: 'iPhone 17 Pro Max', link: '/search?q=iPhone+17' },
-                        { name: 'Samsung Galaxy S24 Ultra', link: '/search?q=S24+Ultra' },
-                        { name: 'Xiaomi 14 Pro', link: '/search?q=Xiaomi+14' },
-                        { name: 'OPPO Reno 11 Pro', link: '/search?q=Reno+11' },
-                        { name: 'HONOR Magic 6 Pro', link: '/search?q=Magic+6' },
-                        { name: 'iPhone 15 Pro', link: '/search?q=iPhone+15' },
-                        { name: 'Sản phẩm khác', link: '/search?q=Điện+thoại' },
+                        { name: 'iPhone', link: '/search?search=iPhone' },
+                        { name: 'Samsung', link: '/search?search=Samsung' },
+                        { name: 'Xiaomi', link: '/search?search=Xiaomi' },
+                        { name: 'OPPO', link: '/search?search=OPPO' },
                     ],
                 },
                 {
-                    title: 'Thương hiệu khác',
+                    title: 'Mức giá',
                     items: [
-                        { name: 'Nokia', link: '/search?q=Nokia' },
-                        { name: 'ASUS', link: '/search?q=ASUS' },
-                        { name: 'Realme', link: '/search?q=Realme' },
-                        { name: 'Vivo', link: '/search?q=Vivo' },
-                        { name: 'OnePlus', link: '/search?q=OnePlus' },
+                        { name: 'Dưới 5 triệu', link: '/search?search=phone&max_price=5000000' },
+                        {
+                            name: 'Từ 5 - 10 triệu',
+                            link: '/search?search=phone&min_price=5000000&max_price=10000000',
+                        },
+                        { name: 'Trên 20 triệu', link: '/search?search=phone&min_price=20000000' },
                     ],
                 },
             ],
-            promo: {
-                title: 'Sản phẩm nổi bật',
-                image: 'https://via.placeholder.com/150x200', // Thay bằng ảnh thật
-                link: '/products/featured-product',
-            },
         },
     },
     {
@@ -68,50 +61,32 @@ const megaMenuData = [
         content: {
             columns: [
                 {
-                    title: 'Laptop theo hãng',
+                    title: 'Thương hiệu',
                     items: [
-                        { name: 'MacBook', link: '/search?q=MacBook' },
-                        { name: 'Dell', link: '/search?q=Dell' },
-                        { name: 'HP', link: '/search?q=HP' },
-                        { name: 'Lenovo', link: '/search?q=Lenovo' },
-                        { name: 'ASUS', link: '/search?q=ASUS' },
-                    ],
-                },
-                {
-                    title: 'Linh kiện PC',
-                    items: [
-                        { name: 'CPU', link: '/search?q=CPU' },
-                        { name: 'GPU', link: '/search?q=GPU' },
-                        { name: 'RAM', link: '/search?q=RAM' },
-                        { name: 'Ổ cứng SSD', link: '/search?q=SSD' },
+                        { name: 'MacBook', link: '/search?search=MacBook' },
+                        { name: 'Dell', link: '/search?search=Dell' },
+                        { name: 'Asus', link: '/search?search=Asus' },
+                        { name: 'HP', link: '/search?search=HP' },
                     ],
                 },
             ],
-            promo: null,
         },
     },
     {
         id: 'watches',
-        name: 'Apple Watch',
+        name: 'Đồng hồ',
         icon: <ClockCircleOutlined />,
         content: {
             columns: [
                 {
-                    title: 'Dòng sản phẩm',
+                    title: 'Loại đồng hồ',
                     items: [
-                        {
-                            name: 'Apple Watch Ultra 2',
-                            link: '/search?q=Apple+Watch+Ultra+2',
-                        },
-                        {
-                            name: 'Apple Watch Series 9',
-                            link: '/search?q=Apple+Watch+Series+9',
-                        },
-                        { name: 'Apple Watch SE', link: '/search?q=Apple+Watch+SE' },
+                        { name: 'Apple Watch', link: '/search?search=Apple+Watch' },
+                        { name: 'Samsung Watch', link: '/search?search=Galaxy+Watch' },
+                        { name: 'Đồng hồ thông minh', link: '/search?search=Smartwatch' },
                     ],
                 },
             ],
-            promo: null,
         },
     },
     {
@@ -121,15 +96,13 @@ const megaMenuData = [
         content: {
             columns: [
                 {
-                    title: 'Gợi ý cho bạn',
+                    title: 'Gợi ý',
                     items: [
-                        { name: 'iPad Pro M4', link: '/search?q=iPad+Pro+M4' },
-                        { name: 'iPad Air M2', link: '/search?q=iPad+Air+M2' },
-                        { name: 'Samsung Galaxy Tab S9', link: '/search?q=Galaxy+Tab+S9' },
+                        { name: 'iPad', link: '/search?search=iPad' },
+                        { name: 'Samsung Tab', link: '/search?search=Samsung+Tab' },
                     ],
                 },
             ],
-            promo: null,
         },
     },
     {
@@ -139,24 +112,20 @@ const megaMenuData = [
         content: {
             columns: [
                 {
-                    title: 'Tai nghe',
+                    title: 'Âm thanh',
                     items: [
-                        { name: 'AirPods Pro 2', link: '/search?q=AirPods+Pro+2' },
-                        { name: 'Sony WH-1000XM5', link: '/search?q=Sony+WH-1000XM5' },
+                        { name: 'Tai nghe', link: '/search?search=Tai+nghe' },
+                        { name: 'Loa', link: '/search?search=Loa' },
                     ],
                 },
                 {
-                    title: 'Chuột và bàn phím',
+                    title: 'Khác',
                     items: [
-                        {
-                            name: 'Logitech MX Master 3S',
-                            link: '/search?q=Logitech+MX+Master+3S',
-                        },
-                        { name: 'Keychron K2', link: '/search?q=Keychron+K2' },
+                        { name: 'Sạc dự phòng', link: '/search?search=Sạc' },
+                        { name: 'Cáp sạc', link: '/search?search=Cáp' },
                     ],
                 },
             ],
-            promo: null,
         },
     },
 ];
@@ -169,44 +138,35 @@ export const Header = () => {
     const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
     const [activeCategory, setActiveCategory] = useState<string>('phones');
     const dropdownRef = useRef<HTMLDivElement>(null);
-
     const [searchTerm, setSearchTerm] = useState('');
 
-    const totalCartItems = cartItems.reduce(
-        (total: number, item: CartItem) => total + item.quantity,
-        0
-    );
+    const totalCartItems = cartItems.reduce((total, item) => total + item.quantity, 0);
 
     const logout = () => {
         removeTokens();
         setUser(null);
         setIsLoggedIn(false);
         navigate('/login');
+        message.success('Đăng xuất thành công');
     };
 
     const handleMenuClick: MenuProps['onClick'] = e => {
         const { key } = e;
         if (key === 'logout') logout();
-        else if (key === 'profile') navigate('/client');
-        else if (key === 'adminpage') navigate('/admin');
-        else if (key === 'sellerpage') navigate('/seller');
+        else if (key === 'profile') navigate('/client/profile');
+        else if (key === 'adminpage') navigate('/admin/dashboard');
+        else if (key === 'sellerpage') navigate('/seller/dashboard');
     };
 
     const menuItems: MenuProps['items'] = [
-        ...(user?.role === 'CUSTOMER'
-            ? [{ key: 'profile', label: 'Thông tin cá nhân', icon: <UserOutlined /> }]
+        ...(user?.role === 'CUSTOMER' || !user?.role
+            ? [{ key: 'profile', label: 'Tài khoản của tôi', icon: <UserOutlined /> }]
             : []),
         ...(user?.role === 'ADMIN'
-            ? [
-                  {
-                      key: 'adminpage',
-                      label: 'Quản trị viên',
-                      icon: <SettingOutlined />,
-                  },
-              ]
+            ? [{ key: 'adminpage', label: 'Trang quản trị', icon: <SettingOutlined /> }]
             : []),
         ...(user?.role === 'STAFF'
-            ? [{ key: 'sellerpage', label: 'Nhân viên', icon: <SettingOutlined /> }]
+            ? [{ key: 'sellerpage', label: 'Kênh nhân viên', icon: <SettingOutlined /> }]
             : []),
         { type: 'divider' },
         {
@@ -220,7 +180,7 @@ export const Header = () => {
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         if (searchTerm.trim()) {
-            navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
+            navigate(`/search?search=${encodeURIComponent(searchTerm.trim())}`);
             setSearchTerm('');
         }
     };
@@ -232,17 +192,8 @@ export const Header = () => {
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
-
-    const handleCategoryDropdownToggle = () => {
-        if (!isCategoryDropdownOpen) {
-            setActiveCategory('phones');
-        }
-        setIsCategoryDropdownOpen(!isCategoryDropdownOpen);
-    };
 
     const activeCategoryData = megaMenuData.find(cat => cat.id === activeCategory);
 
@@ -252,8 +203,13 @@ export const Header = () => {
                 <Link to={'/'} className="header__home-link">
                     <img src={homeIcon} alt="Home" />
                 </Link>
+
+                {/* CATEGORY DROPDOWN */}
                 <div className="category-dropdown" ref={dropdownRef}>
-                    <button className="header__button" onClick={handleCategoryDropdownToggle}>
+                    <button
+                        className="header__button"
+                        onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+                    >
                         <img src={menuIcon} alt="Menu" className="header__button-icon" />
                         <span className="header__button-text">Danh mục</span>
                     </button>
@@ -264,9 +220,7 @@ export const Header = () => {
                                 {megaMenuData.map(category => (
                                     <button
                                         key={category.id}
-                                        className={`category-dropdown__category-item ${
-                                            activeCategory === category.id ? 'active' : ''
-                                        }`}
+                                        className={`category-dropdown__category-item ${activeCategory === category.id ? 'active' : ''}`}
                                         onMouseEnter={() => setActiveCategory(category.id)}
                                     >
                                         <span className="category-dropdown__icon">
@@ -279,44 +233,29 @@ export const Header = () => {
 
                             <div className="category-dropdown__content-wrapper">
                                 {activeCategoryData && (
-                                    <>
-                                        <div className="category-dropdown__content">
-                                            {activeCategoryData.content.columns.map(
-                                                (column, index) => (
-                                                    <div
-                                                        key={index}
-                                                        className="category-dropdown__column"
-                                                    >
-                                                        <h4 className="category-dropdown__column-title">
-                                                            {column.title}
-                                                        </h4>
-                                                        <ul className="category-dropdown__column-list">
-                                                            {column.items.map((item, itemIndex) => (
-                                                                <li key={itemIndex}>
-                                                                    <Link
-                                                                        to={item.link}
-                                                                        onClick={() =>
-                                                                            setIsCategoryDropdownOpen(
-                                                                                false
-                                                                            )
-                                                                        }
-                                                                    >
-                                                                        {item.name}
-                                                                    </Link>
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    </div>
-                                                )
-                                            )}
-                                        </div>
-
-                                        {activeCategoryData.content.promo && (
-                                            <div className="category-dropdown__promo">
-                                                {/*<img src={activeCategoryData.content.promo.image} alt="Promo" /> */}
+                                    <div className="category-dropdown__content">
+                                        {activeCategoryData.content.columns.map((column, index) => (
+                                            <div key={index} className="category-dropdown__column">
+                                                <h4 className="category-dropdown__column-title">
+                                                    {column.title}
+                                                </h4>
+                                                <ul className="category-dropdown__column-list">
+                                                    {column.items.map((item, itemIndex) => (
+                                                        <li key={itemIndex}>
+                                                            <Link
+                                                                to={item.link}
+                                                                onClick={() =>
+                                                                    setIsCategoryDropdownOpen(false)
+                                                                }
+                                                            >
+                                                                {item.name}
+                                                            </Link>
+                                                        </li>
+                                                    ))}
+                                                </ul>
                                             </div>
-                                        )}
-                                    </>
+                                        ))}
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -324,11 +263,12 @@ export const Header = () => {
                 </div>
             </div>
 
+            {/* SEARCH BAR */}
             <form className="header__search" onSubmit={handleSearch}>
                 <input
                     type="text"
                     className="header__search-input"
-                    placeholder="Tìm kiếm sản phẩm..."
+                    placeholder="Bạn tìm gì hôm nay?"
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
                 />
@@ -337,9 +277,10 @@ export const Header = () => {
                 </button>
             </form>
 
+            {/* RIGHT ACTIONS */}
             <div className="header__right">
                 <Link to="/cart" className="header__button">
-                    <Badge count={totalCartItems} size="small" offset={[0, -2]}>
+                    <Badge count={totalCartItems} size="small" offset={[0, -2]} showZero={false}>
                         <img src={cartIcon} alt="Cart" className="header__button-icon" />
                     </Badge>
                     <span className="header__button-text">Giỏ hàng</span>
@@ -349,13 +290,38 @@ export const Header = () => {
                     <Dropdown
                         menu={{ items: menuItems, onClick: handleMenuClick }}
                         placement="bottomRight"
+                        arrow
                     >
-                        <Avatar src={user?.avatar || defaultAvatar} className="header__avatar" />
+                        <div
+                            className="header__user-info"
+                            style={{
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 8,
+                            }}
+                        >
+                            <Avatar src={user?.avatar || defaultAvatar} icon={<UserOutlined />} />
+                            <span
+                                className="header__user-name"
+                                style={{
+                                    color: 'white',
+                                    maxWidth: 100,
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                }}
+                            >
+                                {user?.full_name || 'User'}
+                            </span>
+                        </div>
                     </Dropdown>
                 ) : (
-                    <button onClick={() => navigate('/login')} className="header__button">
-                        <span className="header__button-text">Đăng nhập</span>
-                    </button>
+                    <div className="header__auth-buttons">
+                        <button onClick={() => navigate('/login')} className="header__button">
+                            <span className="header__button-text">Đăng nhập</span>
+                        </button>
+                    </div>
                 )}
             </div>
         </header>

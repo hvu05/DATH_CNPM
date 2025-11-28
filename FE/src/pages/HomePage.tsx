@@ -1,7 +1,7 @@
 // FE/src/pages/HomePage.tsx
 import React, { useRef, useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { getProducts } from '@/services/productsApi'; // Dùng API thật
+import { getProducts } from '@/services/productsApi';
 import type { Product } from '@/types/product';
 import ProductCard from '@/components/common/ProductCard';
 import BannerSlider from '@/components/common/BannerSlider';
@@ -10,8 +10,8 @@ import './HomePage.scss';
 const HomePage: React.FC = () => {
     const [productsList, setProductsList] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
+    const [searchParams] = useSearchParams();
 
-    // --- GỌI API ---
     useEffect(() => {
         const fetchData = async () => {
             const data = await getProducts();
@@ -21,26 +21,23 @@ const HomePage: React.FC = () => {
         fetchData();
     }, []);
 
-    // Logic Carousel cũ
+    const pageParam = parseInt(searchParams.get('page') || '1', 10);
+    const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
+    const pageSize = 20; // 20 sản phẩm mỗi trang
+    const totalPages = Math.max(1, Math.ceil(productsList.length / pageSize));
+    const start = (page - 1) * pageSize;
+    const pagedProducts = productsList.slice(start, start + pageSize);
+    const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+
     const carouselRef = useRef<HTMLDivElement | null>(null);
     const scrollByCard = (dir: 'left' | 'right') => {
         const el = carouselRef.current;
         if (!el) return;
-        const amount = 240; // Card width + gap
+        const amount = 300;
         el.scrollBy({ left: dir === 'right' ? amount : -amount, behavior: 'smooth' });
     };
 
-    const [searchParams] = useSearchParams();
-    const pageParam = parseInt(searchParams.get('page') || '1', 10);
-    const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
-
-    const pageSize = 20;
-    // Cắt trang trên Client (nếu BE chưa hỗ trợ phân trang)
-    const totalPages = Math.max(1, Math.ceil(productsList.length / pageSize));
-    const start = (page - 1) * pageSize;
-    const pagedProducts = productsList.slice(start, start + pageSize);
-
-    const topPicks = productsList.slice(0, 8); // Lấy 8 sản phẩm đầu làm gợi ý
+    const topPicks = productsList.slice(0, 8);
 
     if (loading)
         return (
@@ -52,27 +49,49 @@ const HomePage: React.FC = () => {
     return (
         <div className="homepage-wrapper">
             <div className="container">
-                {/* KHU VỰC 1: BANNER */}
+                {/* 1. SLIDER CHÍNH */}
                 <section className="banner-section">
                     <BannerSlider
                         banners={[
                             {
                                 id: 1,
                                 title: 'iPhone 15',
-                                image: 'https://placehold.co/1200x300.png?text=iPhone+15',
+                                image: 'https://placehold.co/1200x300.png?text=iPhone+15+Promo',
                                 link: '/search?q=iphone',
                             },
                             {
                                 id: 2,
                                 title: 'Laptop',
-                                image: 'https://placehold.co/1200x300.png?text=Laptop+Sale',
+                                image: 'https://placehold.co/1200x300.png?text=Laptop+Super+Sale',
                                 link: '/search?q=laptop',
+                            },
+                            {
+                                id: 3,
+                                title: 'Summer',
+                                image: 'https://placehold.co/1200x300.png?text=Summer+Vibes',
+                                link: '/search?q=watch',
                             },
                         ]}
                     />
                 </section>
 
-                {/* KHU VỰC 3: GỢI Ý */}
+                {/* 2. BANNER NHỎ (Đã khôi phục) */}
+                <section className="small-banners-section">
+                    <Link to="/search?q=samsung" className="small-banner-item">
+                        <img
+                            src="https://placehold.co/600x150.png?text=Samsung+Galaxy+S24"
+                            alt="Banner 1"
+                        />
+                    </Link>
+                    <Link to="/search?q=macbook" className="small-banner-item">
+                        <img
+                            src="https://placehold.co/600x150.png?text=Macbook+Air+M2"
+                            alt="Banner 2"
+                        />
+                    </Link>
+                </section>
+
+                {/* 3. GỢI Ý (CAROUSEL) */}
                 <section className="suggestion-section">
                     <h2 className="section-title">Gợi ý cho bạn</h2>
                     <div className="carousel-wrapper">
@@ -96,7 +115,7 @@ const HomePage: React.FC = () => {
                     </div>
                 </section>
 
-                {/* KHU VỰC 4: DANH SÁCH SẢN PHẨM */}
+                {/* 4. LƯỚI SẢN PHẨM CHÍNH + PAGINATION */}
                 <section className="main-products-section">
                     <h2 className="section-title">Tất cả sản phẩm</h2>
                     <div className="product-grid">
@@ -104,7 +123,32 @@ const HomePage: React.FC = () => {
                             <ProductCard key={product.id} {...product} />
                         ))}
                     </div>
-                    {/* Pagination giữ nguyên */}
+
+                    <div className="pagination-wrapper">
+                        <div className="pagination">
+                            <Link
+                                to={`?page=${Math.max(1, page - 1)}`}
+                                className={`page-btn ${page === 1 ? 'disabled' : ''}`}
+                            >
+                                &laquo; Prev
+                            </Link>
+                            {pageNumbers.map(p => (
+                                <Link
+                                    key={p}
+                                    to={`?page=${p}`}
+                                    className={`page-number ${p === page ? 'active' : ''}`}
+                                >
+                                    {p}
+                                </Link>
+                            ))}
+                            <Link
+                                to={`?page=${Math.min(totalPages, page + 1)}`}
+                                className={`page-btn ${page === totalPages ? 'disabled' : ''}`}
+                            >
+                                Next &raquo;
+                            </Link>
+                        </div>
+                    </div>
                 </section>
             </div>
         </div>

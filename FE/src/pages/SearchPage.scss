@@ -7,7 +7,6 @@
     background-color: #f5f5f5;
     min-height: 100vh;
     .container {
-        // Đảm bảo content không bị dính sát lề
         max-width: 1200px;
         margin: 0 auto;
         padding: 0 16px;
@@ -22,14 +21,12 @@
     margin-bottom: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
-    // Flexbox để dàn hàng ngang
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap; // Cho phép xuống dòng trên mobile
+    flex-wrap: wrap;
     gap: 16px;
 
-    // Cụm bên trái: Label "Bộ lọc" + Các nút
     .filter-bar-left {
         display: flex;
         align-items: center;
@@ -45,7 +42,6 @@
             gap: 6px;
         }
 
-        // Style cho các nút lọc (Dropdown triggers)
         .ant-btn {
             border-radius: 6px;
             background-color: #f9f9f9;
@@ -58,12 +54,11 @@
             height: 36px;
 
             &:hover {
-                background-color: #e6f7ff; // Màu xanh nhạt khi hover
+                background-color: #e6f7ff; 
                 color: #1890ff;
                 border-color: #1890ff;
             }
 
-            // Trạng thái khi đang có filter được chọn
             &.active-filter-btn {
                 background-color: #e6f7ff;
                 color: #1890ff;
@@ -73,7 +68,6 @@
         }
     }
 
-    // Cụm bên phải: Sắp xếp
     .filter-bar-right {
         display: flex;
         align-items: center;
@@ -84,7 +78,6 @@
             font-size: 14px;
         }
 
-        // Tùy chỉnh Antd Select để nhìn sạch sẽ hơn
         .ant-select-selector {
             background-color: transparent !important;
             border: none !important;
@@ -126,7 +119,6 @@
         grid-template-columns: repeat(4, 1fr); // Mặc định 4 cột
         gap: 20px;
 
-        // Responsive (Copy logic cũ của bạn và tinh chỉnh)
         @media (max-width: 1200px) {
             grid-template-columns: repeat(3, 1fr);
         }
@@ -143,18 +135,15 @@
 }
 
 // --- POPOVER CONTENT (POPUP SỔ XUỐNG) ---
-// Lưu ý: Class này nằm ngoài .search-page vì Popover render ở root body
 .filter-popup-content {
     width: 280px;
     padding-top: 8px;
 
-    // Popup giá cần rộng hơn chút
     &.price-popup {
         width: 340px;
         padding: 12px;
     }
 
-    // Vùng cuộn cho danh sách checkbox dài
     .checkbox-group-scroll {
         max-height: 240px;
         overflow-y: auto;
@@ -174,7 +163,6 @@
         }
     }
 
-    // Input nhập giá
     .price-inputs {
         display: flex;
         align-items: center;
@@ -191,7 +179,6 @@
         }
     }
 
-    // Footer của popup (Nút Áp dụng / Bỏ chọn)
     .filter-footer {
         display: flex;
         justify-content: space-between;
@@ -211,11 +198,9 @@
 
         .filter-bar-left {
             width: 100%;
-            overflow-x: auto; // Cho phép trượt ngang nếu nhiều nút
+            overflow-x: auto;
             padding-bottom: 4px;
-            flex-wrap: nowrap; // Không xuống dòng các nút lọc để trượt ngang
-
-            // Ẩn thanh scrollbar cho gọn
+            flex-wrap: nowrap;
             &::-webkit-scrollbar {
                 display: none;
             }

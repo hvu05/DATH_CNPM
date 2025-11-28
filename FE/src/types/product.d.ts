@@ -1,29 +1,74 @@
 // FE/src/types/product.d.ts
 
-// 1. Cấu trúc dữ liệu gốc từ Backend (Prisma)
+// Định nghĩa Interface cho Variant
+export interface BackendVariant {
+    id: number;
+    product_id: number;
+    color: string;
+    storage: string;
+    price: number;
+    quantity: number;
+    import_price?: number;
+}
+
+// Định nghĩa Interface cho Image
+export interface BackendImage {
+    product_id?: number;
+    image_url: string;
+    image_public_id?: string;
+    is_thumbnail: boolean;
+}
+
+// 1. Cấu trúc dữ liệu Review từ Backend
+export interface BackendReview {
+    id: number;
+    comment: string;
+    vote: number;
+    user_id: string;
+    product_id: number;
+    create_at?: string;
+    user?: {
+        full_name: string;
+        avatar: string;
+    };
+    children_reviews?: BackendReview[]; 
+}
+
+export interface ReviewResponse {
+    reviews: BackendReview[];
+    total: number;
+    page: number;
+    limit: number;
+}
+
+// 2. Cấu trúc dữ liệu Product
 export interface BackendProduct {
     id: number;
     name: string;
     description: string;
+    quantity: number;
     brand_id?: number;
     category_id?: number;
+    is_active?: boolean;
     brand?: { id: number; name: string };
     category?: { id: number; name: string };
-    // Relation
-    product_image?: { id: number; image_url: string; is_thumbnail: boolean }[];
-    product_variants?: { id: number; price: number; color?: string; storage?: string; quantity: number }[];
-    product_specs?: { id: number; spec_name: string; spec_value: string }[];
-    reviews?: any[];
+    product_image?: BackendImage[];
+    product_variants?: BackendVariant[];
+    reviews?: any[]; 
+    rate?: { avg: number; count: number };
 }
 
-// 2. Cấu trúc dữ liệu đã được làm phẳng để dùng cho UI (Giống MockData cũ)
+// 3. Cấu trúc dữ liệu UI Product
 export interface Product {
     id: number;
     name: string;
     description?: string;
-    price: number;      // Đã tính toán từ variant thấp nhất
-    imageUrl: string;   // Đã lấy từ ảnh thumbnail
+    price: number;      
+    imageUrl: string;   
     brand?: string;
     category?: string;
-    originalData?: BackendProduct; // Giữ lại data gốc nếu cần xử lý sâu hơn
+    rating?: number;    
+    originalData?: BackendProduct; 
+    originalVariants?: BackendVariant[];
+    originalImages?: BackendImage[];
 }

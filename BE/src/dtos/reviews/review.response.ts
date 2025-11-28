@@ -7,6 +7,12 @@
 // }
 import z from 'zod';
 
+const UserShortSchema = z.object({
+  id: z.string(),
+  full_name: z.string(),
+  avatar: z.string().nullable().optional(),
+});
+
 export const ReviewResponseSchema: z.ZodType<any> = z
   .lazy(() =>
     z.object({
@@ -15,6 +21,8 @@ export const ReviewResponseSchema: z.ZodType<any> = z
       vote: z.number(),
       user_id: z.string(),
       product_id: z.number(),
+      create_at: z.date().optional(),
+      user: UserShortSchema.optional(), 
       children_reviews: z.array(ReviewResponseSchema).optional(),
     }),
   )

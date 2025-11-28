@@ -2,6 +2,7 @@ import { prisma } from "../../config/prisma.config";
 import { AppError, ErrorCode } from "../../exeptions";
 import * as orderDto from "../../dtos/orders";
 import { PaymentMethod, PaymentStatus } from "../../dtos/payment";
+import { InventoryType } from "../../dtos/inventory/enum";
 
 const updateHandler = async (
   orderId: string,
@@ -159,14 +160,30 @@ export const cancel = async (orderId: string, userId?: string) => {
  * @returns 
  */
 export const deliver = async (orderId: string) => {
-  const order = await prisma.order.findFirst({
+  const order = await prisma.order.findUnique({
     where: {
       id: orderId,
     },
+    include: {
+      order_items: {
+        include: {
+          variant: true,
+        },
+      },
+    }
   });
   if (!order) {
     throw new AppError(ErrorCode.NOT_FOUND, 'Không tìm thấy Order');
   }
+  await prisma.inventoryLog.createMany({
+    data: order.order_items.map((item) => ({
+      product_id: item.variant.product_id,
+      product_variant_id: item.variant.id,
+      quantity: item.quantity,
+      type: InventoryType.OUT,
+      reason: `Xuất hàng cho đơn hàng ${orderId}`,
+    })),
+  }) 
   if (order.status !== orderDto.OrderStatus.PROCESSING) {
     throw new AppError(ErrorCode.BAD_REQUEST, 'Trang thai khong hop le');
   }

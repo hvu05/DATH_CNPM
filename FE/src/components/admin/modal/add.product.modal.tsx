@@ -148,6 +148,26 @@ export const ProductFormModal = (props: IProductFormModalProps) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isModalOpen]);
 
+    // Re-compute mappings when options change (after adding new category/brand/series)
+    useEffect(() => {
+        const categoryId = form.getFieldValue('category_id');
+        const brandId = form.getFieldValue('brand_id');
+
+        if (categoryId) {
+            const newMappingBrands = brand_options
+                .filter(b => b.category_id == categoryId)
+                .map(b => ({ label: b.name, value: b.id.toString() }));
+            setMappingBrands(newMappingBrands);
+        }
+
+        if (brandId) {
+            const newMappingSeries = serie_options
+                .filter(s => s.brand_id == brandId)
+                .map(s => ({ label: s.name, value: s.id.toString() }));
+            setMappingSeries(newMappingSeries);
+        }
+    }, [brand_options, serie_options, form]);
+
     // Reset form when modal closes
     const handleClose = () => {
         form.resetFields();

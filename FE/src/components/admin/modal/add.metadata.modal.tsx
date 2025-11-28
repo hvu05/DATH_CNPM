@@ -99,8 +99,15 @@ export const AddMetadataModal = ({
                         </Form.Item>
                         <Form.Item name="parent_id" label="Danh mục cha (tùy chọn)">
                             <Select
+                                showSearch
                                 placeholder="Chọn danh mục cha"
                                 allowClear
+                                optionFilterProp="label"
+                                filterOption={(input, option) =>
+                                    (option?.label ?? '')
+                                        .toLowerCase()
+                                        .includes(input.toLowerCase())
+                                }
                                 options={categories}
                             />
                         </Form.Item>
@@ -122,7 +129,17 @@ export const AddMetadataModal = ({
                             label="Danh mục"
                             rules={[{ required: true, message: 'Vui lòng chọn danh mục' }]}
                         >
-                            <Select placeholder="Chọn danh mục" options={categories} />
+                            <Select
+                                showSearch
+                                placeholder="Chọn danh mục"
+                                optionFilterProp="label"
+                                filterOption={(input, option) =>
+                                    (option?.label ?? '')
+                                        .toLowerCase()
+                                        .includes(input.toLowerCase())
+                                }
+                                options={categories}
+                            />
                         </Form.Item>
                         <Form.Item name="description" label="Mô tả">
                             <Input.TextArea rows={3} placeholder="Mô tả về thương hiệu..." />
@@ -146,7 +163,14 @@ export const AddMetadataModal = ({
                             rules={[{ required: true, message: 'Vui lòng chọn thương hiệu' }]}
                         >
                             <Select
+                                showSearch
                                 placeholder="Chọn thương hiệu"
+                                optionFilterProp="label"
+                                filterOption={(input, option) =>
+                                    (option?.label ?? '')
+                                        .toLowerCase()
+                                        .includes(input.toLowerCase())
+                                }
                                 options={brands.map(b => ({
                                     value: b.id.toString(),
                                     label: b.name,

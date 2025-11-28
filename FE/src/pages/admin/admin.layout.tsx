@@ -51,14 +51,14 @@ export const AdminLayout = () => {
         { key: 'dashboard', icon: <PieChartOutlined />, label: 'Dashboard' },
         { key: 'revenue', icon: <LineChartOutlined />, label: 'Doanh thu' },
         { key: 'users', icon: <UserOutlined />, label: 'Khách hàng' },
-        { key: 'products', icon: <ShopOutlined />, label: 'Sản phẩm' },
+        { key: 'inventory-static', icon: <ShopOutlined />, label: 'Sản phẩm' },
         {
             key: 'inventory',
             icon: <BankOutlined />,
             label: 'Kho hàng',
             children: [
                 {
-                    key: 'inventory-static',
+                    key: 'products',
                     label: 'Quản lí kho hàng',
                     icon: <StockOutlined />,
                 },

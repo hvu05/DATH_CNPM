@@ -7,6 +7,7 @@ import {
     BoxPlotOutlined,
     TagOutlined,
     PlusOutlined,
+    HddOutlined,
 } from '@ant-design/icons';
 import {
     Card,
@@ -49,19 +50,6 @@ export interface IProductStatics {
     totalRevenue: number;
 }
 
-// export const PRODUCT_STATUS = {
-//     ACTIVE: { color: 'success', text: 'Đang bán' },
-//     INACTIVE: { color: 'error', text: 'Ngừng bán' }
-// } as const;
-
-// export const PRODUCT_CATEGORIES = {
-//     LAPTOP: { color: 'blue', text: 'Laptop' },
-//     PHONE: { color: 'green', text: 'Phone' },
-//     DESKTOP: { color: 'purple', text: 'Desktop' },
-//     TABLET: { color: 'orange', text: 'Tablet' },
-//     ACCESSORIES: { color: 'pink', text: 'Accessories' }
-// } as const;
-
 export const ProductPage = () => {
     const {
         dataTable,
@@ -80,6 +68,7 @@ export const ProductPage = () => {
         brandsList,
         series,
     } = useProductsPage();
+
     const createTableColumns = (
         onEdit: (record: IProduct) => void
     ): TableProps<IProduct>['columns'] => [
@@ -123,34 +112,9 @@ export const ProductPage = () => {
             width: 120,
             align: 'center',
             render: (_, record) => {
-                // const categoryConfig = PRODUCT_CATEGORIES[record.category.toUpperCase() as keyof typeof PRODUCT_CATEGORIES];
-                // return (
-                //     <Tag color={categoryConfig.color} className="font-medium">
-                //         {categoryConfig.text}
-                //     </Tag>
-                // );
                 return <span>{record.category.name}</span>;
             },
-            // filters: Object.values(PRODUCT_CATEGORIES).map(category => ({
-            //     text: <Tag color={category.color}>{category.text}</Tag>,
-            //     value: category.text.toLowerCase(),
-            // })),
-            // onFilter: (value, record) => record.category === value,
         },
-        // {
-        //     title: 'Giá',
-        //     dataIndex: 'price',
-        //     key: 'price',
-        //     width: 120,
-        //     align: 'right',
-        //     render: (_, record) => (
-        //         <span className="font-semibold text-green-600">
-        //             {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(record.price)}
-        //         </span>
-        //     ),
-        //     sorter: true,
-        //     sortDirections: ['ascend', 'descend']
-        // },
         {
             title: 'Số lượng',
             dataIndex: 'quantity',
@@ -165,45 +129,14 @@ export const ProductPage = () => {
                 </span>
             ),
         },
-        // {
-        //     title: 'Đã bán',
-        //     dataIndex: 'sold',
-        //     key: 'sold',
-        //     width: 100,
-        //     align: 'center',
-        //     sorter: true,
-        //     sortDirections: ['ascend', 'descend'],
-        //     render: (sold) => (
-        //         <span className="font-medium text-blue-600">{sold}</span>
-        //     ),
-        // },
         {
             title: 'Trạng thái',
             dataIndex: 'status',
             width: 120,
             align: 'center',
             render: (_, record) => {
-                // const status = record.is_active === true ? PRODUCT_STATUS.ACTIVE : PRODUCT_STATUS.INACTIVE;
-                // return (
-                //     <Tag
-                //         color={status.color}
-                //         className="font-medium"
-                //     >
-                //         {status.text}
-                //     </Tag>
-                // );
                 return <span>{record.is_active === true ? 'Đang bán' : 'Ngừng bán'}</span>;
             },
-            // filters: [
-            //     {
-            //         text: <Tag color={PRODUCT_STATUS.ACTIVE.color}>{PRODUCT_STATUS.ACTIVE.text}</Tag>,
-            //         value: 'active',
-            //     },
-            //     {
-            //         text: <Tag color={PRODUCT_STATUS.INACTIVE.color}>{PRODUCT_STATUS.INACTIVE.text}</Tag>,
-            //         value: 'inactive',
-            //     }
-            // ],
         },
         {
             title: 'Ngày tạo',
@@ -246,17 +179,15 @@ export const ProductPage = () => {
                             type="text"
                             icon={<DeleteOutlined />}
                             className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                            // onClick={() => handleDelete(record)} // Add delete handler if needed
                         />
                     </Tooltip>
                 </Space>
             ),
         },
     ];
-    // const { totalProducts, activeProducts, totalSold, totalRevenue } = statistics;
+
     const columns = createTableColumns(handleEditProduct);
 
-    console.log({ categoriesList });
     return (
         <>
             <div className="space-y-6">
@@ -265,64 +196,19 @@ export const ProductPage = () => {
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <div className="bg-blue-100 p-3 rounded-full">
-                                <ShoppingCartOutlined className="text-2xl text-blue-600" />
+                                <HddOutlined className="text-2xl text-blue-600" />
                             </div>
                             <div>
                                 <h1 className="text-3xl font-bold text-gray-900">
-                                    Quản lý sản phẩm
+                                    Quản lí kho hàng
                                 </h1>
                                 <p className="text-gray-600 mt-1">
-                                    Quản lý thông tin và trạng thái sản phẩm
+                                    Nhập sản phẩm mới tại đây tại đây
                                 </p>
                             </div>
                         </div>
                     </div>
                 </div>
-                {/* Statistics Cards */}
-                {/* <Row gutter={[16, 16]}>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card className="text-center shadow-sm border-0">
-                        <Statistic
-                            title={<span className="text-gray-600 font-medium">Tổng sản phẩm</span>}
-                            value={totalProducts}
-                            prefix={<BoxPlotOutlined className="text-blue-500" />}
-                            valueStyle={{ color: '#3B82F6', fontSize: '2rem', fontWeight: 'bold' }}
-                        />
-                    </Card>
-                </Col>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card className="text-center shadow-sm border-0">
-                        <Statistic
-                            title={<span className="text-gray-600 font-medium">Đang bán</span>}
-                            value={activeProducts}
-                            prefix={<TagOutlined className="text-green-500" />}
-                            valueStyle={{ color: '#10B981', fontSize: '2rem', fontWeight: 'bold' }}
-                        />
-                    </Card>
-                </Col>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card className="text-center shadow-sm border-0">
-                        <Statistic
-                            title={<span className="text-gray-600 font-medium">Đã bán</span>}
-                            value={totalSold}
-                            prefix={<ShoppingCartOutlined className="text-orange-500" />}
-                            valueStyle={{ color: '#F97316', fontSize: '2rem', fontWeight: 'bold' }}
-                        />
-                    </Card>
-                </Col>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card className="text-center shadow-sm border-0">
-                        <Statistic
-                            title={<span className="text-gray-600 font-medium">Doanh thu</span>}
-                            value={totalRevenue}
-                            prefix="₫"
-                            valueStyle={{ color: '#10B981', fontSize: '2rem', fontWeight: 'bold' }}
-                            formatter={(value) => new Intl.NumberFormat('vi-VN').format(Number(value))}
-                        />
-                    </Card>
-                </Col>
-            </Row> */}
-
                 {/* Main Content Card */}
                 <Card
                     className="shadow-lg border-0"
@@ -397,6 +283,16 @@ export const ProductPage = () => {
                     />
                 </Card>
             </div>
+
+            {/* Add Product Modal */}
+            <AddProductModal
+                isModalOpen={openAddModal}
+                setIsOpenModal={setIsOpenAddModal}
+                brand_options={brandsList}
+                category_options={categoriesList}
+                serie_options={series}
+                onSuccess={refreshProducts}
+            />
         </>
     );
 };

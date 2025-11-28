@@ -1,24 +1,8 @@
-import { postCreateProduct, type IBrand } from '@/services/admin/products/admin.product.api';
-import {
-    Col,
-    Form,
-    Input,
-    InputNumber,
-    Modal,
-    Row,
-    Select,
-    type FormProps,
-    type UploadFile,
-} from 'antd';
-import TextArea from 'antd/es/input/TextArea';
+import { createProductFullAPI, type IBrand } from '@/services/admin/products/admin.product.api';
+import { App, Form, Modal, Tabs, type FormProps, type UploadFile } from 'antd';
 import { useState } from 'react';
-import { UploadImage } from '@/components/admin/upload.img';
-import FormItem from 'antd/es/form/FormItem';
-import { uploadMultipleImgAPI } from '@/services/global';
+import { AddProductTabItems } from './add.product.tabItem';
 import type { RcFile } from 'antd/es/upload';
-
-const MAX_THUMBNAILS = 1;
-const MAX_SLIDERS = 5;
 
 interface IProps {
     isModalOpen: boolean;
@@ -26,247 +10,205 @@ interface IProps {
     brand_options: IBrand[];
     category_options: { label: string; value: string }[];
     serie_options: { id: number; name: string; brand_id: number }[];
-}
-
-interface IAddProduct {
-    name: string;
-    description: string;
-    quantity: number;
-    brand_id: number;
-    category_id: number;
-    is_active: string;
-    series_id: number;
+    onSuccess?: () => void;
 }
 
 export const AddProductModal = (props: IProps) => {
-    const { isModalOpen, setIsOpenModal, brand_options, category_options, serie_options } = props;
+    const {
+        isModalOpen,
+        setIsOpenModal,
+        brand_options,
+        category_options,
+        serie_options,
+        onSuccess,
+    } = props;
+    const { message, notification } = App.useApp();
     const [loading, setLoading] = useState<boolean>(false);
+    const [activeTab, setActiveTab] = useState<string>('basic');
     const [mappingSeries, setMappingSeries] = useState<{ label: string; value: string }[]>([]);
     const [mappingBrands, setMappingBrands] = useState<{ label: string; value: string }[]>([]);
     const [thumbnailList, setThumbnailList] = useState<UploadFile[]>([]);
     const [sliderList, setSliderList] = useState<UploadFile[]>([]);
-    const [form] = Form.useForm();
+    const [form] = Form.useForm<IAddProductFormValues>();
 
-    const onFinish: FormProps<IAddProduct>['onFinish'] = async values => {
-        console.log(values);
-        const files = [...thumbnailList, ...sliderList].map(item => item.originFileObj as RcFile);
-        setLoading(true);
-        if (files) {
-            const uploadResults = await uploadMultipleImgAPI(files, 'product');
-        }
-        try {
-            setLoading(true);
-            // await postCreateProduct({
-            //     name: values.name,
-            //     brand_id: values.brand_id,
-            //     category_id: values.category_id,
-            //     description: values.description,
-            //     is_active: values.is_active == 'true' ? true : false,
-            //     quantity: values.quantity,
-            //     series_id: values.series_id,
-            // })
-        } catch (error) {
-            console.error(error);
-        }
-        setLoading(false);
+    // Reset form when modal closes
+    const handleClose = () => {
+        form.resetFields();
+        setThumbnailList([]);
+        setSliderList([]);
+        setMappingSeries([]);
+        setMappingBrands([]);
+        setActiveTab('basic');
+        setIsOpenModal(false);
     };
 
-    const onFinishFailed: FormProps<IAddProduct>['onFinishFailed'] = errorInfo => {
+    // Calculate total quantity from variants
+    const calculateTotalQuantity = (variants: IProductVariant[] = []) => {
+        return variants.reduce((sum, v) => sum + (v?.quantity || 0), 0);
+    };
+
+    const onFinish: FormProps<IAddProductFormValues>['onFinish'] = async values => {
+        // Validate images
+        if (thumbnailList.length === 0) {
+            message.error('Cần ít nhất 1 ảnh thumbnail');
+            setActiveTab('images');
+            return;
+        }
+
+        // Validate variants
+        if (!values.variants || values.variants.length === 0) {
+            message.error('Cần ít nhất 1 biến thể sản phẩm');
+            setActiveTab('variants');
+            return;
+        }
+
+        setLoading(true);
+        try {
+            // Collect all image files
+            const allFiles: File[] = [];
+
+            // Thumbnail first (will be marked as is_thumbnail in BE)
+            thumbnailList.forEach(item => {
+                if (item.originFileObj) {
+                    allFiles.push(item.originFileObj as RcFile);
+                }
+            });
+
+            // Then sliders
+            sliderList.forEach(item => {
+                if (item.originFileObj) {
+                    allFiles.push(item.originFileObj as RcFile);
+                }
+            });
+
+            // Prepare request data
+            const requestData = {
+                name: values.name,
+                description: values.description,
+                brand_id: Number(values.brand_id),
+                series_id: Number(values.series_id),
+                category_id: Number(values.category_id),
+                is_active: values.is_active,
+                variants: values.variants,
+                specifications: values.specifications || [],
+                images: allFiles,
+            };
+
+            // Call API
+            const result = await createProductFullAPI(requestData);
+
+            if (result.success) {
+                notification.success({
+                    message: 'Thành công',
+                    description: `Sản phẩm "${values.name}" đã được tạo thành công!`,
+                });
+                handleClose();
+                onSuccess?.();
+            } else {
+                notification.error({
+                    message: 'Lỗi',
+                    description: result.error || 'Không thể tạo sản phẩm',
+                });
+            }
+        } catch (error: any) {
+            console.error(error);
+            notification.error({
+                message: 'Lỗi',
+                description: error?.response?.data?.error || 'Có lỗi xảy ra khi tạo sản phẩm',
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const onFinishFailed: FormProps<IAddProductFormValues>['onFinishFailed'] = errorInfo => {
         console.log('Failed:', errorInfo);
+        // Find which tab has error and switch to it
+        const errorFields = errorInfo.errorFields;
+        if (errorFields.length > 0) {
+            const firstErrorField = errorFields[0].name[0];
+            if (
+                firstErrorField === 'name' ||
+                firstErrorField === 'description' ||
+                firstErrorField === 'category_id' ||
+                firstErrorField === 'brand_id' ||
+                firstErrorField === 'series_id' ||
+                firstErrorField === 'is_active'
+            ) {
+                setActiveTab('basic');
+            } else if (firstErrorField === 'variants') {
+                setActiveTab('variants');
+            } else if (firstErrorField === 'specifications') {
+                setActiveTab('specs');
+            }
+        }
+        message.error('Vui lòng kiểm tra lại thông tin');
     };
 
     const onSubmit = () => {
         form.submit();
     };
 
+    // Watch variants to show total quantity
+    const variants = Form.useWatch('variants', form);
+    const totalQuantity = calculateTotalQuantity(variants);
+
     return (
-        <>
-            <Modal
-                title="Thêm mới sản phẩm"
-                closable={{ 'aria-label': 'Custom Close Button' }}
-                open={isModalOpen}
-                onOk={onSubmit}
-                onCancel={() => setIsOpenModal(false)}
-                width={800}
-                okButtonProps={{
-                    loading: loading,
+        <Modal
+            title={<span className="text-xl font-semibold">Thêm mới sản phẩm</span>}
+            open={isModalOpen}
+            onOk={onSubmit}
+            onCancel={handleClose}
+            width={900}
+            okText="Tạo sản phẩm"
+            cancelText="Hủy"
+            okButtonProps={{
+                loading: loading,
+            }}
+            destroyOnHidden
+            maskClosable={false}
+        >
+            <Form<IAddProductFormValues>
+                form={form}
+                layout="vertical"
+                onFinish={onFinish}
+                onFinishFailed={onFinishFailed}
+                initialValues={{
+                    is_active: true,
+                    variants: [
+                        {
+                            color: '',
+                            storage: '',
+                            price: 0,
+                            import_price: 0,
+                            quantity: 0,
+                        },
+                    ],
+                    specifications: [],
                 }}
             >
-                <Form<IAddProduct>
-                    form={form}
-                    layout="vertical"
-                    onFinish={onFinish}
-                    onFinishFailed={onFinishFailed}
-                >
-                    <Row justify={'space-between'}>
-                        <Col span={24}>
-                            <Form.Item<IAddProduct>
-                                name="name"
-                                label="Tên sản phẩm"
-                                rules={[{ required: true, message: 'Bạn phải nhập tên sản phẩm' }]}
-                            >
-                                <Input />
-                            </Form.Item>
-                        </Col>
-                        <Col span={24}>
-                            <Form.Item<IAddProduct>
-                                name="description"
-                                label="Mô tả sản phẩm"
-                                initialValue={''}
-                                rules={[
-                                    {
-                                        required: true,
-                                    },
-                                ]}
-                            >
-                                <TextArea />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item<IAddProduct>
-                                name="quantity"
-                                label="Số lượng sản phẩm"
-                                rules={[
-                                    { required: true, message: 'Bạn phải nhập số lượng sản phẩm' },
-                                ]}
-                            >
-                                <InputNumber min={0} style={{ width: '100%' }} />
-                            </Form.Item>
-                        </Col>
-                        <Col span={10}>
-                            <Form.Item<IAddProduct>
-                                name="category_id"
-                                label="category_id"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'Vui lòng chọn loại sản phẩm',
-                                    },
-                                ]}
-                            >
-                                <Select
-                                    showSearch
-                                    style={{ width: '100%' }}
-                                    placeholder="Search to Select"
-                                    optionFilterProp="label"
-                                    filterSort={(optionA, optionB) =>
-                                        (optionA?.label ?? '')
-                                            .toLowerCase()
-                                            .localeCompare((optionB?.label ?? '').toLowerCase())
-                                    }
-                                    options={category_options}
-                                    onChange={value =>
-                                        setMappingBrands(
-                                            brand_options
-                                                .filter(item => item.category_id == value)
-                                                .map(item => ({
-                                                    label: item.name,
-                                                    value: item.id.toString(),
-                                                }))
-                                        )
-                                    }
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item<IAddProduct>
-                                name="brand_id"
-                                label="brand_id"
-                                rules={[
-                                    {
-                                        required: true,
-                                    },
-                                ]}
-                            >
-                                <Select
-                                    showSearch
-                                    style={{ width: '100%' }}
-                                    placeholder="Search to Select"
-                                    optionFilterProp="label"
-                                    filterSort={(optionA, optionB) =>
-                                        (optionA?.label ?? '')
-                                            .toLowerCase()
-                                            .localeCompare((optionB?.label ?? '').toLowerCase())
-                                    }
-                                    onChange={value =>
-                                        setMappingSeries(
-                                            serie_options
-                                                .filter(item => item.brand_id == value)
-                                                .map(item => ({
-                                                    label: item.name,
-                                                    value: item.id.toString(),
-                                                }))
-                                        )
-                                    }
-                                    options={mappingBrands}
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={10}>
-                            <Form.Item<IAddProduct>
-                                name="series_id"
-                                label="series_id"
-                                rules={[
-                                    {
-                                        required: true,
-                                    },
-                                ]}
-                            >
-                                <Select
-                                    showSearch
-                                    style={{ width: '100%' }}
-                                    placeholder="Search to Select"
-                                    optionFilterProp="label"
-                                    filterSort={(optionA, optionB) =>
-                                        (optionA?.label ?? '')
-                                            .toLowerCase()
-                                            .localeCompare((optionB?.label ?? '').toLowerCase())
-                                    }
-                                    options={mappingSeries}
-                                ></Select>
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item<IAddProduct>
-                                name="is_active"
-                                label="Status"
-                                initialValue={true}
-                                rules={[
-                                    {
-                                        required: true,
-                                    },
-                                ]}
-                            >
-                                <Select
-                                    options={[
-                                        { label: 'Còn bán', value: 'true' },
-                                        { label: 'Ngừng bán', value: 'false' },
-                                    ]}
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={10}></Col>
-                        <Col span={10}>
-                            <FormItem label={'Thumbnail'}>
-                                <UploadImage
-                                    maxImage={MAX_THUMBNAILS}
-                                    fileList={thumbnailList}
-                                    setFileList={setThumbnailList}
-                                />
-                            </FormItem>
-                        </Col>
-                        <Col span={10}>
-                            <FormItem label={'Sliders'}>
-                                <UploadImage
-                                    maxImage={MAX_SLIDERS}
-                                    fileList={sliderList}
-                                    setFileList={setSliderList}
-                                />
-                            </FormItem>
-                        </Col>
-                    </Row>
-                </Form>
-            </Modal>
-        </>
+                <Tabs
+                    activeKey={activeTab}
+                    onChange={setActiveTab}
+                    items={AddProductTabItems({
+                        form,
+                        variants,
+                        totalQuantity,
+                        thumbnailList,
+                        sliderList,
+                        setThumbnailList,
+                        setSliderList,
+                        mappingBrands,
+                        mappingSeries,
+                        setMappingBrands,
+                        setMappingSeries,
+                        brand_options,
+                        category_options,
+                        serie_options,
+                    })}
+                    className="add-product-tabs"
+                />
+            </Form>
+        </Modal>
     );
 };

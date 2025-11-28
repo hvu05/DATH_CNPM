@@ -6,6 +6,10 @@ import {
   productService,
   updateProductStatus as updateProductStatusService,
   ProductFullUpdateRequest,
+  updateProductInfo,
+  updateProductVariants,
+  updateProductSpecs,
+  updateProductImages,
 } from '../../services/product.service';
 
 // Admin Product APIs - Hades
@@ -345,6 +349,181 @@ export const updateProductHandler = async (
       success: true,
       message: 'Product updated successfully',
       data: updatedProduct,
+    });
+  } catch (error: Error | any) {
+    next(error);
+  }
+};
+
+// ==================== UPDATE PRODUCT INFO ====================
+export const updateProductInfoHandler = async (
+  req: Request,
+  res: Response<ApiResponse<any>>,
+  next: NextFunction,
+) => {
+  try {
+    const productId = parseInt(req.params.id, 10);
+    if (isNaN(productId)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid product ID',
+      });
+    }
+
+    const { name, description, brand_id, series_id, category_id, is_active } =
+      req.body;
+
+    const updated = await updateProductInfo(productId, {
+      name,
+      description,
+      brand_id: brand_id ? Number(brand_id) : undefined,
+      series_id: series_id ? Number(series_id) : undefined,
+      category_id: category_id ? Number(category_id) : undefined,
+      is_active,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Product info updated successfully',
+      data: updated,
+    });
+  } catch (error: Error | any) {
+    next(error);
+  }
+};
+
+// ==================== UPDATE PRODUCT VARIANTS ====================
+export const updateProductVariantsHandler = async (
+  req: Request,
+  res: Response<ApiResponse<any>>,
+  next: NextFunction,
+) => {
+  try {
+    const productId = parseInt(req.params.id, 10);
+    if (isNaN(productId)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid product ID',
+      });
+    }
+
+    const { variants } = req.body;
+
+    if (!Array.isArray(variants) || variants.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Variants array is required and must not be empty',
+      });
+    }
+
+    const parsedVariants = variants.map((v: any) => ({
+      id: v.id ? Number(v.id) : undefined,
+      color: v.color,
+      storage: v.storage,
+      price: Number(v.price),
+      import_price: Number(v.import_price),
+      quantity: Number(v.quantity),
+    }));
+
+    const updated = await updateProductVariants(productId, {
+      variants: parsedVariants,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Product variants updated successfully',
+      data: updated,
+    });
+  } catch (error: Error | any) {
+    next(error);
+  }
+};
+
+// ==================== UPDATE PRODUCT SPECS ====================
+export const updateProductSpecsHandler = async (
+  req: Request,
+  res: Response<ApiResponse<any>>,
+  next: NextFunction,
+) => {
+  try {
+    const productId = parseInt(req.params.id, 10);
+    if (isNaN(productId)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid product ID',
+      });
+    }
+
+    const { specifications } = req.body;
+
+    if (!Array.isArray(specifications)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Specifications must be an array',
+      });
+    }
+
+    const parsedSpecs = specifications.map((s: any) => ({
+      name: s.name,
+      value: s.value,
+    }));
+
+    const updated = await updateProductSpecs(productId, {
+      specifications: parsedSpecs,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Product specifications updated successfully',
+      data: updated,
+    });
+  } catch (error: Error | any) {
+    next(error);
+  }
+};
+
+// ==================== UPDATE PRODUCT IMAGES ====================
+export const updateProductImagesHandler = async (
+  req: Request,
+  res: Response<ApiResponse<any>>,
+  next: NextFunction,
+) => {
+  try {
+    const productId = parseInt(req.params.id, 10);
+    if (isNaN(productId)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid product ID',
+      });
+    }
+
+    const { keepImageIds, thumbnailImageId } = req.body;
+
+    // Parse JSON strings if needed
+    const parsedKeepImageIds =
+      typeof keepImageIds === 'string'
+        ? JSON.parse(keepImageIds)
+        : keepImageIds;
+
+    // Process uploaded images
+    const uploadedFiles = req.files as Express.Multer.File[] | undefined;
+    const images = uploadedFiles?.map((file) => ({
+      buffer: file.buffer,
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      size: file.size,
+    }));
+
+    const updated = await updateProductImages(productId, {
+      keepImageIds: parsedKeepImageIds?.map((id: any) => Number(id)),
+      thumbnailImageId: thumbnailImageId ? Number(thumbnailImageId) : undefined,
+      images,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Product images updated successfully',
+      data: updated,
     });
   } catch (error: Error | any) {
     next(error);

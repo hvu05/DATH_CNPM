@@ -24,8 +24,7 @@ import {
     Image,
 } from 'antd';
 import { useWarehouse } from '@/components/admin/hooks/useWarehouse';
-import { AddProductModal } from '@/components/admin/modal/add.product.modal';
-import { EditProductModal } from '@/components/admin/modal/edit.product.modal';
+import { AddProductModal, EditProductModal } from '@/components/admin/modal/add.product.modal';
 import type { IProduct } from '@/types/admin/product';
 import default_product from '@/assets/seller/default_order.webp';
 

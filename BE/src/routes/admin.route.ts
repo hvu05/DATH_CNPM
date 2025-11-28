@@ -76,13 +76,47 @@ router.get(
   productController.getProductDetailHandler,
 );
 
-// PUT to update product with full data (variants, specs, images)
+// PUT to update product with full data (variants, specs, images) - DEPRECATED
 router.put(
   '/products/:id',
   authenticateHandler,
   checkRole(['ADMIN']),
   multerConfig.array('images', 10),
   productController.updateProductHandler,
+);
+
+// ==================== NEW SEPARATE UPDATE APIs ====================
+// PUT to update product basic info only
+router.put(
+  '/products/:id/info',
+  authenticateHandler,
+  checkRole(['ADMIN']),
+  productController.updateProductInfoHandler,
+);
+
+// PUT to update product variants only
+router.put(
+  '/products/:id/variants',
+  authenticateHandler,
+  checkRole(['ADMIN']),
+  productController.updateProductVariantsHandler,
+);
+
+// PUT to update product specifications only
+router.put(
+  '/products/:id/specs',
+  authenticateHandler,
+  checkRole(['ADMIN']),
+  productController.updateProductSpecsHandler,
+);
+
+// PUT to update product images only
+router.put(
+  '/products/:id/images',
+  authenticateHandler,
+  checkRole(['ADMIN']),
+  multerConfig.array('images', 10),
+  productController.updateProductImagesHandler,
 );
 
 // PATCH to update product status (publish/unpublish)

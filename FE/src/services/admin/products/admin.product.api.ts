@@ -184,6 +184,7 @@ export const getProductDetailAPI = async (
 };
 
 // ==================== UPDATE PRODUCT FULL ====================
+// @deprecated - Use separate update APIs instead (updateProductInfoAPI, updateProductVariantsAPI, etc.)
 export const updateProductFullAPI = async (
     productId: string | number,
     data: {
@@ -241,6 +242,105 @@ export const updateProductFullAPI = async (
 
     const result = await axios.put<ApiResponse<IProductDetail>>(
         `${import.meta.env.VITE_BACKEND_URL}/admin/products/${productId}`,
+        formData,
+        {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        }
+    );
+    return result.data;
+};
+
+// ==================== NEW SEPARATE UPDATE APIs ====================
+
+/**
+ * Update product basic info only
+ */
+export const updateProductInfoAPI = async (
+    productId: string | number,
+    data: {
+        name?: string;
+        description?: string;
+        brand_id?: number;
+        series_id?: number;
+        category_id?: number;
+        is_active?: boolean;
+    }
+): Promise<ApiResponse<IProduct>> => {
+    const result = await axios.put<ApiResponse<IProduct>>(
+        `${import.meta.env.VITE_BACKEND_URL}/admin/products/${productId}/info`,
+        data
+    );
+    return result.data;
+};
+
+/**
+ * Update product variants only
+ */
+export const updateProductVariantsAPI = async (
+    productId: string | number,
+    data: {
+        variants: IProductVariant[];
+    }
+): Promise<ApiResponse<IProductVariant[]>> => {
+    const result = await axios.put<ApiResponse<IProductVariant[]>>(
+        `${import.meta.env.VITE_BACKEND_URL}/admin/products/${productId}/variants`,
+        data
+    );
+    return result.data;
+};
+
+/**
+ * Update product specifications only
+ */
+export const updateProductSpecsAPI = async (
+    productId: string | number,
+    data: {
+        specifications: IProductSpec[];
+    }
+): Promise<ApiResponse<IProductSpec[]>> => {
+    const result = await axios.put<ApiResponse<IProductSpec[]>>(
+        `${import.meta.env.VITE_BACKEND_URL}/admin/products/${productId}/specs`,
+        data
+    );
+    return result.data;
+};
+
+/**
+ * Update product images only
+ */
+export const updateProductImagesAPI = async (
+    productId: string | number,
+    data: {
+        keepImageIds?: number[];
+        thumbnailImageId?: number;
+        images?: File[]; // New images to upload
+    }
+): Promise<ApiResponse<any[]>> => {
+    const formData = new FormData();
+
+    // Append keepImageIds as JSON array
+    if (data.keepImageIds && data.keepImageIds.length > 0) {
+        formData.append('keepImageIds', JSON.stringify(data.keepImageIds));
+    } else {
+        formData.append('keepImageIds', JSON.stringify([]));
+    }
+
+    // Append thumbnailImageId
+    if (data.thumbnailImageId) {
+        formData.append('thumbnailImageId', data.thumbnailImageId.toString());
+    }
+
+    // Append new images
+    if (data.images && data.images.length > 0) {
+        data.images.forEach(file => {
+            formData.append('images', file);
+        });
+    }
+
+    const result = await axios.put<ApiResponse<any[]>>(
+        `${import.meta.env.VITE_BACKEND_URL}/admin/products/${productId}/images`,
         formData,
         {
             headers: {

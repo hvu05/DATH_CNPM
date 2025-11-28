@@ -249,38 +249,80 @@ export const productService = {
     }
 
     // === HANDLE VARIANTS ===
-    if (data.variants && data.variants.length > 0) {
-      // Delete all existing variants
-      await prisma.productVariant.deleteMany({
-        where: { product_id: productId },
-      });
+    // Only update variants if explicitly provided and different from existing
+    if (data.variants !== undefined && data.variants.length > 0) {
+      // Get existing variants
+      const existingVariants = existing.product_variants;
 
-      // Create new variants
-      const variantData = data.variants.map((v, idx) => ({
-        id: idx + 1,
-        product_id: productId,
-        color: v.color,
-        storage: v.storage,
-        price: v.price,
-        quantity: v.quantity,
-        import_price: v.import_price,
-      }));
+      // Update existing variants by matching index/id
+      for (let i = 0; i < data.variants.length; i++) {
+        const newVariant = data.variants[i];
+        const existingVariant = existingVariants[i];
 
-      await prisma.productVariant.createMany({
-        data: variantData,
-      });
+        if (existingVariant) {
+          // Update existing variant
+          await prisma.productVariant.update({
+            where: {
+              variant_id: { id: existingVariant.id, product_id: productId },
+            },
+            data: {
+              color: newVariant.color,
+              storage: newVariant.storage,
+              price: newVariant.price,
+              import_price: newVariant.import_price,
+              quantity: newVariant.quantity,
+            },
+          });
 
-      // Create inventory logs for new variants
-      const inventoryData = variantData.map((v) => ({
-        product_id: productId,
-        product_variant_id: v.id,
-        type: InventoryType.IN,
-        quantity: v.quantity,
-        reason: 'Log nhập kho khi cập nhật sản phẩm',
-      }));
-      await prisma.inventoryLog.createMany({
-        data: inventoryData,
-      });
+          // Log quantity change if different
+          if (existingVariant.quantity !== newVariant.quantity) {
+            const diff = newVariant.quantity - existingVariant.quantity;
+            await prisma.inventoryLog.create({
+              data: {
+                product_id: productId,
+                product_variant_id: existingVariant.id,
+                type: diff > 0 ? InventoryType.IN : InventoryType.OUT,
+                quantity: Math.abs(diff),
+                reason: 'Cập nhật số lượng khi chỉnh sửa sản phẩm',
+              },
+            });
+          }
+        } else {
+          // Create new variant if more variants than existing
+          const maxId = await prisma.productVariant.findFirst({
+            where: { product_id: productId },
+            orderBy: { id: 'desc' },
+            select: { id: true },
+          });
+          const newId = (maxId?.id ?? 0) + 1;
+
+          await prisma.productVariant.create({
+            data: {
+              id: newId,
+              product_id: productId,
+              color: newVariant.color,
+              storage: newVariant.storage,
+              price: newVariant.price,
+              import_price: newVariant.import_price,
+              quantity: newVariant.quantity,
+            },
+          });
+
+          // Log new variant
+          await prisma.inventoryLog.create({
+            data: {
+              product_id: productId,
+              product_variant_id: newId,
+              type: InventoryType.IN,
+              quantity: newVariant.quantity,
+              reason: 'Thêm biến thể mới khi chỉnh sửa sản phẩm',
+            },
+          });
+        }
+      }
+
+      // Note: We don't delete extra variants to avoid FK violations
+      // If you need to delete, you'd need to handle order_items, cart_items, inventory_logs first
     }
 
     // === HANDLE SPECIFICATIONS ===
@@ -515,4 +557,377 @@ export const updateProductStatus = async (
     data: { is_active: isActive },
   });
   return updatedProduct;
+};
+
+// ==================== NEW SEPARATE UPDATE APIs ====================
+
+// Interface for updateProductInfo
+export interface ProductInfoUpdateRequest {
+  name?: string;
+  description?: string;
+  brand_id?: number;
+  series_id?: number;
+  category_id?: number;
+  is_active?: boolean;
+}
+
+// Interface for updateProductVariants
+export interface ProductVariantsUpdateRequest {
+  variants: {
+    id?: number; // If provided, update existing; otherwise create new
+    color: string;
+    storage: string;
+    price: number;
+    import_price: number;
+    quantity: number;
+  }[];
+}
+
+// Interface for updateProductSpecs
+export interface ProductSpecsUpdateRequest {
+  specifications: {
+    name: string;
+    value: string;
+  }[];
+}
+
+// Interface for updateProductImages
+export interface ProductImagesUpdateRequest {
+  keepImageIds?: number[];
+  thumbnailImageId?: number;
+  images?: {
+    buffer: Buffer;
+    originalname: string;
+    mimetype: string;
+    size: number;
+  }[];
+}
+
+// ------------------- UPDATE PRODUCT INFO -------------------
+export const updateProductInfo = async (
+  id: number | string,
+  data: ProductInfoUpdateRequest,
+) => {
+  const productId = typeof id === 'string' ? parseInt(id) : id;
+
+  // Check if product exists
+  const existing = await prisma.product.findUnique({
+    where: { id: productId },
+  });
+  if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Product not found');
+
+  // Check name conflict
+  if (data.name && data.name !== existing.name) {
+    const nameConflict = await prisma.product.findFirst({
+      where: { name: data.name, id: { not: productId } },
+    });
+    if (nameConflict) {
+      throw new AppError(
+        ErrorCode.CONFLICT,
+        `Product with name "${data.name}" already exists`,
+      );
+    }
+  }
+
+  const updated = await prisma.product.update({
+    where: { id: productId },
+    data: {
+      name: data.name ?? existing.name,
+      description: data.description ?? existing.description,
+      brand_id: data.brand_id ?? existing.brand_id,
+      series_id: data.series_id ?? existing.series_id,
+      category_id: data.category_id ?? existing.category_id,
+      is_active: data.is_active ?? existing.is_active,
+    },
+    include: {
+      brand: true,
+      series: true,
+      category: true,
+    },
+  });
+
+  return updated;
+};
+
+// ------------------- UPDATE PRODUCT VARIANTS -------------------
+export const updateProductVariants = async (
+  id: number | string,
+  data: ProductVariantsUpdateRequest,
+) => {
+  const productId = typeof id === 'string' ? parseInt(id) : id;
+
+  // Check if product exists
+  const existing = await prisma.product.findUnique({
+    where: { id: productId },
+    include: { product_variants: true },
+  });
+  if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Product not found');
+
+  const existingVariants = existing.product_variants;
+  const updatedVariantIds: number[] = [];
+
+  for (let i = 0; i < data.variants.length; i++) {
+    const newVariant = data.variants[i];
+    const existingVariant = existingVariants[i];
+
+    if (existingVariant) {
+      // Update existing variant
+      await prisma.productVariant.update({
+        where: {
+          variant_id: { id: existingVariant.id, product_id: productId },
+        },
+        data: {
+          color: newVariant.color,
+          storage: newVariant.storage,
+          price: newVariant.price,
+          import_price: newVariant.import_price,
+          quantity: newVariant.quantity,
+        },
+      });
+
+      // Log quantity change if different
+      if (existingVariant.quantity !== newVariant.quantity) {
+        const diff = newVariant.quantity - existingVariant.quantity;
+        await prisma.inventoryLog.create({
+          data: {
+            product_id: productId,
+            product_variant_id: existingVariant.id,
+            type: diff > 0 ? InventoryType.IN : InventoryType.OUT,
+            quantity: Math.abs(diff),
+            reason: 'Cập nhật số lượng khi chỉnh sửa phiên bản',
+          },
+        });
+      }
+
+      updatedVariantIds.push(existingVariant.id);
+    } else {
+      // Create new variant
+      const maxId = await prisma.productVariant.findFirst({
+        where: { product_id: productId },
+        orderBy: { id: 'desc' },
+        select: { id: true },
+      });
+      const newId = (maxId?.id ?? 0) + 1;
+
+      await prisma.productVariant.create({
+        data: {
+          id: newId,
+          product_id: productId,
+          color: newVariant.color,
+          storage: newVariant.storage,
+          price: newVariant.price,
+          import_price: newVariant.import_price,
+          quantity: newVariant.quantity,
+        },
+      });
+
+      // Log new variant
+      await prisma.inventoryLog.create({
+        data: {
+          product_id: productId,
+          product_variant_id: newId,
+          type: InventoryType.IN,
+          quantity: newVariant.quantity,
+          reason: 'Thêm phiên bản mới',
+        },
+      });
+
+      updatedVariantIds.push(newId);
+    }
+  }
+
+  // Delete variants that are no longer in the list
+  const variantsToDelete = existingVariants.filter(
+    (ev) => !updatedVariantIds.includes(ev.id),
+  );
+
+  for (const variant of variantsToDelete) {
+    // Check if variant has orders - cannot delete if it has orders
+    const hasOrders = await prisma.orderItem.findFirst({
+      where: {
+        product_id: productId,
+        product_variant_id: variant.id,
+      },
+    });
+
+    if (hasOrders) {
+      // Cannot delete - variant has orders, skip it but keep in database
+      // Optionally could set quantity to 0 or mark as inactive
+      continue;
+    }
+
+    // Delete cart items first
+    await prisma.cartItem.deleteMany({
+      where: {
+        product_id: productId,
+        product_variant_id: variant.id,
+      },
+    });
+
+    // Delete inventory logs
+    await prisma.inventoryLog.deleteMany({
+      where: {
+        product_id: productId,
+        product_variant_id: variant.id,
+      },
+    });
+
+    // Delete the variant
+    await prisma.productVariant.delete({
+      where: {
+        variant_id: { id: variant.id, product_id: productId },
+      },
+    });
+  }
+
+  // Recalculate total quantity
+  const totalQuantity = data.variants.reduce((sum, v) => sum + v.quantity, 0);
+  await prisma.product.update({
+    where: { id: productId },
+    data: { quantity: totalQuantity },
+  });
+
+  // Return updated variants
+  const updatedVariants = await prisma.productVariant.findMany({
+    where: { product_id: productId },
+  });
+
+  return updatedVariants;
+};
+
+// ------------------- UPDATE PRODUCT SPECS -------------------
+export const updateProductSpecs = async (
+  id: number | string,
+  data: ProductSpecsUpdateRequest,
+) => {
+  const productId = typeof id === 'string' ? parseInt(id) : id;
+
+  // Check if product exists
+  const existing = await prisma.product.findUnique({
+    where: { id: productId },
+  });
+  if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Product not found');
+
+  // Delete all existing specs
+  await prisma.productSpec.deleteMany({
+    where: { product_id: productId },
+  });
+
+  // Create new specs if any
+  if (data.specifications.length > 0) {
+    const specData = data.specifications.map((spec, idx) => ({
+      id: idx + 1,
+      product_id: productId,
+      spec_name: spec.name,
+      spec_value: spec.value,
+    }));
+
+    await prisma.productSpec.createMany({
+      data: specData,
+    });
+  }
+
+  // Return updated specs
+  const updatedSpecs = await prisma.productSpec.findMany({
+    where: { product_id: productId },
+  });
+
+  return updatedSpecs;
+};
+
+// ------------------- UPDATE PRODUCT IMAGES -------------------
+export const updateProductImages = async (
+  id: number | string,
+  data: ProductImagesUpdateRequest,
+) => {
+  const productId = typeof id === 'string' ? parseInt(id) : id;
+
+  // Check if product exists
+  const existing = await prisma.product.findUnique({
+    where: { id: productId },
+    include: { product_image: true },
+  });
+  if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Product not found');
+
+  const keepImageIds = data.keepImageIds || [];
+  const imagesToDelete = existing.product_image.filter(
+    (img) => !keepImageIds.includes(img.id),
+  );
+
+  // Delete removed images from Cloudinary
+  for (const img of imagesToDelete) {
+    try {
+      await deleteFile(img.image_url);
+    } catch (error) {
+      console.warn(`Failed to delete image from Cloudinary: ${img.image_url}`);
+    }
+  }
+
+  // Delete removed images from DB
+  if (imagesToDelete.length > 0) {
+    await prisma.productImage.deleteMany({
+      where: {
+        product_id: productId,
+        id: { in: imagesToDelete.map((img) => img.id) },
+      },
+    });
+  }
+
+  // Reset all thumbnails
+  await prisma.productImage.updateMany({
+    where: { product_id: productId },
+    data: { is_thumbnail: false },
+  });
+
+  // Set thumbnail from existing images
+  if (data.thumbnailImageId && keepImageIds.includes(data.thumbnailImageId)) {
+    await prisma.productImage.update({
+      where: {
+        image_id: { id: data.thumbnailImageId, product_id: productId },
+      },
+      data: { is_thumbnail: true },
+    });
+  }
+
+  // Upload new images
+  if (data.images && data.images.length > 0) {
+    const maxImageId = await prisma.productImage.findFirst({
+      where: { product_id: productId },
+      orderBy: { id: 'desc' },
+      select: { id: true },
+    });
+    let nextId = (maxImageId?.id ?? 0) + 1;
+
+    const hasExistingThumbnail =
+      data.thumbnailImageId && keepImageIds.includes(data.thumbnailImageId);
+
+    const newImageData = await Promise.all(
+      data.images.map(async (image, index) => {
+        const { url, public_id } = await uploadFile(
+          image.buffer,
+          `${image.originalname}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+          'products',
+        );
+        const imageId = nextId + index;
+        return {
+          id: imageId,
+          product_id: productId,
+          image_url: url,
+          image_public_id: public_id,
+          is_thumbnail: !hasExistingThumbnail && index === 0,
+        };
+      }),
+    );
+
+    await prisma.productImage.createMany({
+      data: newImageData,
+    });
+  }
+
+  // Return updated images
+  const updatedImages = await prisma.productImage.findMany({
+    where: { product_id: productId },
+  });
+
+  return updatedImages;
 };

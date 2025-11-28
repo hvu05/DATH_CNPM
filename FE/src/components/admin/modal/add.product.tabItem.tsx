@@ -9,6 +9,7 @@ import {
     type UploadFile,
     Button,
     Space,
+    Image,
 } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { UploadImage } from '@/components/admin/upload.img';
@@ -20,8 +21,13 @@ import {
     PictureOutlined,
     SettingOutlined,
     PlusOutlined,
+    DeleteOutlined,
+    StarFilled,
+    StarOutlined,
+    SaveOutlined,
+    CheckCircleOutlined,
 } from '@ant-design/icons';
-import type { IAddProductFormValues, IBrand, IProductVariant } from '@/types/admin/product';
+import type { IAddProductFormValues, IBrand, IProductImage } from '@/types/admin/product';
 
 const { Text } = Typography;
 const MAX_THUMBNAILS = 1;
@@ -29,7 +35,6 @@ const MAX_SLIDERS = 5;
 
 interface Props {
     form: FormInstance<IAddProductFormValues>;
-    variants?: IProductVariant[];
     totalQuantity: number;
     thumbnailList: UploadFile[];
     sliderList: UploadFile[];
@@ -46,11 +51,24 @@ interface Props {
     onAddCategory?: () => void;
     onAddBrand?: () => void;
     onAddSeries?: () => void;
+    // Edit mode props
+    isEditMode?: boolean;
+    existingImages?: IProductImage[];
+    keepImageIds?: number[];
+    thumbnailImageId?: number | null;
+    onRemoveExistingImage?: (imageId: number) => void;
+    onSetThumbnail?: (imageId: number) => void;
+    // Edit mode save handlers
+    onSaveInfo?: () => void;
+    onSaveVariants?: () => void;
+    onSaveSpecs?: () => void;
+    onSaveImages?: () => void;
+    savingTab?: string | null;
+    savedTabs?: Set<string>;
 }
 
 export const AddProductTabItems = ({
     form,
-    variants,
     totalQuantity,
     thumbnailList,
     sliderList,
@@ -66,7 +84,100 @@ export const AddProductTabItems = ({
     onAddCategory,
     onAddBrand,
     onAddSeries,
+    // Edit mode props
+    isEditMode = false,
+    existingImages = [],
+    keepImageIds = [],
+    thumbnailImageId = null,
+    onRemoveExistingImage,
+    onSetThumbnail,
+    // Edit mode save handlers
+    onSaveInfo,
+    onSaveVariants,
+    onSaveSpecs,
+    onSaveImages,
+    savingTab,
+    savedTabs = new Set(),
 }: Props) => {
+    // Render save button for edit mode
+    const renderSaveButton = (tabKey: string, onSave?: () => void) => {
+        if (!isEditMode || !onSave) return null;
+        const isSaving = savingTab === tabKey;
+        const isSaved = savedTabs.has(tabKey);
+
+        return (
+            <div className="flex justify-end mt-4 pt-4 border-t">
+                <Button
+                    type="primary"
+                    icon={isSaved ? <CheckCircleOutlined /> : <SaveOutlined />}
+                    loading={isSaving}
+                    onClick={onSave}
+                    className={isSaved ? 'bg-green-500 hover:bg-green-600' : ''}
+                >
+                    {isSaved ? 'Đã lưu' : 'Lưu thay đổi'}
+                </Button>
+            </div>
+        );
+    };
+
+    // Render existing images section (for edit mode)
+    const renderExistingImages = () => {
+        if (!isEditMode) return null;
+        const keptImages = existingImages.filter(img => keepImageIds.includes(img.id));
+        if (keptImages.length === 0) return null;
+
+        return (
+            <div className="mb-4">
+                <div className="text-sm font-medium mb-2">Ảnh hiện tại:</div>
+                <div className="flex flex-wrap gap-3">
+                    {keptImages.map(img => (
+                        <div
+                            key={img.id}
+                            className="relative group border rounded-lg overflow-hidden"
+                            style={{ width: 104, height: 104 }}
+                        >
+                            <Image
+                                src={img.image_url}
+                                alt="Product"
+                                width={104}
+                                height={104}
+                                className="object-cover"
+                                preview={{ mask: 'Xem' }}
+                            />
+                            {thumbnailImageId === img.id && (
+                                <div className="absolute top-1 left-1 bg-yellow-500 text-white text-xs px-1.5 py-0.5 rounded">
+                                    Thumbnail
+                                </div>
+                            )}
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => onSetThumbnail?.(img.id)}
+                                    className="p-1.5 bg-white rounded-full hover:bg-yellow-100 transition-colors"
+                                    title="Đặt làm thumbnail"
+                                >
+                                    {thumbnailImageId === img.id ? (
+                                        <StarFilled className="text-yellow-500" />
+                                    ) : (
+                                        <StarOutlined className="text-gray-600" />
+                                    )}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => onRemoveExistingImage?.(img.id)}
+                                    className="p-1.5 bg-white rounded-full hover:bg-red-100 transition-colors"
+                                    title="Xóa ảnh"
+                                >
+                                    <DeleteOutlined className="text-red-500" />
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    };
+
     const tabItems = [
         {
             key: 'basic',
@@ -255,6 +366,7 @@ export const AddProductTabItems = ({
                             </Form.Item>
                         </Col>
                     </Row>
+                    {renderSaveButton('basic', onSaveInfo)}
                 </div>
             ),
         },
@@ -263,7 +375,7 @@ export const AddProductTabItems = ({
             label: (
                 <span className="gap-0.5">
                     <AppstoreOutlined />
-                    <span>Biến thể ({variants?.length || 0})</span>
+                    <span>Phiên bản</span>
                 </span>
             ),
             children: (
@@ -276,10 +388,11 @@ export const AddProductTabItems = ({
                             </Text>
                         </Text>
                         <Text type="secondary" className="block text-xs">
-                            (Tự động tính từ tổng số lượng các biến thể)
+                            (Tự động tính từ tổng số lượng các phiên bản)
                         </Text>
                     </div>
                     <VariantFormList />
+                    {renderSaveButton('variants', onSaveVariants)}
                 </div>
             ),
         },
@@ -289,21 +402,34 @@ export const AddProductTabItems = ({
                 <span>
                     <PictureOutlined />
                     {'  '}
-                    Hình ảnh ({thumbnailList.length + sliderList.length})
+                    Hình ảnh (
+                    {(isEditMode ? keepImageIds.length : 0) +
+                        thumbnailList.length +
+                        sliderList.length}
+                    )
                 </span>
             ),
             children: (
                 <div className="py-4">
+                    {renderExistingImages()}
+
+                    {isEditMode && keepImageIds.length > 0 && (
+                        <div className="text-sm font-medium mb-2">Thêm ảnh mới:</div>
+                    )}
+
                     <Row gutter={[24, 24]}>
                         <Col xs={24} md={12}>
                             <div className="border rounded-lg p-4">
                                 <FormItem
                                     label={
                                         <span>
-                                            Ảnh đại diện <Text type="danger">*</Text>
+                                            Ảnh đại diện{' '}
+                                            {(!isEditMode || keepImageIds.length === 0) && (
+                                                <Text type="danger">*</Text>
+                                            )}
                                         </span>
                                     }
-                                    required
+                                    required={!isEditMode || keepImageIds.length === 0}
                                     help="Ảnh hiển thị chính của sản phẩm (tối đa 1 ảnh)"
                                 >
                                     <UploadImage
@@ -329,6 +455,7 @@ export const AddProductTabItems = ({
                             </div>
                         </Col>
                     </Row>
+                    {renderSaveButton('images', onSaveImages)}
                 </div>
             ),
         },
@@ -344,6 +471,7 @@ export const AddProductTabItems = ({
             children: (
                 <div className="py-4">
                     <SpecFormList />
+                    {renderSaveButton('specs', onSaveSpecs)}
                 </div>
             ),
         },

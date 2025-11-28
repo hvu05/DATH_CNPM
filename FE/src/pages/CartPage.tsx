@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import { Button, Empty, message, Divider } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import ProductCard from '@/components/common/ProductCard';
-import { products } from '@/services/MockData';
 import './CartPage.scss';
 
 const CartPage: React.FC = () => {

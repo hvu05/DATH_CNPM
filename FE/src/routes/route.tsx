@@ -6,7 +6,11 @@ import { authRoutes } from './auth.route';
 import { sellerRoutes } from './seller.route';
 import { errorRoutes } from './error.route';
 import { clientRoutes } from './client.route';
-
+import MainLayout from '@/layout/MainLayout';
+import HomePage from '@/pages/HomePage';
+import ProductDetailPage from '@/pages/ProductDetailPage';
+import CartPage from '@/pages/CartPage';
+import SearchPage from '@/pages/SearchPage';
 export const router = createBrowserRouter([
     {
         path: '/',

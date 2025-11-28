@@ -9,7 +9,8 @@ export const ProductListResponseSchema = z.object({
   results: z.array(ProductResponseSchema.omit({
     product_specs: true,
     product_variants: true,
+    reviews: true,
   })),
-});
+}).strip();
 
 export type ProductListResponse = z.infer<typeof ProductListResponseSchema>;

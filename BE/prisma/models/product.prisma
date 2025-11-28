@@ -3,19 +3,23 @@ model Product {
   name String
   description String @db.MediumText
   quantity Int
+  default_price Int @default(0)
   brand_id Int
   is_active Boolean @default(true)
-  series_id Int?
+  series_id Int
   category_id Int
   create_at DateTime @default(now())
   update_at DateTime @updatedAt
+  rate Float @default(0)
+  num_rate Int @default(0)
+
 
   order_items OrderItem[]
   brand Brand @relation(fields: [brand_id], references: [id])
   product_image ProductImage[]
   reviews Review[]
   // inventory_logs InventoryLog[]
-  series Series? @relation(fields: [series_id, brand_id],references: [id, brand_id])
+  series Series @relation(fields: [series_id, brand_id],references: [id, brand_id])
   category Category @relation(fields: [category_id],references: [id])
   product_variants ProductVariant[]
   product_specs ProductSpec[]

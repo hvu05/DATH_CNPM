@@ -7,6 +7,7 @@ import { uploadFile, deleteFile } from '../services/cloudinary.service';
 import { ProductSpecCreate } from '../dtos/product/specification/product-spec-create.request';
 import { ProductVariantCreate } from '../dtos/product/variant/product-variant-create.request';
 import { InventoryType } from '../dtos/inventory/enum';
+import { ProductFilterRequest } from '../dtos/product/product-filter.request';
 
 export const productService = {
   // ------------------- CREATE PRODUCT -------------------
@@ -63,6 +64,7 @@ export const productService = {
           },
         },
         ...productVariantBlock,
+        default_price: Math.min(...(data.variants?.map(v => v.price) || [])) | 0
       },
       include: {
         product_variants: true,
@@ -143,50 +145,84 @@ export const productService = {
   },
 
   // ------------------- GET ALL PRODUCTS -------------------
-  async getAllProducts({
-    filters,
-    offset = 0,
-    limit,
-    sortBy = 'create_at',
-    order = 'asc',
-    includeThumbnail = true,
-  }: {
-    filters?: any;
-    offset?: number;
-    limit?: number;
-    sortBy?: string;
-    order?: 'asc' | 'desc';
-    includeThumbnail?: boolean;
-  }) {
-    const [products, total] = await Promise.all([
+  async getAllProducts(options: ProductFilterRequest) {
+    const { page, limit, search, category_id, brand_id, series_id, is_active, sort_by, order, min_price, max_price } = options;
+    let where : any = {};
+
+    if (search) {
+      where.OR = [
+        { name: { contains: search }},
+        { description: { contains: search } },
+      ];
+    }
+
+    if (category_id) {
+      where.category_id = category_id;
+    }
+      
+    if (brand_id) {
+      where.brand_id = brand_id;
+    }
+
+    if (series_id) {
+      where.series_id = series_id;
+    }
+
+    if (is_active !== undefined) {
+      where.is_active = is_active;
+    }
+
+    if (min_price || max_price) {
+      if (min_price){
+        where.product_variants = {
+          some: {
+            quantity: {
+              gte: min_price,
+            },
+          },
+        }
+      }
+      if (max_price){
+        where.product_variants = {
+          some: {
+            quantity: {
+              lte: max_price,
+            },
+          },
+        }
+      }
+    }
+    const [products, total] = await prisma.$transaction([
       prisma.product.findMany({
-        where: filters,
-        skip: offset,
+        where,
+        skip: (page - 1) * limit,
         take: limit,
-        orderBy: { [sortBy]: order },
+        orderBy: {
+          [sort_by || 'create_at']: order,
+        },
         include: {
           brand: true,
           series: true,
           category: true,
-          product_image: includeThumbnail
-            ? {
-                where: { is_thumbnail: true },
-                select: { image_url: true, is_thumbnail: true },
-              }
-            : false,
-          reviews: true,
-        },
+          product_image: {
+            where: {
+              is_thumbnail: true,
+            },
+            select: {
+              image_url: true,
+              is_thumbnail: true,
+            },
+          },
+        }
       }),
-      prisma.product.count({ where: filters }),
+      prisma.product.count({ where }),
     ]);
 
     const formattedProducts = products.map((p) => ({
       ...p,
       rate: {
-        avg:
-          p.reviews.reduce((acc, cur) => acc + cur.vote, 0) /
-          (p.reviews.length || 1),
-        count: p.reviews.length,
+        avg: p.rate,
+        count: p.num_rate,
       },
     }));
 

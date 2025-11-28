@@ -18,6 +18,7 @@ import {
 
 import { uploadFile } from '../services/cloudinary.service';
 import { ProductListResponse } from '../dtos/product/product-list.response';
+import { ProductFilterSchema } from '../dtos/product/product-filter.request';
 
 // ------------------- CREATE PRODUCT -------------------
 export const createProductHandler = async (
@@ -141,50 +142,26 @@ export const getAllProductsHandler = async (
   next: NextFunction,
 ) => {
   try {
-    const page = req.query.page ? parseInt(req.query.page as string) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
-    const offset = (page - 1) * limit;
+    const parsed = ProductFilterSchema.safeParse(req.query)
+    if (!parsed.success){
+      throw new AppError(ErrorCode.BAD_REQUEST, parsed.error.issues[0].message);
 
-    const filters: any = {};
-    if (req.query.search)
-      filters.name = {
-        contains: req.query.search as string,
-        mode: 'insensitive',
-      };
-    if (req.query.category_id)
-      filters.category_id = parseInt(req.query.category_id as string);
-    if (req.query.brand_id)
-      filters.brand_id = parseInt(req.query.brand_id as string);
-    if (req.query.series_id)
-      filters.series_id = parseInt(req.query.series_id as string);
-    if (req.query.is_active !== undefined)
-      filters.is_active = req.query.is_active === 'true';
-
-    const sortBy = (req.query.sort_by as string) || 'create_at';
-    const order =
-      (req.query.order as string)?.toLowerCase() === 'desc' ? 'desc' : 'asc';
-
-    const { products, total } = await productService.getAllProducts({
-      filters,
-      offset,
-      limit,
-      sortBy,
-      order,
-      includeThumbnail: true,
-    });
+    }
+    const options = parsed.data
+    const { products, total } = await productService.getAllProducts(options);
 
     // Parse từng product
-    // const validated = ProductResponseSchema.array().parse(products);
+    const validated = ProductResponseSchema.array().parse(products);
 
     return res.status(200).json({
       success: true,
       message: 'Products fetched successfully',
       data: {
-        page,
-        limit,
+        page: options.page,
+        limit: options.limit,
         total_items: total,
-        total_pages: Math.ceil(total / limit),
-        results: products,
+        total_pages: Math.ceil(total / options.limit),
+        results: validated,
       },
     });
   } catch (error) {

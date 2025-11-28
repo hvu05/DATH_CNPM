@@ -76,6 +76,4 @@ export const seriesService = {
     });
     return series;
   }
-
-  
 };

@@ -127,16 +127,6 @@ export interface IBrandsResponse {
     results: IBrand[];
 }
 
-export interface ICreateProductReq {
-    name: string;
-    description: string;
-    quantity: number;
-    brand_id: number;
-    series_id: number;
-    category_id: number;
-    is_active: boolean;
-}
-
 // Full product detail for editing
 export interface IProductImage {
     id: number;

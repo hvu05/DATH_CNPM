@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import * as userController from '../controllers/admin/user.controller';
 import * as productController from '../controllers/admin/product.controller';
+import * as inventoryController from '../controllers/admin/inventory.controller';
 
 import { authenticateHandler } from '../middlewares/authenticate.middleware';
 import { checkRole } from '../middlewares/check-role.middleware';
@@ -140,6 +141,23 @@ router.post(
   authenticateHandler,
   checkRole(['ADMIN']),
   productController.createSeries,
+);
+
+// ==================== INVENTORY LOGS ====================
+// GET inventory logs
+router.get(
+  '/inventory-logs',
+  authenticateHandler,
+  checkRole(['ADMIN']),
+  inventoryController.getLogsHandler,
+);
+
+// GET inventory summary
+router.get(
+  '/inventory-logs/summary',
+  authenticateHandler,
+  checkRole(['ADMIN']),
+  inventoryController.getSummaryHandler,
 );
 
 export default router;

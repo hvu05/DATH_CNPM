@@ -82,7 +82,6 @@ export const ProductPage = () => {
                             width={48}
                             height={48}
                             className="rounded-lg object-cover"
-                            fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMIAAADDCAYAAADQvc6UAAABRWlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGASSSwoyGFhYGDIzSspCnJ3UoiIjFJgf8LAwSDCIMogwMCcmFxc4BgQ4ANUwgCjUcG3awyMIPqyLsis7PPOq3QdDFcvjV3jOD1boQVTPQrgSkktTgbSf4A4LbmgqISBgTEFyFYuLykAsTuAbJEioKOA7DkgdjqEvQHEToKwj4DVhAQ5A9k3gGyB5IxEoBmML4BsnSQk8XQkNtReEOBxcfXxUQg1Mjc0dyHgXNJBSWpFCYh2zi+oLMpMzyhRcASGUqqCZ16yno6CkYGRAQMDKMwhqj/fAIcloxgHQqxAjIHBEugw5sUIsSQpBobtQPdLciLEVJYzMPBHMDBsayhILEqEO4DxG0txmrERhM29nYGBddr//5/DGRjYNRkY/l7////39v///y4Dmn+LgesA1z8AAEJCU1eSBABBYklQAQQNAlVTRTAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                         />
                     ) : (
                         <Avatar size={48} icon={<BoxPlotOutlined />} className="bg-green-500" />
@@ -260,7 +259,7 @@ export const ProductPage = () => {
                                 Hiển thị {range[0]}-{range[1]} của {total} sản phẩm
                             </span>
                         ),
-                        pageSizeOptions: ['10', '20', '50', '100'],
+                        pageSizeOptions: ['3', '10', '20', '50', '100'],
                     }}
                     onChange={handleTableChange}
                     scroll={{ x: 1000 }}

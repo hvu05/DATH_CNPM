@@ -16,7 +16,7 @@ export const VariantFormList = ({ onQuantityChange }: IProps) => {
                 {
                     validator: async (_, variants) => {
                         if (!variants || variants.length < 1) {
-                            return Promise.reject(new Error('Cần ít nhất 1 biến thể sản phẩm'));
+                            return Promise.reject(new Error('Cần ít nhất 1 phiên bản sản phẩm'));
                         }
                     },
                 },
@@ -27,7 +27,7 @@ export const VariantFormList = ({ onQuantityChange }: IProps) => {
                     {/* Header */}
                     <div className="flex justify-between items-center mb-4">
                         <Text strong className="text-lg">
-                            Danh sách biến thể ({fields.length})
+                            Danh sách phiên bản({fields.length})
                         </Text>
                         <Button
                             type="dashed"
@@ -42,7 +42,7 @@ export const VariantFormList = ({ onQuantityChange }: IProps) => {
                             }
                             icon={<PlusOutlined />}
                         >
-                            Thêm biến thể
+                            Thêm phiên bản
                         </Button>
                     </div>
 
@@ -175,9 +175,7 @@ export const VariantFormList = ({ onQuantityChange }: IProps) => {
                     {/* Empty State */}
                     {fields.length === 0 && (
                         <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                            <Text type="secondary">
-                                Chưa có biến thể nào. Nhấn "Thêm biến thể" để bắt đầu.
-                            </Text>
+                            <Text type="secondary">Chưa có phiên bản nào !!!</Text>
                         </div>
                     )}
 

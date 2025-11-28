@@ -281,7 +281,7 @@ export const WarehousePage = () => {
                                     Hiển thị {range[0]}-{range[1]} của {total} sản phẩm
                                 </span>
                             ),
-                            pageSizeOptions: ['10', '20', '50', '100'],
+                            pageSizeOptions: ['3', '10', '20', '50', '100'],
                         }}
                         onChange={handleTableChange}
                         scroll={{ x: 1000 }}

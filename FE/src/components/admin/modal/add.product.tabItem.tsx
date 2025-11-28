@@ -112,9 +112,9 @@ export const AddProductTabItems = ({
                     icon={isSaved ? <CheckCircleOutlined /> : <SaveOutlined />}
                     loading={isSaving}
                     onClick={onSave}
-                    className={isSaved ? 'bg-green-500 hover:bg-green-600' : ''}
+                    className={'hover:bg-green-400'}
                 >
-                    {isSaved ? 'Đã lưu' : 'Lưu thay đổi'}
+                    Lưu
                 </Button>
             </div>
         );

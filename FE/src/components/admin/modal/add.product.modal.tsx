@@ -241,7 +241,7 @@ export const ProductFormModal = (props: IProductFormModalProps) => {
         const values = form.getFieldsValue();
 
         if (!values.variants || values.variants.length === 0) {
-            message.error('Cần ít nhất 1 biến thể');
+            message.error('Cần ít nhất 1 phiên bản');
             return;
         }
 
@@ -363,7 +363,7 @@ export const ProductFormModal = (props: IProductFormModalProps) => {
         }
 
         if (!values.variants || values.variants.length === 0) {
-            message.error('Cần ít nhất 1 biến thể sản phẩm');
+            message.error('Cần ít nhất 1 phiên bản sản phẩm');
             setActiveTab('variants');
             return;
         }

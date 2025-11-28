@@ -125,6 +125,8 @@ export const AddProductTabItems = ({
                                     showSearch
                                     placeholder="Chọn danh mục"
                                     optionFilterProp="label"
+                                    virtual
+                                    listHeight={200}
                                     filterSort={(optionA, optionB) =>
                                         (optionA?.label ?? '')
                                             .toLowerCase()
@@ -177,6 +179,8 @@ export const AddProductTabItems = ({
                                     placeholder="Chọn thương hiệu"
                                     optionFilterProp="label"
                                     disabled={mappingBrands.length === 0}
+                                    virtual
+                                    listHeight={200}
                                     filterSort={(optionA, optionB) =>
                                         (optionA?.label ?? '')
                                             .toLowerCase()
@@ -224,6 +228,8 @@ export const AddProductTabItems = ({
                                     placeholder="Chọn dòng sản phẩm"
                                     optionFilterProp="label"
                                     disabled={mappingSeries.length === 0}
+                                    virtual
+                                    listHeight={200}
                                     filterSort={(optionA, optionB) =>
                                         (optionA?.label ?? '')
                                             .toLowerCase()

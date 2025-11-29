@@ -21,7 +21,10 @@ export const createOrder = async (
   const total = variants.reduce((sum, variant, i) => {
     return sum + variant.price * data.items[i].quantity;
   }, 0);
-  const status = data.method !== PaymentMethod.COD ? orderDto.OrderStatus.PENDING : orderDto.OrderStatus.PROCESSING;
+  const status =
+    data.method !== PaymentMethod.COD
+      ? orderDto.OrderStatus.PENDING
+      : orderDto.OrderStatus.PROCESSING;
   //? 3. Create order
   const order = await prisma.order.create({
     data: {
@@ -56,14 +59,14 @@ export const createOrder = async (
                 include: {
                   product_image: {
                     where: {
-                      is_thumbnail: true
+                      is_thumbnail: true,
                     },
                     select: {
-                      image_url: true
-                    }
-                  }
-                }
-              }
+                      image_url: true,
+                    },
+                  },
+                },
+              },
             },
           },
         },
@@ -110,30 +113,29 @@ export const getOrdersByUser = async (
                 include: {
                   product_image: {
                     where: {
-                      is_thumbnail: true
+                      is_thumbnail: true,
                     },
                     select: {
-                      image_url: true
-                    }
-                  }
-                }
-              }
+                      image_url: true,
+                    },
+                  },
+                },
+              },
             },
           },
         },
       },
     },
   });
-  let user
+  let user;
   if (orders.length > 0) {
-    user = orders[0].user
-  }
-  else {
+    user = orders[0].user;
+  } else {
     user = await prisma.user.findUniqueOrThrow({
       where: {
-        id: userId
-      }
-    })
+        id: userId,
+      },
+    });
   }
   return {
     count: orders.length,
@@ -193,12 +195,12 @@ export const getAllOrders = async (
           some: {
             variant: {
               product: {
-                name: { contains: search }
-              }
-            }
-          }
-        }
-      }
+                name: { contains: search },
+              },
+            },
+          },
+        },
+      },
     ];
   }
   const [totalOrders, orders] = await prisma.$transaction([
@@ -223,14 +225,14 @@ export const getAllOrders = async (
                   include: {
                     product_image: {
                       where: {
-                        is_thumbnail: true
+                        is_thumbnail: true,
                       },
                       select: {
-                        image_url: true
-                      }
-                    }
-                  }
-                }
+                        image_url: true,
+                      },
+                    },
+                  },
+                },
               },
             },
           },

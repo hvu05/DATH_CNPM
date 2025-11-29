@@ -108,7 +108,7 @@ router.delete(
 //           schema: ApiResponseSchema(orderDto.OrderResponseSchema),
 //         },
 //       },
-//     },  
+//     },
 //   }
 // })
 // router.patch(
@@ -234,7 +234,8 @@ router.patch(
 registry.registerPath({
   tags: ['Order - Status'],
   path: '/orders/{order_id}/return-request/{order_item_id}',
-  description: 'Khách hàng tạo yêu cầu hoàn trả, hoặc Staff tạo yêu cầu hoàn trả trên hệ thống',
+  description:
+    'Khách hàng tạo yêu cầu hoàn trả, hoặc Staff tạo yêu cầu hoàn trả trên hệ thống',
   method: 'post',
   security: [
     {
@@ -304,7 +305,7 @@ registry.registerPath({
       required: true,
       schema: { type: 'string' },
     },
-  ],  
+  ],
   responses: {
     '200': {
       description: 'OK',
@@ -314,12 +315,12 @@ registry.registerPath({
         },
       },
     },
-  }
-})
+  },
+});
 router.get(
   '/return/:order_item_id/detail',
   authenticateHandler,
   checkRole(['ADMIN', 'STAFF']),
-  orderReturnController.getReturnOrderDetailHandler
-)
+  orderReturnController.getReturnOrderDetailHandler,
+);
 export default router;

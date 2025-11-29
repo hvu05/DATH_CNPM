@@ -95,14 +95,14 @@ registry.registerPath({
     '200': {
       description: 'OK',
       content: {
-        "application/json": {
-          schema: ApiResponseSchema(authDto.RegisterResponseSchema)
-        }
-      }
-    }
-  }
-})
-router.post('/register', authController.registerHandler)
+        'application/json': {
+          schema: ApiResponseSchema(authDto.RegisterResponseSchema),
+        },
+      },
+    },
+  },
+});
+router.post('/register', authController.registerHandler);
 
 registry.registerPath({
   tags: ['Auth'],
@@ -111,29 +111,29 @@ registry.registerPath({
   request: {
     body: {
       content: {
-        "application/json": {
+        'application/json': {
           schema: {
-            type: "object",
+            type: 'object',
             properties: {
               refresh_token: {
-                type: "string"
-              }
-            }
-          }
-        }
-      }
-    }
+                type: 'string',
+              },
+            },
+          },
+        },
+      },
+    },
   },
   responses: {
-    "200": {
-      description: "OK",
+    '200': {
+      description: 'OK',
       content: {
-        "application/json": {
-          schema: ApiResponseSchema(authDto.LoginResponseSchema)
-        }
-      }
-    }
-  }
-})
-router.post('/refresh-token', authController.refreshTokenHandler)
-export default router
+        'application/json': {
+          schema: ApiResponseSchema(authDto.LoginResponseSchema),
+        },
+      },
+    },
+  },
+});
+router.post('/refresh-token', authController.refreshTokenHandler);
+export default router;

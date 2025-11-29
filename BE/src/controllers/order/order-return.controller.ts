@@ -74,7 +74,6 @@ export const createReturnOrderRequestHandler = async (
   }
 };
 
-
 export const getReturnOrderDetailHandler = async (
   req: Request,
   res: Response<ApiResponse<orderDto.OrderReturnResponse>>,
@@ -83,7 +82,10 @@ export const getReturnOrderDetailHandler = async (
   try {
     const orderId = req.params.order_id;
     const orderItemId = Number(req.params.order_item_id);
-    const order = await orderReturnSerivce.getOrderReturnDetail(orderId, orderItemId);
+    const order = await orderReturnSerivce.getOrderReturnDetail(
+      orderId,
+      orderItemId,
+    );
     res.json({
       success: true,
       data: order,

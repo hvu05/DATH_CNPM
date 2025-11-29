@@ -22,7 +22,7 @@ export const ReviewResponseSchema: z.ZodType<any> = z
       user_id: z.string(),
       product_id: z.number(),
       create_at: z.date().optional(),
-      user: UserShortSchema.optional(), 
+      user: UserShortSchema.optional(),
       children_reviews: z.array(ReviewResponseSchema).optional(),
     }),
   )

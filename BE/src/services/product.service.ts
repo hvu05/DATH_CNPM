@@ -1,13 +1,13 @@
-import { prisma } from "../config/prisma.config";
-import { AppError } from "../exeptions";
-import { ErrorCode } from "../exeptions/error-status";
-import { ProductCreateRequest } from "../dtos/product/product-create.request";
-import { ProductUpdateRequest } from "../dtos/product/product-update.request";
-import { uploadFile } from "../services/cloudinary.service";
-import { ProductSpecCreate } from "../dtos/product/specification/product-spec-create.request";
-import { ProductVariantCreate } from "../dtos/product/variant/product-variant-create.request";
-import { InventoryType } from "../dtos/inventory/enum";
-import { da } from "zod/v4/locales";
+import { prisma } from '../config/prisma.config';
+import { AppError } from '../exeptions';
+import { ErrorCode } from '../exeptions/error-status';
+import { ProductCreateRequest } from '../dtos/product/product-create.request';
+import { ProductUpdateRequest } from '../dtos/product/product-update.request';
+import { uploadFile } from '../services/cloudinary.service';
+import { ProductSpecCreate } from '../dtos/product/specification/product-spec-create.request';
+import { ProductVariantCreate } from '../dtos/product/variant/product-variant-create.request';
+import { InventoryType } from '../dtos/inventory/enum';
+import { da } from 'zod/v4/locales';
 
 export const productService = {
   // ------------------- CREATE PRODUCT -------------------
@@ -16,24 +16,34 @@ export const productService = {
     const existing = await prisma.product.findFirst({
       where: { name: data.name },
     });
-    if (existing) throw new AppError(ErrorCode.CONFLICT, `Product with name "${data.name}" already exists`);
-    
-    let imageUrl : any[] = [];
+    if (existing)
+      throw new AppError(
+        ErrorCode.CONFLICT,
+        `Product with name "${data.name}" already exists`,
+      );
+
+    let imageUrl: any[] = [];
     if (data.images) {
       if (!data.images.some((image) => image.is_thumbnail === true)) {
         if (data.images.length > 0) {
-          data.images[0].is_thumbnail = true
+          data.images[0].is_thumbnail = true;
         }
       }
-      imageUrl = await Promise.all(data.images.map(async (image, index) => {
-        const { url, public_id } = await uploadFile(image.buffer, `${image.originalname}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`, "products");
-        return { 
-          id: index + 1, 
-          image_url: url,
-          image_public_id: public_id,
-          is_thumbnail: image.is_thumbnail
-        };
-      }))
+      imageUrl = await Promise.all(
+        data.images.map(async (image, index) => {
+          const { url, public_id } = await uploadFile(
+            image.buffer,
+            `${image.originalname}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+            'products',
+          );
+          return {
+            id: index + 1,
+            image_url: url,
+            image_public_id: public_id,
+            is_thumbnail: image.is_thumbnail,
+          };
+        }),
+      );
     }
     const productSpecBlock = toProductSpecBlock(data.specifications);
     const productVariantBlock = toProductVariantBlock(data.variants);
@@ -44,29 +54,29 @@ export const productService = {
         description: data.description,
         quantity: data.quantity,
         brand_id: data.brand_id,
-        series_id: data.series_id ,
+        series_id: data.series_id,
         category_id: data.category_id,
         is_active: data.is_active ?? true,
         ...productSpecBlock,
         product_image: {
           createMany: {
-            data: imageUrl
-          }
+            data: imageUrl,
+          },
         },
-        ...productVariantBlock
+        ...productVariantBlock,
       },
       include: {
         product_variants: true,
         product_image: {
           where: {
-            is_thumbnail: true
+            is_thumbnail: true,
           },
           select: {
             image_url: true,
-            is_thumbnail: true
-          }
-        }
-      }
+            is_thumbnail: true,
+          },
+        },
+      },
     });
     if (!data.variants) return newProduct;
     const inventoryData = newProduct.product_variants.map((v, idx) => ({
@@ -74,19 +84,21 @@ export const productService = {
       product_variant_id: v.id,
       type: InventoryType.IN,
       quantity: v.quantity,
-      reason: "Log nhập kho lúc tạo sản phẩm",
+      reason: 'Log nhập kho lúc tạo sản phẩm',
     }));
     await prisma.inventoryLog.createMany({
-      data: inventoryData
-    })
+      data: inventoryData,
+    });
     return newProduct;
   },
 
   // ------------------- UPDATE PRODUCT -------------------
   async updateProduct(id: number | string, data: ProductUpdateRequest) {
-    const productId = typeof id === "string" ? parseInt(id) : id;
-    const existing = await prisma.product.findUnique({ where: { id: productId } });
-    if (!existing) throw new AppError(ErrorCode.NOT_FOUND, "Product not found");
+    const productId = typeof id === 'string' ? parseInt(id) : id;
+    const existing = await prisma.product.findUnique({
+      where: { id: productId },
+    });
+    if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Product not found');
 
     const updated = await prisma.product.update({
       where: { id: productId },
@@ -100,9 +112,11 @@ export const productService = {
 
   // ------------------- DELETE PRODUCT -------------------
   async deleteProduct(id: number | string) {
-    const productId = typeof id === "string" ? parseInt(id) : id;
-    const existing = await prisma.product.findUnique({ where: { id: productId } });
-    if (!existing) throw new AppError(ErrorCode.NOT_FOUND, "Product not found");
+    const productId = typeof id === 'string' ? parseInt(id) : id;
+    const existing = await prisma.product.findUnique({
+      where: { id: productId },
+    });
+    if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Product not found');
 
     await prisma.product.delete({ where: { id: productId } });
 
@@ -110,11 +124,8 @@ export const productService = {
   },
 
   // ------------------- GET SINGLE PRODUCT -------------------
-  async getProductById(
-    id: number | string,
-    options?: { include?: any }
-  ) {
-    const productId = typeof id === "string" ? parseInt(id) : id;
+  async getProductById(id: number | string, options?: { include?: any }) {
+    const productId = typeof id === 'string' ? parseInt(id) : id;
 
     const product = await prisma.product.findFirst({
       where: { id: productId },
@@ -127,7 +138,6 @@ export const productService = {
         product_specs: true,
         reviews: true,
       },
-
     });
 
     return product;
@@ -138,15 +148,15 @@ export const productService = {
     filters,
     offset = 0,
     limit,
-    sortBy = "create_at",
-    order = "asc",
+    sortBy = 'create_at',
+    order = 'asc',
     includeThumbnail = true,
   }: {
     filters?: any;
     offset?: number;
     limit?: number;
     sortBy?: string;
-    order?: "asc" | "desc";
+    order?: 'asc' | 'desc';
     includeThumbnail?: boolean;
   }) {
     const [products, total] = await Promise.all([
@@ -159,8 +169,13 @@ export const productService = {
           brand: true,
           series: true,
           category: true,
-          product_image: includeThumbnail ? { where: { is_thumbnail: true }, select: { image_url: true, is_thumbnail: true} } : false,
-          reviews: true
+          product_image: includeThumbnail
+            ? {
+                where: { is_thumbnail: true },
+                select: { image_url: true, is_thumbnail: true },
+              }
+            : false,
+          reviews: true,
         },
       }),
       prisma.product.count({ where: filters }),
@@ -169,9 +184,11 @@ export const productService = {
     const formattedProducts = products.map((p) => ({
       ...p,
       rate: {
-        avg: p.reviews.reduce((acc, cur) => acc + cur.vote, 0) / (p.reviews.length || 1),
-        count: p.reviews.length
-      }
+        avg:
+          p.reviews.reduce((acc, cur) => acc + cur.vote, 0) /
+          (p.reviews.length || 1),
+        count: p.reviews.length,
+      },
     }));
 
     return { products: formattedProducts, total };
@@ -181,12 +198,12 @@ export const productService = {
   async uploadProductImage(
     productId: number | string,
     file: Express.Multer.File,
-    is_thumbnail: boolean
+    is_thumbnail: boolean,
   ) {
-    const id = typeof productId === "string" ? parseInt(productId) : productId;
+    const id = typeof productId === 'string' ? parseInt(productId) : productId;
 
     const existing = await prisma.product.findUnique({ where: { id } });
-    if (!existing) throw new AppError(ErrorCode.NOT_FOUND, "Product not found");
+    if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Product not found');
 
     if (is_thumbnail) {
       // Reset thumbnail cũ
@@ -197,18 +214,18 @@ export const productService = {
     }
 
     const publicId = `products/product_${id}_${Date.now()}`;
-    const uploaded = await uploadFile(file.buffer, publicId, "products");
+    const uploaded = await uploadFile(file.buffer, publicId, 'products');
     const lastId = await prisma.productImage.findFirst({
-        where: {
-            product_id: productId as number
-        },
-        orderBy: { id: "desc" }, 
-        select: { id: true } 
+      where: {
+        product_id: productId as number,
+      },
+      orderBy: { id: 'desc' },
+      select: { id: true },
     });
     const nextId = (lastId?.id ?? 0) + 1;
     const newImage = await prisma.productImage.create({
       data: {
-        id:nextId,
+        id: nextId,
         product_id: id,
         image_url: uploaded.url,
         image_public_id: uploaded.public_id,
@@ -220,7 +237,10 @@ export const productService = {
   },
 };
 
-const toProductSpecBlock = (specs: ProductSpecCreate[] | undefined, lastId: number = 0) => {
+const toProductSpecBlock = (
+  specs: ProductSpecCreate[] | undefined,
+  lastId: number = 0,
+) => {
   if (!Array.isArray(specs) || specs.length === 0) return {};
   return {
     product_specs: {
@@ -237,13 +257,13 @@ const toProductSpecBlock = (specs: ProductSpecCreate[] | undefined, lastId: numb
 
 const toProductVariantBlock = (
   variants: ProductVariantCreate[] | undefined,
-  lastId: number = 0
+  lastId: number = 0,
 ) => {
   if (!Array.isArray(variants) || variants.length === 0) return {};
 
   // createMany variant
   const variantData = variants.map((v, idx) => ({
-    id: lastId + idx + 1,        // bạn tự sinh id
+    id: lastId + idx + 1, // bạn tự sinh id
     color: v.color,
     storage: v.storage,
     price: v.price,
@@ -256,6 +276,6 @@ const toProductVariantBlock = (
       createMany: {
         data: variantData,
       },
-    }
+    },
   };
 };

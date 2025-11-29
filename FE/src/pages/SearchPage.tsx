@@ -1,10 +1,21 @@
 // FE/src/pages/SearchPage.tsx
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProductCard from '@/components/common/ProductCard';
-import { getProducts } from '@/services/productsApi';
+import { getProducts } from '@/services/productsApi'; // Dùng API thật
 import type { Product } from '@/types/product';
-import { Empty, Select, Button, Input, Slider, Checkbox, Popover, Tag } from 'antd';
+import {
+    Select,
+    Empty,
+    Slider,
+    Checkbox,
+    Button,
+    Input,
+    Popover,
+    Tag,
+    Spin,
+    Pagination,
+} from 'antd';
 import { FilterOutlined, DownOutlined } from '@ant-design/icons';
 import './SearchPage.scss';
 
@@ -12,98 +23,78 @@ const { Option } = Select;
 
 const SearchPage: React.FC = () => {
     const [searchParams] = useSearchParams();
-    const query = searchParams.get('q') || '';
+    const query = searchParams.get('q') || searchParams.get('search') || '';
 
-    const [products, setProducts] = useState<Product[]>([]);
+    // Data States
+    const [allProducts, setAllProducts] = useState<Product[]>([]); // Lưu tất cả data fetch về
     const [filteredResults, setFilteredResults] = useState<Product[]>([]);
     const [loading, setLoading] = useState(false);
 
+    // Filter States
     const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000000]);
     const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [sortBy, setSortBy] = useState('default');
 
+    // Pagination State
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 12;
+
+    // Popover UI States
     const [openCategory, setOpenCategory] = useState(false);
     const [openBrand, setOpenBrand] = useState(false);
     const [openPrice, setOpenPrice] = useState(false);
 
+    // 1. FETCH DATA TỪ API KHI MOUNT HOẶC QUERY CHANGE
     useEffect(() => {
-        const fetchSearch = async () => {
+        const fetchData = async () => {
             setLoading(true);
-            const data = await getProducts();
-            setProducts(data);
+            // Fetch tất cả (hoặc theo search query)
+            const data = await getProducts({ q: query });
+            setAllProducts(data);
             setLoading(false);
         };
-        fetchSearch();
-    }, []);
+        fetchData();
+    }, [query]);
 
-    const brands = useMemo(
-        () => Array.from(new Set(products.map(p => p.brand).filter(Boolean) as string[])),
-        [products]
-    );
-    const categories = useMemo(
-        () => Array.from(new Set(products.map(p => p.category).filter(Boolean) as string[])),
-        [products]
-    );
+    // 2. TẠO LIST BRANDS/CATEGORIES TỪ DATA THỰC TẾ (Để không bị trống)
+    const availableBrands = Array.from(new Set(allProducts.map(p => p.brand || 'Khác')));
+    const availableCategories = Array.from(new Set(allProducts.map(p => p.category || 'Khác')));
 
+    // 3. LOGIC FILTER CLIENT-SIDE
     useEffect(() => {
-        let results = [...products];
+        let results = [...allProducts];
 
-        // Search Text
-        if (query) {
-            results = results.filter(p => p.name.toLowerCase().includes(query.toLowerCase()));
-        }
-        // Price
+        // Filter Price
         results = results.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
-        // Brand
+
+        // Filter Brand
         if (selectedBrands.length > 0) {
-            results = results.filter(p => p.brand && selectedBrands.includes(p.brand));
+            results = results.filter(p => selectedBrands.includes(p.brand || 'Khác'));
         }
-        // Category
+
+        // Filter Category
         if (selectedCategories.length > 0) {
-            results = results.filter(p => p.category && selectedCategories.includes(p.category));
+            results = results.filter(p => selectedCategories.includes(p.category || 'Khác'));
         }
+
         // Sort
         if (sortBy === 'price-asc') results.sort((a, b) => a.price - b.price);
         else if (sortBy === 'price-desc') results.sort((a, b) => b.price - a.price);
         else if (sortBy === 'name-asc') results.sort((a, b) => a.name.localeCompare(b.name));
 
         setFilteredResults(results);
-    }, [query, products, priceRange, selectedBrands, selectedCategories, sortBy]);
+        setCurrentPage(1); // Reset về trang 1 khi filter
+    }, [allProducts, priceRange, selectedBrands, selectedCategories, sortBy]);
 
-    const brandContent = (
-        <div className="filter-popup-content">
-            <div className="checkbox-group-scroll">
-                {brands.map(b => (
-                    <div key={b} className="filter-item-row">
-                        <Checkbox
-                            checked={selectedBrands.includes(b)}
-                            onChange={e => {
-                                setSelectedBrands(prev =>
-                                    e.target.checked ? [...prev, b] : prev.filter(x => x !== b)
-                                );
-                            }}
-                        >
-                            {b}
-                        </Checkbox>
-                    </div>
-                ))}
-            </div>
-            <div className="filter-footer">
-                <Button size="small" type="link" onClick={() => setSelectedBrands([])}>
-                    Bỏ chọn
-                </Button>
-                <Button size="small" type="primary" onClick={() => setOpenBrand(false)}>
-                    Áp dụng
-                </Button>
-            </div>
-        </div>
-    );
+    // Pagination Logic
+    const currentData = filteredResults.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
+    // --- RENDER CONTENTS (Giống code bạn gửi) ---
     const categoryContent = (
         <div className="filter-popup-content">
             <div className="checkbox-group-scroll">
-                {categories.map(c => (
+                {availableCategories.map(c => (
                     <div key={c} className="filter-item-row">
                         <Checkbox
                             checked={selectedCategories.includes(c)}
@@ -129,8 +120,37 @@ const SearchPage: React.FC = () => {
         </div>
     );
 
+    const brandContent = (
+        <div className="filter-popup-content">
+            <div className="checkbox-group-scroll">
+                {availableBrands.map(b => (
+                    <div key={b} className="filter-item-row">
+                        <Checkbox
+                            checked={selectedBrands.includes(b)}
+                            onChange={e => {
+                                setSelectedBrands(prev =>
+                                    e.target.checked ? [...prev, b] : prev.filter(x => x !== b)
+                                );
+                            }}
+                        >
+                            {b}
+                        </Checkbox>
+                    </div>
+                ))}
+            </div>
+            <div className="filter-footer">
+                <Button size="small" type="link" onClick={() => setSelectedBrands([])}>
+                    Bỏ chọn
+                </Button>
+                <Button size="small" type="primary" onClick={() => setOpenBrand(false)}>
+                    Áp dụng
+                </Button>
+            </div>
+        </div>
+    );
+
     const priceContent = (
-        <div className="filter-popup-content price-popup">
+        <div className="filter-popup-content price-popup" style={{ width: 300, padding: 15 }}>
             <Slider
                 range
                 min={0}
@@ -139,7 +159,7 @@ const SearchPage: React.FC = () => {
                 value={priceRange}
                 onChange={val => setPriceRange(val as [number, number])}
             />
-            <div className="price-inputs">
+            <div className="price-inputs" style={{ display: 'flex', gap: 10, marginTop: 10 }}>
                 <Input
                     type="number"
                     value={priceRange[0]}
@@ -154,7 +174,7 @@ const SearchPage: React.FC = () => {
                     suffix="đ"
                 />
             </div>
-            <div className="filter-footer">
+            <div className="filter-footer" style={{ marginTop: 15, textAlign: 'right' }}>
                 <Button size="small" type="link" onClick={() => setPriceRange([0, 50000000])}>
                     Đặt lại
                 </Button>
@@ -168,11 +188,27 @@ const SearchPage: React.FC = () => {
     return (
         <div className="search-page">
             <div className="container">
-                <div className="filter-bar-container">
-                    <div className="filter-bar-left">
+                {/* FILTER BAR */}
+                <div
+                    className="filter-bar-container"
+                    style={{
+                        background: '#fff',
+                        padding: '15px',
+                        borderRadius: 8,
+                        marginBottom: 20,
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                    }}
+                >
+                    <div
+                        className="filter-bar-left"
+                        style={{ display: 'flex', gap: 10, alignItems: 'center' }}
+                    >
                         <span className="filter-label">
                             <FilterOutlined /> Bộ lọc:
                         </span>
+
                         <Popover
                             content={categoryContent}
                             trigger="click"
@@ -183,9 +219,12 @@ const SearchPage: React.FC = () => {
                             <Button
                                 className={selectedCategories.length ? 'active-filter-btn' : ''}
                             >
-                                Danh mục <DownOutlined />
+                                Danh mục{' '}
+                                {selectedCategories.length > 0 && `(${selectedCategories.length})`}{' '}
+                                <DownOutlined />
                             </Button>
                         </Popover>
+
                         <Popover
                             content={brandContent}
                             trigger="click"
@@ -194,9 +233,12 @@ const SearchPage: React.FC = () => {
                             placement="bottomLeft"
                         >
                             <Button className={selectedBrands.length ? 'active-filter-btn' : ''}>
-                                Thương hiệu <DownOutlined />
+                                Thương hiệu{' '}
+                                {selectedBrands.length > 0 && `(${selectedBrands.length})`}{' '}
+                                <DownOutlined />
                             </Button>
                         </Popover>
+
                         <Popover
                             content={priceContent}
                             trigger="click"
@@ -215,12 +257,13 @@ const SearchPage: React.FC = () => {
                             </Button>
                         </Popover>
                     </div>
+
                     <div className="filter-bar-right">
-                        <span className="sort-label">Sắp xếp:</span>
+                        Sắp xếp:
                         <Select
                             value={sortBy}
                             onChange={setSortBy}
-                            style={{ width: 150 }}
+                            style={{ width: 150, marginLeft: 10 }}
                             bordered={false}
                         >
                             <Option value="default">Mặc định</Option>
@@ -231,27 +274,28 @@ const SearchPage: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Active Filter Tags */}
-                {(selectedBrands.length > 0 ||
-                    selectedCategories.length > 0 ||
-                    priceRange[0] > 0) && (
-                    <div className="active-filters-list">
-                        {selectedBrands.map(b => (
-                            <Tag
-                                key={b}
-                                closable
-                                onClose={() => setSelectedBrands(p => p.filter(x => x !== b))}
-                            >
-                                {b}
-                            </Tag>
-                        ))}
+                {/* TAGS ĐANG CHỌN */}
+                {(selectedCategories.length > 0 ||
+                    selectedBrands.length > 0 ||
+                    priceRange[0] > 0 ||
+                    priceRange[1] < 50000000) && (
+                    <div className="active-filters" style={{ marginBottom: 20 }}>
                         {selectedCategories.map(c => (
                             <Tag
-                                key={c}
                                 closable
                                 onClose={() => setSelectedCategories(p => p.filter(x => x !== c))}
+                                key={c}
                             >
                                 {c}
+                            </Tag>
+                        ))}
+                        {selectedBrands.map(b => (
+                            <Tag
+                                closable
+                                onClose={() => setSelectedBrands(p => p.filter(x => x !== b))}
+                                key={b}
+                            >
+                                {b}
                             </Tag>
                         ))}
                         {(priceRange[0] > 0 || priceRange[1] < 50000000) && (
@@ -263,9 +307,10 @@ const SearchPage: React.FC = () => {
                         <Button
                             type="link"
                             danger
+                            size="small"
                             onClick={() => {
-                                setSelectedBrands([]);
                                 setSelectedCategories([]);
+                                setSelectedBrands([]);
                                 setPriceRange([0, 50000000]);
                             }}
                         >
@@ -274,18 +319,33 @@ const SearchPage: React.FC = () => {
                     </div>
                 )}
 
+                {/* KẾT QUẢ */}
                 <div className="search-results-area">
-                    {query && <h2>Kết quả tìm kiếm cho "{query}"</h2>}
+                    {query && <h2>Kết quả cho "{query}"</h2>}
+
                     {loading ? (
-                        <div>Đang tìm kiếm...</div>
-                    ) : filteredResults.length > 0 ? (
-                        <div className="product-grid">
-                            {filteredResults.map(product => (
-                                <ProductCard key={product.id} {...product} />
-                            ))}
+                        <div style={{ textAlign: 'center', padding: 50 }}>
+                            <Spin size="large" />
                         </div>
+                    ) : filteredResults.length > 0 ? (
+                        <>
+                            <div className="product-grid">
+                                {currentData.map(product => (
+                                    <ProductCard key={product.id} {...product} />
+                                ))}
+                            </div>
+                            {/* PAGINATION */}
+                            <div style={{ marginTop: 30, textAlign: 'center' }}>
+                                <Pagination
+                                    current={currentPage}
+                                    total={filteredResults.length}
+                                    pageSize={pageSize}
+                                    onChange={setCurrentPage}
+                                />
+                            </div>
+                        </>
                     ) : (
-                        <Empty description="Không tìm thấy sản phẩm" />
+                        <Empty description="Không tìm thấy sản phẩm phù hợp" />
                     )}
                 </div>
             </div>

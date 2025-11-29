@@ -8,6 +8,7 @@ import defaultAvatar from '@/assets/default-avatar-icon.svg';
 import { Link, useNavigate } from 'react-router-dom';
 import { Dropdown, Avatar, Badge, message } from 'antd';
 import type { MenuProps } from 'antd';
+import { getCategories } from '@/services/productsApi';
 import {
     UserOutlined,
     LogoutOutlined,
@@ -139,7 +140,15 @@ export const Header = () => {
     const [activeCategory, setActiveCategory] = useState<string>('phones');
     const dropdownRef = useRef<HTMLDivElement>(null);
     const [searchTerm, setSearchTerm] = useState('');
-
+    const [categories, setCategories] = useState<any[]>([]);
+    useEffect(() => {
+        const fetchCats = async () => {
+            const data = await getCategories();
+            // Map data từ API sang cấu trúc hiển thị nếu cần, hoặc lưu trực tiếp
+            setCategories(data);
+        };
+        fetchCats();
+    }, []);
     const totalCartItems = cartItems.reduce((total, item) => total + item.quantity, 0);
 
     const logout = () => {
@@ -216,48 +225,30 @@ export const Header = () => {
 
                     {isCategoryDropdownOpen && (
                         <div className="category-dropdown__menu">
-                            <div className="category-dropdown__categories">
-                                {megaMenuData.map(category => (
-                                    <button
-                                        key={category.id}
-                                        className={`category-dropdown__category-item ${activeCategory === category.id ? 'active' : ''}`}
-                                        onMouseEnter={() => setActiveCategory(category.id)}
-                                    >
-                                        <span className="category-dropdown__icon">
-                                            {category.icon}
-                                        </span>
-                                        {category.name}
-                                    </button>
-                                ))}
-                            </div>
-
-                            <div className="category-dropdown__content-wrapper">
-                                {activeCategoryData && (
-                                    <div className="category-dropdown__content">
-                                        {activeCategoryData.content.columns.map((column, index) => (
-                                            <div key={index} className="category-dropdown__column">
-                                                <h4 className="category-dropdown__column-title">
-                                                    {column.title}
-                                                </h4>
-                                                <ul className="category-dropdown__column-list">
-                                                    {column.items.map((item, itemIndex) => (
-                                                        <li key={itemIndex}>
-                                                            <Link
-                                                                to={item.link}
-                                                                onClick={() =>
-                                                                    setIsCategoryDropdownOpen(false)
-                                                                }
-                                                            >
-                                                                {item.name}
-                                                            </Link>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        ))}
-                                    </div>
+                            {/* MENU ĐƠN GIẢN HÓA KHI DÙNG API ĐỘNG */}
+                            <div
+                                className="category-dropdown__categories"
+                                style={{ width: '100%' }}
+                            >
+                                {categories.length > 0 ? (
+                                    categories.map(cat => (
+                                        <Link
+                                            key={cat.id}
+                                            to={`/search?category=${cat.id}`} // Filter theo ID danh mục
+                                            className="category-dropdown__category-item"
+                                            onClick={() => setIsCategoryDropdownOpen(false)}
+                                        >
+                                            <span className="category-dropdown__icon">
+                                                <MobileOutlined /> {/* Icon tạm thời */}
+                                            </span>
+                                            {cat.name}
+                                        </Link>
+                                    ))
+                                ) : (
+                                    <div style={{ padding: 10 }}>Đang tải danh mục...</div>
                                 )}
                             </div>
+                            {/* Bỏ phần Mega Menu phức tạp nếu API không trả về cấu trúc cây */}
                         </div>
                     )}
                 </div>

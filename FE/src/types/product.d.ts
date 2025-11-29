@@ -31,7 +31,7 @@ export interface BackendReview {
         full_name: string;
         avatar: string;
     };
-    children_reviews?: BackendReview[]; 
+    children_reviews?: BackendReview[];
 }
 
 export interface ReviewResponse {
@@ -54,7 +54,7 @@ export interface BackendProduct {
     category?: { id: number; name: string };
     product_image?: BackendImage[];
     product_variants?: BackendVariant[];
-    reviews?: any[]; 
+    reviews?: any[];
     rate?: { avg: number; count: number };
 }
 
@@ -63,12 +63,12 @@ export interface Product {
     id: number;
     name: string;
     description?: string;
-    price: number;      
-    imageUrl: string;   
+    price: number;
+    imageUrl: string;
     brand?: string;
     category?: string;
-    rating?: number;    
-    originalData?: BackendProduct; 
+    rating?: number;
+    originalData?: BackendProduct;
     originalVariants?: BackendVariant[];
     originalImages?: BackendImage[];
 }

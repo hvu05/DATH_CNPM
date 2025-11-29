@@ -1,121 +1,85 @@
 // FE/src/pages/ProductDetailPage.tsx
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import {
-    getProductById,
-    getProducts,
-    getProductReviews,
-    createProductReview,
-} from '@/services/productsApi';
-import type { Product, BackendVariant, BackendReview } from '@/types/product';
+import { useParams, useNavigate } from 'react-router-dom';
+import { getProductById, getProducts } from '@/services/productsApi';
+import type { Product, BackendVariant } from '@/types/product';
 import { useCart } from '@/contexts/CartContext';
-import {
-    Button,
-    message,
-    Rate,
-    Tabs,
-    Avatar,
-    Divider,
-    Form,
-    Input,
-    Empty,
-    List,
-    Skeleton,
-} from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { Button, message, Rate, Tabs, Input, Skeleton, Tag } from 'antd';
 import ProductCard from '@/components/common/ProductCard';
 import './ProductDetailPage.scss';
 
-const { TextArea } = Input;
-
 const ProductDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
     const { addToCart } = useCart();
 
     const [product, setProduct] = useState<Product | null>(null);
     const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
 
-    const [reviews, setReviews] = useState<BackendReview[]>([]);
-    const [loadingReviews, setLoadingReviews] = useState(false);
-
-    const [quantity, setQuantity] = useState(1);
+    // State quản lý Variant
     const [selectedVariant, setSelectedVariant] = useState<BackendVariant | null>(null);
+    const [quantity, setQuantity] = useState(1);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-
-    const [form] = Form.useForm();
 
     useEffect(() => {
         if (id) {
             getProductById(id).then(data => {
                 setProduct(data);
+                // Tự động chọn variant đầu tiên (giá thấp nhất)
                 if (data?.originalVariants && data.originalVariants.length > 0) {
                     const sorted = [...data.originalVariants].sort(
                         (a, b) => Number(a.price) - Number(b.price)
                     );
-                    // console.log('sort', sorted)
-                    setSelectedVariant(sorted[0]); // set cho mặc định chọn cái đầu tiên
+                    setSelectedVariant(sorted[0]);
                 }
-                getProducts().then(all => {
-                    setRelatedProducts(
-                        all
-                            .filter(p => p.category === data?.category && p.id !== data?.id)
-                            .slice(0, 4)
-                    );
-                });
-            });
 
-            fetchReviews(id);
+                // Fetch related
+                if (data) {
+                    getProducts().then(all =>
+                        setRelatedProducts(all.filter(p => p.id !== data.id).slice(0, 4))
+                    );
+                }
+            });
+            window.scrollTo(0, 0);
         }
     }, [id]);
 
-    const fetchReviews = async (productId: string | number) => {
-        setLoadingReviews(true);
-        const data = await getProductReviews(productId);
-        setReviews(data);
-        setLoadingReviews(false);
+    // Lấy thông tin hiển thị dựa trên variant đang chọn
+    const displayPrice = selectedVariant ? Number(selectedVariant.price) : product?.price || 0;
+    const stock = selectedVariant ? selectedVariant.quantity : 0;
+    const isOutOfStock = stock <= 0;
+
+    // Xử lý logic số lượng
+    const handleQuantityChange = (val: number) => {
+        if (val < 1) val = 1;
+        if (val > stock) {
+            message.warning(`Kho chỉ còn ${stock} sản phẩm`);
+            val = stock;
+        }
+        setQuantity(val);
     };
 
-    const handleAddToCart = () => {
-        if (!product) return;
-        if (product.originalVariants && product.originalVariants.length > 0 && !selectedVariant) {
-            message.error('Vui lòng chọn phiên bản màu sắc/dung lượng');
+    const handleAddToCart = (isBuyNow = false) => {
+        if (!product || !selectedVariant) {
+            message.error('Sản phẩm này tạm thời chưa có phiên bản để mua');
             return;
         }
-        console.log('selectedVariant', selectedVariant)
-        console.log('product', product)
-        const variantSuffix = selectedVariant
-            ? `(${selectedVariant.color} ${selectedVariant.storage})`
-            : '';
-        const finalName = `${product.name} ${variantSuffix}`;
-        const finalPrice = selectedVariant ? Number(selectedVariant.price) : product.price;
-        const finalId = selectedVariant ? selectedVariant.id : product.id;
+        if (quantity > stock) {
+            message.error('Số lượng vượt quá tồn kho');
+            return;
+        }
 
         addToCart({
             productId: Number(product.id),
-            variantId: finalId,
-            name: finalName,
-            price: finalPrice,
+            variantId: selectedVariant.id, // ID chuẩn của variant trong DB
+            name: `${product.name} (${selectedVariant.color} - ${selectedVariant.storage})`,
+            price: Number(selectedVariant.price),
             imageUrl: product.imageUrl,
             quantity: quantity,
         });
-        message.success('Đã thêm vào giỏ hàng!');
-    };
 
-    const handleSubmitReview = async (values: any) => {
-        if (!id) return;
-
-        const success = await createProductReview(id, {
-            comment: values.comment,
-            vote: values.rating,
-        });
-
-        if (success) {
-            message.success('Cảm ơn bạn đã đánh giá!');
-            form.resetFields();
-            fetchReviews(id);
-        } else {
-            message.error('Gửi đánh giá thất bại. Vui lòng đăng nhập hoặc thử lại sau.');
-        }
+        if (isBuyNow) navigate('/cart');
+        else message.success('Đã thêm vào giỏ hàng!');
     };
 
     if (!product)
@@ -125,17 +89,15 @@ const ProductDetailPage: React.FC = () => {
             </div>
         );
 
-    const images = product.originalImages?.map(i => i.image_url) || [product.imageUrl];
-    const displayPrice = selectedVariant ? Number(selectedVariant.price) : product.price;
-
-    const avgRating =
-        reviews.length > 0
-            ? reviews.reduce((acc, curr) => acc + curr.vote, 0) / reviews.length
-            : product.rating || 5;
+    // Render ảnh
+    const images = product.originalImages?.length
+        ? product.originalImages.map(i => i.image_url)
+        : [product.imageUrl];
 
     return (
         <div className="container" style={{ padding: '2rem 0' }}>
             <section className="product-detail">
+                {/* ẢNH SẢN PHẨM */}
                 <div className="product-detail__gallery">
                     <div className="main-image-container">
                         <img
@@ -157,258 +119,147 @@ const ProductDetailPage: React.FC = () => {
                     </div>
                 </div>
 
+                {/* THÔNG TIN CHÍNH */}
                 <div className="product-detail__info">
                     <h1 className="product-detail__title">{product.name}</h1>
                     <div className="product-detail__rating">
-                        <Rate disabled allowHalf value={avgRating} />
-                        <span className="product-detail__rating-text">
-                            ({reviews.length} đánh giá)
-                        </span>
+                        <Rate disabled allowHalf value={product.rating || 5} />
+                        <span className="product-detail__rating-text">(0 đánh giá)</span>
                     </div>
 
+                    {/* GIÁ & KHUYẾN MÃI */}
                     <div className="product-detail__price-container">
-                        <p className="product-detail__price">
-                            {displayPrice.toLocaleString('vi-VN')}₫
-                        </p>
+                        {displayPrice > 0 ? (
+                            <>
+                                <p className="product-detail__price">
+                                    {displayPrice.toLocaleString('vi-VN')}₫
+                                </p>
+                                <p className="product-detail__original-price">
+                                    {(displayPrice * 1.1).toLocaleString('vi-VN')}₫
+                                </p>
+                                <span className="product-detail__discount">-10%</span>
+                            </>
+                        ) : (
+                            <p className="product-detail__price" style={{ color: 'orange' }}>
+                                Liên hệ
+                            </p>
+                        )}
                     </div>
 
-                    {/* Variant Selector */}
+                    {/* CHỌN PHIÊN BẢN (VARIANT) */}
                     {product.originalVariants && product.originalVariants.length > 0 && (
-                        <div style={{ marginBottom: 20 }}>
-                            <p style={{ fontWeight: 600, marginBottom: 8 }}>Phiên bản:</p>
+                        <div className="variant-selector" style={{ marginBottom: 20 }}>
+                            <p style={{ fontWeight: 600, marginBottom: 8 }}>Chọn phiên bản:</p>
                             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                                 {product.originalVariants.map(v => (
                                     <Button
                                         key={v.id}
                                         type={selectedVariant?.id === v.id ? 'primary' : 'default'}
-                                        onClick={() => setSelectedVariant(v)}
+                                        onClick={() => {
+                                            setSelectedVariant(v);
+                                            setQuantity(1); // Reset số lượng khi đổi variant
+                                        }}
+                                        disabled={v.quantity <= 0}
+                                        className={
+                                            selectedVariant?.id === v.id ? 'active-variant' : ''
+                                        }
                                     >
-                                        {v.color} {v.storage} - {Number(v.price).toLocaleString()}đ
+                                        {v.color} / {v.storage} - {Number(v.price).toLocaleString()}
+                                        đ
                                     </Button>
                                 ))}
                             </div>
                         </div>
                     )}
 
+                    {/* TRẠNG THÁI KHO & SỐ LƯỢNG */}
                     <div className="product-detail__quantity">
+                        <div style={{ marginBottom: 10 }}>
+                            Trạng thái:{' '}
+                            {isOutOfStock ? (
+                                <Tag color="red">Hết hàng</Tag>
+                            ) : (
+                                <Tag color="green">Còn hàng ({stock})</Tag>
+                            )}
+                        </div>
+
                         <div className="quantity-selector">
-                            <button onClick={() => setQuantity(Math.max(1, quantity - 1))}>
+                            <button
+                                onClick={() => handleQuantityChange(quantity - 1)}
+                                disabled={isOutOfStock}
+                            >
                                 -
                             </button>
-                            <input value={quantity} readOnly />
-                            <button onClick={() => setQuantity(quantity + 1)}>+</button>
+                            <input
+                                type="number"
+                                value={quantity}
+                                onChange={e => handleQuantityChange(parseInt(e.target.value) || 1)}
+                                disabled={isOutOfStock}
+                            />
+                            <button
+                                onClick={() => handleQuantityChange(quantity + 1)}
+                                disabled={isOutOfStock}
+                            >
+                                +
+                            </button>
                         </div>
                     </div>
 
+                    {/* BUTTON MUA */}
                     <div className="product-detail__actions">
-                        <Button type="primary" size="large" onClick={handleAddToCart}>
-                            Thêm vào giỏ hàng
+                        <Button
+                            type="primary"
+                            size="large"
+                            onClick={() => handleAddToCart(false)}
+                            disabled={isOutOfStock}
+                        >
+                            Thêm vào giỏ
                         </Button>
+                        <Button
+                            type="primary"
+                            danger
+                            size="large"
+                            onClick={() => handleAddToCart(true)}
+                            disabled={isOutOfStock}
+                        >
+                            Mua ngay
+                        </Button>
+                    </div>
+
+                    {/* CHÍNH SÁCH */}
+                    <div className="product-detail__policies">
+                        <div className="policy-item">
+                            <span>✓</span> Bảo hành chính hãng 12 tháng
+                        </div>
+                        <div className="policy-item">
+                            <span>✓</span> Đổi trả trong 30 ngày
+                        </div>
                     </div>
                 </div>
             </section>
 
+            {/* TABS DESCRIPTION */}
             <section className="product-tabs">
                 <Tabs
                     items={[
                         {
                             key: '1',
-                            label: 'Mô tả chi tiết',
+                            label: 'Mô tả sản phẩm',
                             children: (
                                 <div
-                                    dangerouslySetInnerHTML={{
-                                        __html: product.description || 'Đang cập nhật',
-                                    }}
-                                    style={{ lineHeight: 1.6 }}
-                                />
-                            ),
-                        },
-                        {
-                            key: '2',
-                            label: `Đánh giá (${reviews.length})`,
-                            children: (
-                                <div className="product-reviews">
-                                    {/* Form đánh giá */}
-                                    <div style={{ maxWidth: 600, marginBottom: 30 }}>
-                                        <h3>Viết đánh giá của bạn</h3>
-                                        <Form
-                                            form={form}
-                                            onFinish={handleSubmitReview}
-                                            layout="vertical"
-                                        >
-                                            <Form.Item
-                                                name="rating"
-                                                label="Mức độ hài lòng"
-                                                initialValue={5}
-                                            >
-                                                <Rate />
-                                            </Form.Item>
-                                            <Form.Item
-                                                name="comment"
-                                                label="Nội dung đánh giá"
-                                                rules={[
-                                                    {
-                                                        required: true,
-                                                        message: 'Vui lòng nhập nội dung',
-                                                    },
-                                                ]}
-                                            >
-                                                <TextArea
-                                                    rows={3}
-                                                    placeholder="Chia sẻ cảm nhận về sản phẩm..."
-                                                />
-                                            </Form.Item>
-                                            <Button htmlType="submit" type="primary">
-                                                Gửi đánh giá
-                                            </Button>
-                                        </Form>
-                                    </div>
-
-                                    <Divider />
-
-                                    {/* Danh sách đánh giá */}
-                                    {loadingReviews ? (
-                                        <Skeleton active />
-                                    ) : reviews.length > 0 ? (
-                                        <List
-                                            itemLayout="vertical"
-                                            dataSource={reviews}
-                                            renderItem={item => (
-                                                <List.Item>
-                                                    <List.Item.Meta
-                                                        avatar={
-                                                            <Avatar
-                                                                src={item.user?.avatar}
-                                                                icon={<UserOutlined />}
-                                                            />
-                                                        }
-                                                        title={
-                                                            <div
-                                                                style={{
-                                                                    display: 'flex',
-                                                                    alignItems: 'center',
-                                                                    gap: 10,
-                                                                }}
-                                                            >
-                                                                <span style={{ fontWeight: 600 }}>
-                                                                    {item.user?.full_name ||
-                                                                        'Người dùng'}
-                                                                </span>
-                                                                <Rate
-                                                                    disabled
-                                                                    value={item.vote}
-                                                                    style={{ fontSize: 12 }}
-                                                                />
-                                                            </div>
-                                                        }
-                                                        description={
-                                                            <div>
-                                                                <div
-                                                                    style={{
-                                                                        color: '#333',
-                                                                        marginTop: 5,
-                                                                    }}
-                                                                >
-                                                                    {item.comment}
-                                                                </div>
-                                                                <div
-                                                                    style={{
-                                                                        fontSize: 12,
-                                                                        color: '#999',
-                                                                        marginTop: 4,
-                                                                    }}
-                                                                >
-                                                                    {item.create_at
-                                                                        ? new Date(
-                                                                              item.create_at
-                                                                          ).toLocaleDateString(
-                                                                              'vi-VN'
-                                                                          )
-                                                                        : ''}
-                                                                </div>
-                                                            </div>
-                                                        }
-                                                    />
-
-                                                    {item.children_reviews &&
-                                                        item.children_reviews.length > 0 && (
-                                                            <div
-                                                                style={{
-                                                                    marginLeft: 48,
-                                                                    marginTop: 10,
-                                                                    background: '#f9f9f9',
-                                                                    padding: 12,
-                                                                    borderRadius: 8,
-                                                                }}
-                                                            >
-                                                                {item.children_reviews.map(
-                                                                    (child: any) => (
-                                                                        <div
-                                                                            key={child.id}
-                                                                            style={{
-                                                                                display: 'flex',
-                                                                                gap: 10,
-                                                                                marginBottom: 12,
-                                                                            }}
-                                                                        >
-                                                                            <Avatar
-                                                                                size="small"
-                                                                                src={
-                                                                                    child.user
-                                                                                        ?.avatar
-                                                                                }
-                                                                                icon={
-                                                                                    <UserOutlined />
-                                                                                }
-                                                                            />
-                                                                            <div>
-                                                                                <div
-                                                                                    style={{
-                                                                                        display:
-                                                                                            'flex',
-                                                                                        gap: 8,
-                                                                                        alignItems:
-                                                                                            'center',
-                                                                                    }}
-                                                                                >
-                                                                                    <span
-                                                                                        style={{
-                                                                                            fontWeight: 600,
-                                                                                            fontSize: 13,
-                                                                                        }}
-                                                                                    >
-                                                                                        {child.user
-                                                                                            ?.full_name ||
-                                                                                            'Admin/Staff'}
-                                                                                    </span>
-                                                                                </div>
-                                                                                <div
-                                                                                    style={{
-                                                                                        fontSize: 13,
-                                                                                        color: '#333',
-                                                                                    }}
-                                                                                >
-                                                                                    {child.comment}
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    )
-                                                                )}
-                                                            </div>
-                                                        )}
-                                                </List.Item>
-                                            )}
-                                        />
-                                    ) : (
-                                        <Empty description="Chưa có đánh giá nào cho sản phẩm này" />
-                                    )}
+                                    className="product-description"
+                                    style={{ whiteSpace: 'pre-line' }}
+                                >
+                                    {product.description || 'Chưa có mô tả chi tiết.'}
                                 </div>
                             ),
                         },
+                        // Có thể thêm Tab đánh giá ở đây
                     ]}
                 />
             </section>
 
+            {/* SẢN PHẨM LIÊN QUAN */}
             <section className="related-products">
                 <h2 className="section-title">Sản phẩm liên quan</h2>
                 <div className="product-grid">
@@ -420,5 +271,4 @@ const ProductDetailPage: React.FC = () => {
         </div>
     );
 };
-
 export default ProductDetailPage;

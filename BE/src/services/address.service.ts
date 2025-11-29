@@ -21,13 +21,13 @@ export const createAddress = async (
       province: data.province,
       ward: data.ward,
       detail: data.detail,
-      user : {
-        connect : {
-          id : user.id
-        }
+      user: {
+        connect: {
+          id: user.id,
+        },
       },
-      receive_name : data.receive_name? data.receive_name : user.full_name,
-      phone: data.phone? data.phone : user.phone? user.phone : ""
+      receive_name: data.receive_name ? data.receive_name : user.full_name,
+      phone: data.phone ? data.phone : user.phone ? user.phone : '',
     },
   });
   const allAddresses = await prisma.address.findMany({
@@ -52,7 +52,7 @@ export const createAddress = async (
     orderBy: { id: 'asc' }, // sắp xếp tăng dần cho đẹp
   });
 
-   return {
+  return {
     addresses: allAddresses,
   };
 };
@@ -82,9 +82,9 @@ export const getAddressList = async (
     orderBy: { id: 'asc' }, // sắp xếp tăng dần cho đẹp
   });
   return {
-    addresses
-  }
-}
+    addresses,
+  };
+};
 
 export const updateAddress = async (
   id: number,

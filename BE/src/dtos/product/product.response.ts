@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 /* =============================
    CATEGORY RESPONSE
@@ -71,7 +71,9 @@ export const ProductVariantResponseSchema = z.object({
   create_at: z.date(),
 });
 
-export type ProductVariantResponse = z.infer<typeof ProductVariantResponseSchema>;
+export type ProductVariantResponse = z.infer<
+  typeof ProductVariantResponseSchema
+>;
 
 /* =============================
    PRODUCT RESPONSE
@@ -97,10 +99,12 @@ export const ProductResponseSchema = z.object({
   product_image: ProductImageResponseSchema.array().optional(),
   product_specs: ProductSpecResponseSchema.array().optional(),
   product_variants: ProductVariantResponseSchema.array().optional(),
-  rate: z.object({
-    avg: z.number(),
-    count: z.number(),
-  }).optional(), // Tỷ lệ đánh giá
+  rate: z
+    .object({
+      avg: z.number(),
+      count: z.number(),
+    })
+    .optional(), // Tỷ lệ đánh giá
   reviews: z.any().array().optional(), // nếu muốn, tôi viết review.response luôn
 });
 

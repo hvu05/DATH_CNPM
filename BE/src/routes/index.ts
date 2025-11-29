@@ -6,9 +6,9 @@ import orderRouter from './order/order.route';
 import adminRouter from './admin.route';
 import uploadRouter from './upload.route';
 
-import categoryRouter from "./category.route";
-import productRouter from "./product.route";
-import brandRouter from "./brand.route";
+import categoryRouter from './category.route';
+import productRouter from './product.route';
+import brandRouter from './brand.route';
 const router = Router();
 
 router.use('/users', userRouter);

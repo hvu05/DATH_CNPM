@@ -9,6 +9,7 @@ import { Dropdown, Avatar } from 'antd';
 import { UserOutlined, LogoutOutlined, SettingOutlined } from '@ant-design/icons';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { removeTokens } from '@/services/auth/auth.service';
+const cloudinary = import.meta.env.VITE_CLOUDINARY_NAME;
 
 export const Header = () => {
     const navigate = useNavigate();
@@ -110,7 +111,7 @@ export const Header = () => {
                         trigger={['click']}
                     >
                         <Avatar
-                            src={user?.avatar || defaultAvatar}
+                            src={`${cloudinary}/${user?.avatar}` || defaultAvatar}
                             className="header__avatar cursor-pointer"
                             size={40}
                             style={{ cursor: 'pointer' }}

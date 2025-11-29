@@ -89,8 +89,8 @@ const CartPage: React.FC = () => {
                         </Checkbox>
                     </div>
 
-                    {cartItems.map(item => (
-                        <div className="cart-item" key={item.variantId}>
+                    {cartItems.map((item, index) => (
+                        <div className="cart-item" key={index}>
                             <Checkbox
                                 style={{ marginRight: 15 }}
                                 checked={checkedItems.includes(item.variantId)}

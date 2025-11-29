@@ -52,7 +52,8 @@ const ProductDetailPage: React.FC = () => {
                     const sorted = [...data.originalVariants].sort(
                         (a, b) => Number(a.price) - Number(b.price)
                     );
-                    setSelectedVariant(sorted[0]);
+                    // console.log('sort', sorted)
+                    setSelectedVariant(sorted[0]); // set cho mặc định chọn cái đầu tiên
                 }
                 getProducts().then(all => {
                     setRelatedProducts(
@@ -80,7 +81,8 @@ const ProductDetailPage: React.FC = () => {
             message.error('Vui lòng chọn phiên bản màu sắc/dung lượng');
             return;
         }
-
+        console.log('selectedVariant', selectedVariant)
+        console.log('product', product)
         const variantSuffix = selectedVariant
             ? `(${selectedVariant.color} ${selectedVariant.storage})`
             : '';

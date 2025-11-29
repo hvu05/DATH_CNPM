@@ -34,14 +34,19 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     }, [cartItems]);
 
     const addToCart = (newItem: CartItem) => {
+        console.log('cart item trước khi thêm:', cartItems)
+        console.log('item cbi thêm:', newItem)
+
         setCartItems(prev => {
-            const existingItemIndex = prev.findIndex(item => item.variantId === newItem.variantId);
+            const existingItemIndex = prev.findIndex(item => item.variantId === newItem.variantId && item.productId === newItem.productId);
 
             if (existingItemIndex > -1) {
                 const newCart = [...prev];
                 newCart[existingItemIndex].quantity += newItem.quantity;
+                console.log('sản phẩm cộng dồn do đã tồn tại:', newCart)
                 return newCart;
             } else {
+                console.log('sản phẩm mới:', [...prev, newItem])
                 return [...prev, newItem];
             }
         });

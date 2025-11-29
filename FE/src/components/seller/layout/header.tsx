@@ -3,12 +3,12 @@ import { UserOutlined } from '@ant-design/icons';
 import { Avatar, Dropdown, Typography } from 'antd';
 import type { MenuProps } from 'antd';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 const { Text } = Typography;
 
 export const Header = () => {
-    const { isLoggedIn, logout } = useAuthContext();
+    const { isLoggedIn, logout, user } = useAuthContext();
     const navigate = useNavigate();
 
     const profileMenu: MenuProps['items'] = [
@@ -41,8 +41,9 @@ export const Header = () => {
                     <a onClick={e => e.preventDefault()}>
                         <div className="flex items-center gap-3">
                             <Avatar
+                                src={user?.avatar}
                                 size={32}
-                                icon={<UserOutlined />}
+                                icon={!user?.avatar && <UserOutlined />}
                                 style={{
                                     backgroundColor: '#f0f2ff',
                                     borderColor: '#667eea',

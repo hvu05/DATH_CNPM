@@ -5,7 +5,7 @@ import qrcodeIcon from '@/assets/client/qrcode.svg';
 import './index.scss';
 import { useState } from 'react';
 import { ChangeAddressPage } from '@/components/client/ChangeAddress';
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useClientProfile } from '@/hooks/client/useClientProfile';
 import type { Address } from '@/types/clients/client.address.types';
 import { orderAPI } from '@/services/user/orders/user.order.api';

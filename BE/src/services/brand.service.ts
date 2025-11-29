@@ -63,3 +63,17 @@ export const brandService = {
     return { results, count };
   },
 };
+
+export const seriesService = {
+  async createSeries(data: any) {
+    const series = await prisma.series.create({ data });
+    return series;
+  },
+
+  async getSeriesByBrand(brandName: string) {
+    const series = await prisma.series.findMany({
+      where: { brand: { name: brandName } },
+    });
+    return series;
+  }
+};

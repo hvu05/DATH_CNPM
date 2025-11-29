@@ -1,7 +1,7 @@
 import * as adminDto from '../../dtos/admin';
 import * as adminService from '../../services/admin/users.service';
 import { NextFunction, Request, Response } from 'express';
-import { ApiResponse } from '../../types/api-response';
+import { ApiResponse } from '../../dtos/common/api-response';
 
 // Admin Users APIs - Hades
 export const getAllUsersHandler = async (

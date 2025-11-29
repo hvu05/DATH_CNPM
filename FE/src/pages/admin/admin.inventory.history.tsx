@@ -1,118 +1,265 @@
-import { HistoryOutlined } from '@ant-design/icons';
-import { Card, Table, Typography } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import {
+    HistoryOutlined,
+    SearchOutlined,
+    ReloadOutlined,
+    ArrowUpOutlined,
+    ArrowDownOutlined,
+    SwapOutlined,
+} from '@ant-design/icons';
+import { Card, Table, Tag, Input, Select, Button, Statistic, Row, Col, App } from 'antd';
+import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
+import { useState, useEffect } from 'react';
+import {
+    getInventoryLogsAPI,
+    getInventorySummaryAPI,
+    type IInventoryLog,
+    type IInventorySummary,
+    type IInventoryLogParams,
+} from '@/services/admin/inventory/inventory.api';
 
-interface IInventoryHistory {
-    ID: number;
-    name: string;
-    quantity: number;
-    importTime: string;
-    price: number;
-}
-
-const inventoryData: IInventoryHistory[] = [
-    {
-        ID: 1,
-        name: 'MSI Thin U63',
-        quantity: 120,
-        price: 12_000_000,
-        importTime: '2024-10-01T09:15:00Z',
-    },
-    {
-        ID: 2,
-        name: 'Macbook pro M1',
-        quantity: 102,
-        price: 9_000_000,
-        importTime: '2024-10-01T09:15:00Z',
-    },
-    { ID: 3, name: 'Oppo', quantity: 121, price: 32_000_000, importTime: '2024-10-01T09:15:00Z' },
-    { ID: 4, name: 'Xiaomi', quantity: 121, price: 33_000_000, importTime: '2024-10-01T09:15:00Z' },
-    {
-        ID: 5,
-        name: 'MSI Thin U63',
-        quantity: 122,
-        price: 12_000_000,
-        importTime: '2024-10-01T09:13:00Z',
-    },
-    {
-        ID: 6,
-        name: 'Iphone 19',
-        quantity: 123,
-        price: 12_000_000,
-        importTime: '2024-10-01T09:14:00Z',
-    },
-    {
-        ID: 7,
-        name: 'MSI Thin U63',
-        quantity: 112,
-        price: 80_000_000,
-        importTime: '2024-10-01T09:15:00Z',
-    },
-];
-
-const timeFormatter = new Intl.DateTimeFormat('vi-VN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
+const priceFormatter = new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
 });
 
 export const InventoryHistoryPage = () => {
-    const columns: ColumnsType<IInventoryHistory> = [
+    const { message } = App.useApp();
+    const [loading, setLoading] = useState(false);
+    const [data, setData] = useState<IInventoryLog[]>([]);
+    const [summary, setSummary] = useState<IInventorySummary | null>(null);
+    const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
+    const [filters, setFilters] = useState<IInventoryLogParams>({
+        page: 1,
+        limit: 10,
+        type: undefined,
+        search: '',
+    });
+
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const [logsRes, summaryRes] = await Promise.all([
+                getInventoryLogsAPI(filters),
+                getInventorySummaryAPI(),
+            ]);
+
+            if (logsRes.success && logsRes.data) {
+                setData(logsRes.data.results);
+                setPagination(prev => ({
+                    ...prev,
+                    current: logsRes.data!.meta.page,
+                    total: logsRes.data!.meta.total,
+                }));
+            }
+
+            if (summaryRes.success && summaryRes.data) {
+                setSummary(summaryRes.data);
+            }
+        } catch (error) {
+            message.error('Không thể tải dữ liệu');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, [filters]);
+
+    const handleTableChange = (pag: TablePaginationConfig) => {
+        setFilters(prev => ({
+            ...prev,
+            page: pag.current || 1,
+            limit: pag.pageSize || 10,
+        }));
+    };
+
+    const handleSearch = (value: string) => {
+        setFilters(prev => ({ ...prev, search: value, page: 1 }));
+    };
+
+    const handleTypeFilter = (value: string | undefined) => {
+        setFilters(prev => ({
+            ...prev,
+            type: value as 'IN' | 'OUT' | undefined,
+            page: 1,
+        }));
+    };
+
+    const columns: ColumnsType<IInventoryLog> = [
         {
             title: 'ID',
-            dataIndex: 'ID',
-            sorter: (a, b) => a.ID - b.ID,
-            sortDirections: ['ascend', 'descend'],
+            dataIndex: 'id',
+            width: 80,
+            align: 'center',
+        },
+        {
+            title: 'Loại',
+            dataIndex: 'type',
             width: 100,
+            align: 'center',
+            render: (type: 'IN' | 'OUT') => (
+                <Tag
+                    color={type === 'IN' ? 'green' : 'red'}
+                    icon={type === 'IN' ? <ArrowDownOutlined /> : <ArrowUpOutlined />}
+                >
+                    {type === 'IN' ? 'NHẬP' : 'XUẤT'}
+                </Tag>
+            ),
         },
         {
-            title: 'name',
-            dataIndex: 'name',
-            sorter: (a, b) => a.name.localeCompare(b.name),
-            sortDirections: ['ascend', 'descend'],
+            title: 'Sản phẩm',
+            dataIndex: 'product_name',
+            ellipsis: true,
+            render: (name, record) => (
+                <div>
+                    <div className="font-medium text-gray-900">{name}</div>
+                    <div className="text-xs text-gray-500">{record.variant_info}</div>
+                </div>
+            ),
         },
         {
-            title: 'Price',
-            dataIndex: 'price',
+            title: 'Danh mục',
+            dataIndex: 'category',
+            width: 150,
+            render: cat => <Tag color="blue">{cat}</Tag>,
         },
         {
-            title: 'Quantity',
+            title: 'Thương hiệu',
+            dataIndex: 'brand',
+            width: 120,
+        },
+        {
+            title: 'Số lượng',
             dataIndex: 'quantity',
+            width: 100,
+            align: 'right',
+            render: (qty, record) => (
+                <span
+                    className={
+                        record.type === 'IN'
+                            ? 'text-green-600 font-semibold'
+                            : 'text-red-600 font-semibold'
+                    }
+                >
+                    {record.type === 'IN' ? '+' : '-'}
+                    {qty}
+                </span>
+            ),
         },
         {
-            title: 'Import time',
-            dataIndex: 'importTime',
-            sorter: (a, b) => new Date(a.importTime).getTime() - new Date(b.importTime).getTime(),
-            sortDirections: ['ascend', 'descend'],
-            render: (_, record) => <span>{timeFormatter.format(new Date(record.importTime))}</span>,
+            title: 'Đơn giá',
+            dataIndex: 'price',
+            width: 140,
+            align: 'right',
+            render: price => priceFormatter.format(price),
+        },
+        {
+            title: 'Lý do',
+            dataIndex: 'reason',
+            ellipsis: true,
         },
     ];
 
-    // const { Text, Title } = Typography;
     return (
-        <>
-            <div className="space-y-6">
-                <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="bg-blue-100 p-3 rounded-full">
-                                <HistoryOutlined className="text-2xl text-blue-600" />
-                            </div>
-                            <div>
-                                <h1 className="text-3xl font-bold text-gray-900">
-                                    Lịch sử nhập hàng
-                                </h1>
-                                <p className="text-gray-600 mt-1">Quản lí lịch sử nhập hàng</p>
-                            </div>
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="bg-blue-100 p-3 rounded-full">
+                            <HistoryOutlined className="text-2xl text-blue-600" />
+                        </div>
+                        <div>
+                            <h1 className="text-3xl font-bold text-gray-900">
+                                Lịch sử nhập xuất kho
+                            </h1>
+                            <p className="text-gray-600 mt-1">
+                                Theo dõi các giao dịch nhập xuất hàng hóa
+                            </p>
                         </div>
                     </div>
+                    <Button icon={<ReloadOutlined />} onClick={fetchData} loading={loading}>
+                        Làm mới
+                    </Button>
                 </div>
-                <Card>
-                    <Table columns={columns} dataSource={inventoryData} />
-                </Card>
             </div>
-        </>
+
+            {/* Summary Cards */}
+            <Row gutter={16}>
+                <Col xs={24} sm={8}>
+                    <Card>
+                        <Statistic
+                            title="Tổng nhập kho"
+                            value={summary?.totalIn || 0}
+                            prefix={<ArrowDownOutlined className="text-green-500" />}
+                            valueStyle={{ color: '#22c55e' }}
+                            suffix="sản phẩm"
+                        />
+                    </Card>
+                </Col>
+                <Col xs={24} sm={8}>
+                    <Card>
+                        <Statistic
+                            title="Tổng xuất kho"
+                            value={summary?.totalOut || 0}
+                            prefix={<ArrowUpOutlined className="text-red-500" />}
+                            valueStyle={{ color: '#ef4444' }}
+                            suffix="sản phẩm"
+                        />
+                    </Card>
+                </Col>
+                <Col xs={24} sm={8}>
+                    <Card>
+                        <Statistic
+                            title="Tổng giao dịch"
+                            value={summary?.totalLogs || 0}
+                            prefix={<SwapOutlined className="text-blue-500" />}
+                            valueStyle={{ color: '#3b82f6' }}
+                            suffix="lượt"
+                        />
+                    </Card>
+                </Col>
+            </Row>
+
+            {/* Filters & Table */}
+            <Card>
+                <div className="mb-4 flex flex-wrap gap-4">
+                    <Input.Search
+                        placeholder="Tìm theo tên sản phẩm..."
+                        allowClear
+                        onSearch={handleSearch}
+                        style={{ width: 300 }}
+                        prefix={<SearchOutlined />}
+                    />
+                    <Select
+                        placeholder="Loại giao dịch"
+                        allowClear
+                        style={{ width: 150 }}
+                        onChange={handleTypeFilter}
+                        options={[
+                            { label: 'Tất cả', value: undefined },
+                            { label: 'Nhập kho', value: 'IN' },
+                            { label: 'Xuất kho', value: 'OUT' },
+                        ]}
+                    />
+                </div>
+
+                <Table
+                    columns={columns}
+                    dataSource={data}
+                    rowKey="id"
+                    loading={loading}
+                    pagination={{
+                        ...pagination,
+                        showSizeChanger: true,
+                        showTotal: (total, range) =>
+                            `${range[0]}-${range[1]} của ${total} giao dịch`,
+                    }}
+                    onChange={handleTableChange}
+                    scroll={{ x: 1000 }}
+                />
+            </Card>
+        </div>
     );
 };

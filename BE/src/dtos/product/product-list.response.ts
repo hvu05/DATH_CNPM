@@ -6,12 +6,11 @@ export const ProductListResponseSchema = z.object({
   limit: z.number(),
   total_items: z.number(),
   total_pages: z.number(),
-  results: z.array(
-    ProductResponseSchema.omit({
-      product_specs: true,
-      product_variants: true,
-    }),
-  ),
-});
+  results: z.array(ProductResponseSchema.omit({
+    product_specs: true,
+    product_variants: true,
+    reviews: true,
+  })),
+}).strip();
 
 export type ProductListResponse = z.infer<typeof ProductListResponseSchema>;

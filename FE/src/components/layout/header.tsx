@@ -1,4 +1,3 @@
-// FE/src/components/common/Header.tsx
 import './header.scss';
 import homeIcon from '@/assets/home-icon.svg';
 import menuIcon from '@/assets/menu-icon.svg';
@@ -6,9 +5,8 @@ import searchIcon from '@/assets/search-icon.svg';
 import cartIcon from '@/assets/cart-icon.svg';
 import defaultAvatar from '@/assets/default-avatar-icon.svg';
 import { Link, useNavigate } from 'react-router-dom';
-import { Dropdown, Avatar, Badge, message } from 'antd';
+import { Dropdown, Avatar, Badge, Button, message } from 'antd';
 import type { MenuProps } from 'antd';
-import { getCategories } from '@/services/productsApi';
 import {
     UserOutlined,
     LogoutOutlined,
@@ -25,6 +23,7 @@ import { removeTokens } from '@/services/auth/auth.service';
 import { useCart } from '@/contexts/CartContext';
 import React, { useState, useEffect, useRef } from 'react';
 
+// --- DATA HARDCODE (CỐ ĐỊNH) ---
 const megaMenuData = [
     {
         id: 'phones',
@@ -35,21 +34,21 @@ const megaMenuData = [
                 {
                     title: 'Thương hiệu',
                     items: [
-                        { name: 'iPhone', link: '/search?search=iPhone' },
-                        { name: 'Samsung', link: '/search?search=Samsung' },
-                        { name: 'Xiaomi', link: '/search?search=Xiaomi' },
-                        { name: 'OPPO', link: '/search?search=OPPO' },
+                        { name: 'iPhone', link: '/search?q=iPhone' },
+                        { name: 'Samsung', link: '/search?q=Samsung' },
+                        { name: 'Xiaomi', link: '/search?q=Xiaomi' },
+                        { name: 'OPPO', link: '/search?q=OPPO' },
                     ],
                 },
                 {
                     title: 'Mức giá',
                     items: [
-                        { name: 'Dưới 5 triệu', link: '/search?search=phone&max_price=5000000' },
+                        { name: 'Dưới 5 triệu', link: '/search?q=phone&max_price=5000000' },
                         {
                             name: 'Từ 5 - 10 triệu',
-                            link: '/search?search=phone&min_price=5000000&max_price=10000000',
+                            link: '/search?q=phone&min_price=5000000&max_price=10000000',
                         },
-                        { name: 'Trên 20 triệu', link: '/search?search=phone&min_price=20000000' },
+                        { name: 'Trên 20 triệu', link: '/search?q=phone&min_price=20000000' },
                     ],
                 },
             ],
@@ -57,34 +56,25 @@ const megaMenuData = [
     },
     {
         id: 'laptops',
-        name: 'Máy tính',
+        name: 'Laptop',
         icon: <LaptopOutlined />,
         content: {
             columns: [
                 {
                     title: 'Thương hiệu',
                     items: [
-                        { name: 'MacBook', link: '/search?search=MacBook' },
-                        { name: 'Dell', link: '/search?search=Dell' },
-                        { name: 'Asus', link: '/search?search=Asus' },
-                        { name: 'HP', link: '/search?search=HP' },
+                        { name: 'MacBook', link: '/search?q=MacBook' },
+                        { name: 'Dell', link: '/search?q=Dell' },
+                        { name: 'Asus', link: '/search?q=Asus' },
+                        { name: 'HP', link: '/search?q=HP' },
                     ],
                 },
-            ],
-        },
-    },
-    {
-        id: 'watches',
-        name: 'Đồng hồ',
-        icon: <ClockCircleOutlined />,
-        content: {
-            columns: [
                 {
-                    title: 'Loại đồng hồ',
+                    title: 'Nhu cầu',
                     items: [
-                        { name: 'Apple Watch', link: '/search?search=Apple+Watch' },
-                        { name: 'Samsung Watch', link: '/search?search=Galaxy+Watch' },
-                        { name: 'Đồng hồ thông minh', link: '/search?search=Smartwatch' },
+                        { name: 'Gaming', link: '/search?q=Gaming' },
+                        { name: 'Văn phòng', link: '/search?q=Office' },
+                        { name: 'Đồ họa', link: '/search?q=Graphic' },
                     ],
                 },
             ],
@@ -99,8 +89,25 @@ const megaMenuData = [
                 {
                     title: 'Gợi ý',
                     items: [
-                        { name: 'iPad', link: '/search?search=iPad' },
-                        { name: 'Samsung Tab', link: '/search?search=Samsung+Tab' },
+                        { name: 'iPad', link: '/search?q=iPad' },
+                        { name: 'Samsung Tab', link: '/search?q=Samsung+Tab' },
+                    ],
+                },
+            ],
+        },
+    },
+    {
+        id: 'watches',
+        name: 'Đồng hồ',
+        icon: <ClockCircleOutlined />,
+        content: {
+            columns: [
+                {
+                    title: 'Loại đồng hồ',
+                    items: [
+                        { name: 'Apple Watch', link: '/search?q=Apple+Watch' },
+                        { name: 'Samsung Watch', link: '/search?q=Galaxy+Watch' },
+                        { name: 'Đồng hồ thông minh', link: '/search?q=Smartwatch' },
                     ],
                 },
             ],
@@ -115,15 +122,15 @@ const megaMenuData = [
                 {
                     title: 'Âm thanh',
                     items: [
-                        { name: 'Tai nghe', link: '/search?search=Tai+nghe' },
-                        { name: 'Loa', link: '/search?search=Loa' },
+                        { name: 'Tai nghe', link: '/search?q=Tai+nghe' },
+                        { name: 'Loa', link: '/search?q=Loa' },
                     ],
                 },
                 {
                     title: 'Khác',
                     items: [
-                        { name: 'Sạc dự phòng', link: '/search?search=Sạc' },
-                        { name: 'Cáp sạc', link: '/search?search=Cáp' },
+                        { name: 'Sạc dự phòng', link: '/search?q=Sạc' },
+                        { name: 'Cáp sạc', link: '/search?q=Cáp' },
                     ],
                 },
             ],
@@ -140,15 +147,7 @@ export const Header = () => {
     const [activeCategory, setActiveCategory] = useState<string>('phones');
     const dropdownRef = useRef<HTMLDivElement>(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [categories, setCategories] = useState<any[]>([]);
-    useEffect(() => {
-        const fetchCats = async () => {
-            const data = await getCategories();
-            // Map data từ API sang cấu trúc hiển thị nếu cần, hoặc lưu trực tiếp
-            setCategories(data);
-        };
-        fetchCats();
-    }, []);
+
     const totalCartItems = cartItems.reduce((total, item) => total + item.quantity, 0);
 
     const logout = () => {
@@ -178,18 +177,13 @@ export const Header = () => {
             ? [{ key: 'sellerpage', label: 'Kênh nhân viên', icon: <SettingOutlined /> }]
             : []),
         { type: 'divider' },
-        {
-            key: 'logout',
-            label: 'Đăng xuất',
-            icon: <LogoutOutlined />,
-            danger: true,
-        },
+        { key: 'logout', label: 'Đăng xuất', icon: <LogoutOutlined />, danger: true },
     ];
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         if (searchTerm.trim()) {
-            navigate(`/search?search=${encodeURIComponent(searchTerm.trim())}`);
+            navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
             setSearchTerm('');
         }
     };
@@ -225,36 +219,53 @@ export const Header = () => {
 
                     {isCategoryDropdownOpen && (
                         <div className="category-dropdown__menu">
-                            {/* MENU ĐƠN GIẢN HÓA KHI DÙNG API ĐỘNG */}
-                            <div
-                                className="category-dropdown__categories"
-                                style={{ width: '100%' }}
-                            >
-                                {categories.length > 0 ? (
-                                    categories.map(cat => (
-                                        <Link
-                                            key={cat.id}
-                                            to={`/search?category=${cat.id}`} // Filter theo ID danh mục
-                                            className="category-dropdown__category-item"
-                                            onClick={() => setIsCategoryDropdownOpen(false)}
-                                        >
-                                            <span className="category-dropdown__icon">
-                                                <MobileOutlined /> {/* Icon tạm thời */}
-                                            </span>
-                                            {cat.name}
-                                        </Link>
-                                    ))
-                                ) : (
-                                    <div style={{ padding: 10 }}>Đang tải danh mục...</div>
+                            <div className="category-dropdown__categories">
+                                {megaMenuData.map(category => (
+                                    <button
+                                        key={category.id}
+                                        className={`category-dropdown__category-item ${activeCategory === category.id ? 'active' : ''}`}
+                                        onMouseEnter={() => setActiveCategory(category.id)}
+                                    >
+                                        <span className="category-dropdown__icon">
+                                            {category.icon}
+                                        </span>
+                                        {category.name}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="category-dropdown__content-wrapper">
+                                {activeCategoryData && (
+                                    <div className="category-dropdown__content">
+                                        {activeCategoryData.content.columns.map((column, index) => (
+                                            <div key={index} className="category-dropdown__column">
+                                                <h4 className="category-dropdown__column-title">
+                                                    {column.title}
+                                                </h4>
+                                                <ul className="category-dropdown__column-list">
+                                                    {column.items.map((item, itemIndex) => (
+                                                        <li key={itemIndex}>
+                                                            <Link
+                                                                to={item.link}
+                                                                onClick={() =>
+                                                                    setIsCategoryDropdownOpen(false)
+                                                                }
+                                                            >
+                                                                {item.name}
+                                                            </Link>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        ))}
+                                    </div>
                                 )}
                             </div>
-                            {/* Bỏ phần Mega Menu phức tạp nếu API không trả về cấu trúc cây */}
                         </div>
                     )}
                 </div>
             </div>
 
-            {/* SEARCH BAR */}
             <form className="header__search" onSubmit={handleSearch}>
                 <input
                     type="text"
@@ -268,7 +279,6 @@ export const Header = () => {
                 </button>
             </form>
 
-            {/* RIGHT ACTIONS */}
             <div className="header__right">
                 <Link to="/cart" className="header__button">
                     <Badge count={totalCartItems} size="small" offset={[0, -2]} showZero={false}>

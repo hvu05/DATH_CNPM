@@ -6,16 +6,17 @@ import {
   getProductHandler,
   getAllProductsHandler,
   uploadProductImageHandler,
-} from '../controllers/product.controller';
-import { checkRole } from '../middlewares/check-role.middleware';
-import { authenticateHandler } from '../middlewares/authenticate.middleware';
-import reviewRouter from './review.route';
-import { multerConfig } from '../config/multer.config';
-import { registry } from '../config/openapi.config';
-import { ProductCreateSchema } from '../dtos/product/product-create.request';
-import { ProductResponseSchema } from '../dtos/product/product.response';
-import { ApiResponseSchema } from '../dtos/common/api-response';
-import { ProductListResponseSchema } from '../dtos/product/product-list.response';
+} from "../controllers/product.controller";
+import { checkRole } from "../middlewares/check-role.middleware";
+import { authenticateHandler } from "../middlewares/authenticate.middleware";
+import reviewRouter from './review.route'
+import { multerConfig } from "../config/multer.config";
+import { registry } from "../config/openapi.config";
+import { ProductCreateSchema } from "../dtos/product/product-create.request";
+import { ProductResponseSchema } from "../dtos/product/product.response";
+import { ApiResponseSchema } from "../dtos/common/api-response";
+import { ProductListResponseSchema } from "../dtos/product/product-list.response";
+import { ProductFilterSchema } from "../dtos/product/product-filter.request";
 
 const router = Router();
 
@@ -26,6 +27,9 @@ registry.registerPath({
   tags: ['Product'],
   path: '/products',
   method: 'get',
+  request: {
+    query: ProductFilterSchema
+  },
   responses: {
     '200': {
       description: 'OK',

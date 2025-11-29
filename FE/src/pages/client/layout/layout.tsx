@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router';
+import { Outlet } from 'react-router-dom';
 import { Header } from '@/components/layout/header';
 import { TabClient } from '@/components/client/tab';
 

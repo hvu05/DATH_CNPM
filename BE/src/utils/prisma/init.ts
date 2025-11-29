@@ -7,7 +7,7 @@ async function main() {
   console.log('Seeding database...');
 
   await initUser();
-  await initProduct(); //? Khởi tạo tạm, vì chưa có product api
+  // await initProduct(); //? Khởi tạo tạm, vì chưa có product api
 
   console.log('Seeding finished!');
 }

@@ -1,11 +1,9 @@
-@use '../styles/variable.scss' as var;
-
 // --- PAGE LAYOUT ---
 .search-page {
     padding: 20px 0;
-
     background-color: #f5f5f5;
     min-height: 100vh;
+
     .container {
         max-width: 1200px;
         margin: 0 auto;
@@ -13,14 +11,13 @@
     }
 }
 
-// --- FILTER BAR (THANH LỌC NGANG) ---
+// --- FILTER BAR ---
 .filter-bar-container {
     background: #fff;
     padding: 16px 20px;
     border-radius: 8px;
     margin-bottom: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -53,12 +50,7 @@
             padding: 4px 12px;
             height: 36px;
 
-            &:hover {
-                background-color: #e6f7ff;
-                color: #1890ff;
-                border-color: #1890ff;
-            }
-
+            &:hover,
             &.active-filter-btn {
                 background-color: #e6f7ff;
                 color: #1890ff;
@@ -73,11 +65,6 @@
         align-items: center;
         gap: 10px;
 
-        .sort-label {
-            color: #666;
-            font-size: 14px;
-        }
-
         .ant-select-selector {
             background-color: transparent !important;
             border: none !important;
@@ -87,7 +74,7 @@
     }
 }
 
-// --- ACTIVE FILTERS (TAGS ĐANG CHỌN) ---
+// --- ACTIVE FILTERS ---
 .active-filters-list {
     margin-bottom: 24px;
     display: flex;
@@ -116,7 +103,7 @@
 
     .product-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr); // Mặc định 4 cột
+        grid-template-columns: repeat(4, 1fr);
         gap: 20px;
 
         @media (max-width: 1200px) {
@@ -129,12 +116,68 @@
         }
 
         @media (max-width: 480px) {
-            grid-template-columns: 1fr; // 1 cột trên điện thoại nhỏ
+            grid-template-columns: 1fr;
         }
     }
 }
 
-// --- POPOVER CONTENT (POPUP SỔ XUỐNG) ---
+// --- CUSTOM PAGINATION STYLE (MATCH HOMEPAGE) ---
+.pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+    margin-bottom: 20px;
+
+    .pagination {
+        display: flex;
+        gap: 8px;
+        background: #fff;
+        padding: 8px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+        button {
+            border: 1px solid #eee;
+            background: #fff;
+            color: #333;
+            min-width: 36px;
+            height: 36px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+
+            &:hover:not(:disabled) {
+                border-color: #d70018;
+                color: #d70018;
+            }
+
+            &.active {
+                background: #d70018;
+                color: #fff;
+                border-color: #d70018;
+            }
+
+            &.disabled,
+            &:disabled {
+                color: #ccc;
+                background: #f5f5f5;
+                cursor: not-allowed;
+                border-color: #eee;
+            }
+
+            &.page-btn {
+                font-weight: 500;
+                padding: 0 12px;
+            }
+        }
+    }
+}
+
+// --- POPOVER CONTENT ---
 .filter-popup-content {
     width: 280px;
     padding-top: 8px;
@@ -170,10 +213,6 @@
         margin-top: 16px;
         margin-bottom: 8px;
 
-        .separator {
-            color: #999;
-        }
-
         .ant-input-affix-wrapper {
             background: #f9f9f9;
         }
@@ -182,35 +221,30 @@
     .filter-footer {
         display: flex;
         justify-content: space-between;
-        align-items: center;
         padding: 12px 12px 0;
         border-top: 1px solid #f0f0f0;
         margin-top: 8px;
     }
 }
 
-// --- RESPONSIVE MOBILE TWEAKS ---
+// --- RESPONSIVE ---
 @media (max-width: 768px) {
     .filter-bar-container {
         flex-direction: column;
         align-items: flex-start;
-        gap: 12px;
 
         .filter-bar-left {
             width: 100%;
             overflow-x: auto;
-            padding-bottom: 4px;
             flex-wrap: nowrap;
-            &::-webkit-scrollbar {
-                display: none;
-            }
+            padding-bottom: 5px;
         }
 
         .filter-bar-right {
             width: 100%;
-            justify-content: space-between;
             border-top: 1px solid #eee;
             padding-top: 8px;
+            justify-content: space-between;
         }
     }
 }

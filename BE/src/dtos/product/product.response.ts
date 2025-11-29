@@ -81,7 +81,7 @@ export const ProductResponseSchema = z.object({
   name: z.string(),
   description: z.string(),
   quantity: z.number(),
-
+  default_price: z.number(),
   brand_id: z.number(),
   category_id: z.number(),
   series_id: z.number(),

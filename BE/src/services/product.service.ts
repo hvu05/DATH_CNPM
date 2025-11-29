@@ -201,6 +201,7 @@ export const productService = {
           [sort_by || 'create_at']: order,
         },
         include: {
+          product_variants: true,
           brand: true,
           series: true,
           category: true,
@@ -220,6 +221,7 @@ export const productService = {
 
     const formattedProducts = products.map((p) => ({
       ...p,
+      default_price: p.product_variants[0]?.price | 0,
       rate: {
         avg: p.rate,
         count: p.num_rate,

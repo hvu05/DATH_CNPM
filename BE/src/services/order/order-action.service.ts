@@ -218,7 +218,7 @@ export const complete = async (orderId: string) => {
       status: orderDto.OrderItemStatus.COMPLETED,
     },
   });
-  if (order.payment?.method == PaymentMethod.VNPAY) {
+  if (order.payment?.method == PaymentMethod.COD) {
     await prisma.payment.update({
       where: {
         order_id: orderId

@@ -15,6 +15,7 @@ const HomePage: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             const data = await getProducts();
+            console.log('data', data)
             setProductsList(data);
             setLoading(false);
         };
@@ -46,7 +47,10 @@ const HomePage: React.FC = () => {
             </div>
         );
 
+    {console.log('page', pagedProducts)}
+
     return (
+        
         <div className="homepage-wrapper">
             <div className="container">
                 {/* 1. SLIDER CHÍNH */}
@@ -118,6 +122,7 @@ const HomePage: React.FC = () => {
                 {/* 4. LƯỚI SẢN PHẨM CHÍNH + PAGINATION */}
                 <section className="main-products-section">
                     <h2 className="section-title">Tất cả sản phẩm</h2>
+                    
                     <div className="product-grid">
                         {pagedProducts.map(product => (
                             <ProductCard key={product.id} {...product} />

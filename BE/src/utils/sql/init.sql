@@ -1,5 +1,5 @@
 -- Sample data seeding script. Run after Prisma migrations have created the schema.
-USE `e-shop`;
+USE `mydb`;
 
 SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE TABLE `ReturnOrderImage`;

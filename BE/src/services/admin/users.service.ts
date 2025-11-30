@@ -206,4 +206,4 @@ export const updateUserByAdmin = async (
     create_at: updatedUser.create_at,
     update_at: updatedUser.update_at,
   };
-}
+};

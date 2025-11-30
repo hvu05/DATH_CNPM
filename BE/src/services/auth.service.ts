@@ -139,19 +139,22 @@ export const sendOtpForRegister = async (email: string): Promise<void> => {
     .catch((error: any) => {
       console.error(`❌ [OTP] Failed to send email:`, error);
     });
-}
+};
 
-export const refreshToken = async (refreshToken: string): Promise<authDto.LoginResponse> => {
+export const refreshToken = async (
+  refreshToken: string,
+): Promise<authDto.LoginResponse> => {
   const decoded = verifyToken(refreshToken) as JwtPayload;
   const user = await prisma.user.findUnique({
     where: {
-      id: decoded.id
+      id: decoded.id,
     },
     include: {
-      role: true
-    }
-  })
-  if (!user) throw new AppError(ErrorCode.NOT_FOUND, "Không tìm thấy người dùng");
+      role: true,
+    },
+  });
+  if (!user)
+    throw new AppError(ErrorCode.NOT_FOUND, 'Không tìm thấy người dùng');
   const payload: JwtPayload = {
     id: user.id,
     email: user.email,
@@ -159,9 +162,9 @@ export const refreshToken = async (refreshToken: string): Promise<authDto.LoginR
     full_name: user.full_name,
   };
   const access_token = generateToken(payload);
-  const refresh_token = generateToken({ id: user.id }, "7d");
+  const refresh_token = generateToken({ id: user.id }, '7d');
   return {
     access_token: access_token,
-    refresh_token: refresh_token
+    refresh_token: refresh_token,
   };
 };

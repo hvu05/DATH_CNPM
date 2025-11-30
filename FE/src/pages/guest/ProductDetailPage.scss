@@ -23,7 +23,7 @@
                 width: 100%;
                 height: auto;
                 display: block;
-                object-fit: contain; 
+                object-fit: contain;
                 max-height: 500px;
             }
         }
@@ -31,7 +31,7 @@
         .thumbnail-container {
             display: flex;
             gap: 0.5rem;
-            overflow-x: auto; 
+            overflow-x: auto;
 
             .thumbnail {
                 width: 70px;
@@ -45,7 +45,7 @@
 
                 &.active,
                 &:hover {
-                    border-color: #d70018; 
+                    border-color: #d70018;
                     opacity: 1;
                 }
             }
@@ -86,7 +86,7 @@
             .product-detail__price {
                 font-size: 1.8rem;
                 font-weight: 700;
-                color: #d70018; 
+                color: #d70018;
                 margin: 0;
             }
 
@@ -254,7 +254,6 @@
                     line-height: 1.5;
                     margin-left: 48px;
                 }
-
             }
         }
     }

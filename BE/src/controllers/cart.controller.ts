@@ -1,14 +1,14 @@
-import { Request, Response, NextFunction } from "express";
-import { ApiResponse } from "../dtos/common/api-response";
-import { CartResponse } from "../dtos/cart/cart-list-response";
-import { CartCreateSchema } from "../dtos/cart/cart-create.reques";
-import { createCart, getCart } from "../services/cart.service";
-import { success } from "zod";
+import { Request, Response, NextFunction } from 'express';
+import { ApiResponse } from '../dtos/common/api-response';
+import { CartResponse } from '../dtos/cart/cart-list-response';
+import { CartCreateSchema } from '../dtos/cart/cart-create.reques';
+import { createCart, getCart } from '../services/cart.service';
+import { success } from 'zod';
 
 export const createCartHandler = async (
   req: Request,
   res: Response<ApiResponse<CartResponse>>,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const parsed = CartCreateSchema.safeParse(req.body);
   if (!parsed.success) {
@@ -21,10 +21,10 @@ export const createCartHandler = async (
   const user = req.user;
   if (!user) {
     return res.status(401).json({
-      success : false,
-      messages: "Cần đăng nhập để thực hiện tính năng này"
-    })
-  };
+      success: false,
+      messages: 'Cần đăng nhập để thực hiện tính năng này',
+    });
+  }
   try {
     const cart = await createCart(data, user);
     const response = { success: true, data: cart };
@@ -37,15 +37,15 @@ export const createCartHandler = async (
 export const getCartHandler = async (
   req: Request,
   res: Response<ApiResponse<CartResponse[]>>,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const user = req.user;
   if (!user) {
     return res.status(401).json({
-      success : false,
-      messages: "Cần đăng nhập để thực hiện tính năng này"
-    })
-  };
+      success: false,
+      messages: 'Cần đăng nhập để thực hiện tính năng này',
+    });
+  }
   try {
     const cart = await getCart(user);
     const response = { success: true, data: cart };

@@ -20,8 +20,8 @@ export const createPayment = async (
       id: data.order_id,
     },
     include: {
-      payment: true
-    }
+      payment: true,
+    },
   });
   if (!order) throw new AppError(ErrorCode.NOT_FOUND, 'Không tìm thấy Order');
 
@@ -47,11 +47,10 @@ export const createPayment = async (
   //     order_id: data.order_id,
   //   }
   // })
-  let payment
+  let payment;
   if (order.payment) {
-    payment = order.payment
-  }
-  else{
+    payment = order.payment;
+  } else {
     payment = await prisma.payment.create({
       data: {
         order: {
@@ -112,16 +111,16 @@ export const verifyAndUpdatePayment = async (data: paymentDto.VnpayQuery) => {
       data: {
         transaction_code: verify.vnp_TransactionNo?.toString(),
         payment_status: paymentDto.PaymentStatus.SUCCESS,
-      }
-    })
+      },
+    });
     await prisma.order.update({
       where: {
         id: payment.order_id,
       },
       data: {
         status: OrderStatus.PROCESSING,
-      }
-    })
+      },
+    });
     return paymentDto.toPaymentResponse(payment);
   } catch (error) {
     throw error;

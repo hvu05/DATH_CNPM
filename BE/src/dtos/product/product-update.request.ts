@@ -1,4 +1,4 @@
-import z from "zod";
+import z from 'zod';
 
 export const ProductUpdateSchema = z.object({
   name: z.string().nonempty().optional(),

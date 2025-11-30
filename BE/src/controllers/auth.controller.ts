@@ -78,10 +78,15 @@ export const registerHandler = async (
   }
 };
 
-export const refreshTokenHandler = async (req: Request, res: Response<ApiResponse<authDto.LoginResponse>>, next: NextFunction) => {
+export const refreshTokenHandler = async (
+  req: Request,
+  res: Response<ApiResponse<authDto.LoginResponse>>,
+  next: NextFunction,
+) => {
   const { refresh_token } = req.body;
   try {
-    const response : authDto.LoginResponse = await authService.refreshToken(refresh_token);
+    const response: authDto.LoginResponse =
+      await authService.refreshToken(refresh_token);
     res.json({
       success: true,
       data: response,
@@ -89,4 +94,4 @@ export const refreshTokenHandler = async (req: Request, res: Response<ApiRespons
   } catch (error) {
     next(error);
   }
-}
+};

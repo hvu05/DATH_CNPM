@@ -62,7 +62,7 @@ export const createOrderReturn = async (
         images: {
           createMany: {
             data: uploads,
-          }
+          },
         },
       },
       include: {
@@ -71,13 +71,13 @@ export const createOrderReturn = async (
           include: {
             variant: {
               include: {
-                product: true
-              }
-            }
-          }
+                product: true,
+              },
+            },
+          },
         },
-        images: true
-      }
+        images: true,
+      },
     }),
     prisma.orderItem.update({
       where: {
@@ -90,7 +90,7 @@ export const createOrderReturn = async (
         status: orderDto.OrderItemStatus.RETURN_REQUEST,
       },
     }),
-  ])
+  ]);
   if (user.role === 'ADMIN' || user.role === 'STAFF') {
     await confirmReturned(orderId, orderItemId, user);
   }
@@ -144,15 +144,18 @@ export const confirmReturned = async (
       data: {
         status: orderDto.OrderItemStatus.RETURNED,
       },
-    })
-  ])
-  
+    }),
+  ]);
+
   console.log(
     `[ORDER REFUNDED] GỬi yêu cầu hoàn tiền của order ${orderId} với số tiền ${order.order.total} đến bộ phần kế toán`,
   );
 };
 
-export const getOrderReturnDetail = async (orderId: string, orderItemId: number) => {
+export const getOrderReturnDetail = async (
+  orderId: string,
+  orderItemId: number,
+) => {
   const order = await prisma.returnOrderRequest.findFirst({
     where: {
       order_id: orderId,
@@ -164,16 +167,16 @@ export const getOrderReturnDetail = async (orderId: string, orderItemId: number)
         include: {
           variant: {
             include: {
-              product: true
-            }
-          }
-        }
+              product: true,
+            },
+          },
+        },
       },
-      images: true
-    }
+      images: true,
+    },
   });
   if (!order) {
     throw new AppError(ErrorCode.NOT_FOUND, 'Không tìm thấy Order');
   }
   return orderDto.mapOrderReturnToDTO(order);
-}
+};

@@ -33,23 +33,23 @@ const transformProduct = (item: any): Product => {
         category: category,
         rating: rating,
         quantity: Number(item.quantity || 0),
-        
+
         // Map nguyên gốc để dùng ở trang Detail nếu cần
         originalVariants: item.product_variants || [],
-        originalImages: item.product_image || []
+        originalImages: item.product_image || [],
     };
 };
 
 export const getProducts = async (params?: any): Promise<Product[]> => {
     try {
         const res: any = await axios.get('/products', { params });
-        
-        // 1. Lấy payload thực sự 
-        const payload = res.data || res; 
+
+        // 1. Lấy payload thực sự
+        const payload = res.data || res;
 
         // 2. Trích xuất mảng results từ cấu trúc data.results
         let rawData: any[] = [];
-        
+
         if (payload.data && Array.isArray(payload.data.results)) {
             rawData = payload.data.results;
         } else if (Array.isArray(payload.data)) {
@@ -65,12 +65,11 @@ export const getProducts = async (params?: any): Promise<Product[]> => {
         // 3. Map dữ liệu
         let products = rawData.map((item: any) => transformProduct(item));
 
-        // 4. Filter Client-side nếu cần 
+        // 4. Filter Client-side nếu cần
         if (params?.q) {
             const q = params.q.toLowerCase();
-            products = products.filter(p => 
-                p.name.toLowerCase().includes(q) || 
-                p.brand.toLowerCase().includes(q)
+            products = products.filter(
+                p => p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q)
             );
         }
 
@@ -85,9 +84,9 @@ export const getProductById = async (id: string | number): Promise<Product | nul
     try {
         const res: any = await axios.get(`/products/${id}`);
         const payload = res.data || res;
-        
+
         const item = payload.data || payload;
-        
+
         if (!item || !item.id) return null;
         return transformProduct(item);
     } catch (error) {

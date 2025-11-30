@@ -5,7 +5,7 @@ export interface BackendVariant {
     product_id: number;
     color: string;
     storage: string;
-    price: number | string; 
+    price: number | string;
     quantity: number;
     import_price?: number;
 }
@@ -17,18 +17,17 @@ export interface BackendImage {
     is_thumbnail?: boolean;
 }
 
-
 export interface Product {
     id: number;
     name: string;
-    price: number;       
-    imageUrl: string;    
+    price: number;
+    imageUrl: string;
     description: string;
     brand: string;
     category: string;
     rating: number;
-    quantity: number;    
-    
+    quantity: number;
+
     originalVariants: BackendVariant[];
     originalImages: BackendImage[];
 }

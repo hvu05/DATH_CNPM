@@ -14,14 +14,14 @@ type OrderWithItemPrisma = Prisma.OrderGetPayload<{
               include: {
                 product_image: {
                   where: {
-                    is_thumbnail: true
+                    is_thumbnail: true;
                   };
                   select: {
-                    image_url: true
-                  }
-                }
-              }
-            }
+                    image_url: true;
+                  };
+                };
+              };
+            };
           };
         };
       };
@@ -63,7 +63,7 @@ const mapOrderItemsToDTO = (
     price_per_item: item.price_per_item,
     quantity: item.quantity,
     product_variant: mapProductVariantToDTO(item.variant),
-    status: item.status
+    status: item.status,
   };
 };
 
@@ -107,18 +107,18 @@ type OrderReturnWithItemPrisma = Prisma.ReturnOrderRequestGetPayload<{
               include: {
                 product_image: {
                   where: {
-                    is_thumbnail: true
+                    is_thumbnail: true;
                   };
                   select: {
-                    image_url: true
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+                    image_url: true;
+                  };
+                };
+              };
+            };
+          };
+        };
+      };
+    };
   };
 }>;
 
@@ -142,7 +142,9 @@ export const mapOrderReturnToDTO = (
       id: request.order_item.id,
       price_per_item: request.order_item.price_per_item,
       quantity: request.order_item.quantity,
-      product_variant: mapProductVariantToDTOForReturn(request.order_item.variant),
+      product_variant: mapProductVariantToDTOForReturn(
+        request.order_item.variant,
+      ),
     },
     reason: request.reason,
     images: request.images.map((image) => image.image_url),

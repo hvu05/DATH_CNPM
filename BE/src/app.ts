@@ -14,10 +14,12 @@ const app = express();
 const port = config.port; // default port to listen
 
 // init middleware
-app.use(cors({
+app.use(
+  cors({
     origin: 'http://localhost:5173', // Chỉ định rõ Frontend URL
-    credentials: true // Cho phép nhận cookie/header xác thực
-}));
+    credentials: true, // Cho phép nhận cookie/header xác thực
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

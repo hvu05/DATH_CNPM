@@ -6,8 +6,18 @@ import { prisma } from '../../config/prisma.config';
  * @param options các tùy chọn filter và sort
  * @returns danh sách users và tổng số
  */
-export const getAllUsers = async (options: adminDto.UserListQueryRequest): Promise<adminDto.UserListResponse> => {
-  const { page, limit, sortBy = 'create_at', sortOrder = 'desc', roles, isActive, search } = options;
+export const getAllUsers = async (
+  options: adminDto.UserListQueryRequest,
+): Promise<adminDto.UserListResponse> => {
+  const {
+    page,
+    limit,
+    sortBy = 'create_at',
+    sortOrder = 'desc',
+    roles,
+    isActive,
+    search,
+  } = options;
   const skip = (page - 1) * limit;
 
   // Build where clause for filtering
@@ -19,15 +29,15 @@ export const getAllUsers = async (options: adminDto.UserListQueryRequest): Promi
     const roleRecords = await prisma.role.findMany({
       where: {
         name: {
-          in: roles
-        }
+          in: roles,
+        },
       },
-      select: { id: true }
+      select: { id: true },
     });
 
     if (roleRecords.length > 0) {
       where.role_id = {
-        in: roleRecords.map(r => r.id)
+        in: roleRecords.map((r) => r.id),
       };
     } else {
       // If no roles found, return empty result
@@ -41,8 +51,8 @@ export const getAllUsers = async (options: adminDto.UserListQueryRequest): Promi
           sortOrder,
           roles,
           isActive,
-          search
-        }
+          search,
+        },
       };
     }
   }
@@ -61,7 +71,7 @@ export const getAllUsers = async (options: adminDto.UserListQueryRequest): Promi
   if (search) {
     where.OR = [
       { full_name: { contains: search } },
-      { email: { contains: search } }
+      { email: { contains: search } },
     ];
   }
 
@@ -74,14 +84,14 @@ export const getAllUsers = async (options: adminDto.UserListQueryRequest): Promi
       take: limit,
       where,
       include: {
-        role: true
+        role: true,
       },
-      orderBy
+      orderBy,
     }),
-    prisma.user.count({ where })
+    prisma.user.count({ where }),
   ]);
 
-  const userResponses = users.map(user => {
+  const userResponses = users.map((user) => {
     return {
       id: user.id,
       full_name: user.full_name,
@@ -91,7 +101,7 @@ export const getAllUsers = async (options: adminDto.UserListQueryRequest): Promi
       is_active: user.is_active,
       role: user.role.name,
       create_at: user.create_at,
-      update_at: user.update_at
+      update_at: user.update_at,
     };
   });
 
@@ -105,53 +115,58 @@ export const getAllUsers = async (options: adminDto.UserListQueryRequest): Promi
       sortOrder,
       roles,
       isActive,
-      search
-    }
+      search,
+    },
   };
 };
 
-export const getUsersStatic = async (): Promise<adminDto.UserStaticResponse> => {
-  // Get role IDs first
-  const [staffRole, customerRole] = await Promise.all([
-    prisma.role.findUnique({ where: { name: 'STAFF' } }),
-    prisma.role.findUnique({ where: { name: 'CUSTOMER' } })
-  ]);
+export const getUsersStatic =
+  async (): Promise<adminDto.UserStaticResponse> => {
+    // Get role IDs first
+    const [staffRole, customerRole] = await Promise.all([
+      prisma.role.findUnique({ where: { name: 'STAFF' } }),
+      prisma.role.findUnique({ where: { name: 'CUSTOMER' } }),
+    ]);
 
-  const [totalUsers, activeUsers, staffUsers, customerUsers] = await Promise.all([
-    prisma.user.count(),
-    prisma.user.count({
-      where: { is_active: true }
-    }),
-    prisma.user.count({
-      where: staffRole ? { role_id: staffRole.id } : { role_id: -1 } // Use invalid ID if role not found
-    }),
-    prisma.user.count({
-      where: customerRole ? { role_id: customerRole.id } : { role_id: -1 }
-    }),
-  ])
-  return {
-    totalUsers,
-    activeUsers,
-    staffUsers,
-    customerUsers
-  }
-}
+    const [totalUsers, activeUsers, staffUsers, customerUsers] =
+      await Promise.all([
+        prisma.user.count(),
+        prisma.user.count({
+          where: { is_active: true },
+        }),
+        prisma.user.count({
+          where: staffRole ? { role_id: staffRole.id } : { role_id: -1 }, // Use invalid ID if role not found
+        }),
+        prisma.user.count({
+          where: customerRole ? { role_id: customerRole.id } : { role_id: -1 },
+        }),
+      ]);
+    return {
+      totalUsers,
+      activeUsers,
+      staffUsers,
+      customerUsers,
+    };
+  };
 
 export const getAllRoles = async (): Promise<adminDto.RoleResponse[]> => {
   const roles = await prisma.role.findMany({
     select: {
       id: true,
-      name: true
+      name: true,
     },
     orderBy: {
-      id: 'asc'
-    }
+      id: 'asc',
+    },
   });
 
   return roles;
-}
+};
 
-export const updateUserByAdmin = async (userId: string, data: adminDto.UserUpdateAdminRequest) => {
+export const updateUserByAdmin = async (
+  userId: string,
+  data: adminDto.UserUpdateAdminRequest,
+) => {
   // Check if user exists
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) {
@@ -176,8 +191,8 @@ export const updateUserByAdmin = async (userId: string, data: adminDto.UserUpdat
       ...(data.avatar !== undefined && { avatar: data.avatar }),
     },
     include: {
-      role: true
-    }
+      role: true,
+    },
   });
 
   return {
@@ -189,6 +204,6 @@ export const updateUserByAdmin = async (userId: string, data: adminDto.UserUpdat
     is_active: updatedUser.is_active,
     role: updatedUser.role.name,
     create_at: updatedUser.create_at,
-    update_at: updatedUser.update_at
+    update_at: updatedUser.update_at,
   };
-}
+};

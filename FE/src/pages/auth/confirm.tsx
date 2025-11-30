@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import './auth.scss';
 import { authAPI } from '@/services/auth/auth.service';
 import type { SendOtpRequest } from '@/types/auth/auth.types';

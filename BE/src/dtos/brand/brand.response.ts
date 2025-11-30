@@ -1,5 +1,8 @@
-import { z } from "zod";
-import { CategoryResponseSchema, CategoryResponse } from "../category/category.response";
+import { z } from 'zod';
+import {
+  CategoryResponseSchema,
+  CategoryResponse,
+} from '../category/category.response';
 
 /* =============================
    BRAND RESPONSE

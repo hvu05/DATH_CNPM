@@ -17,7 +17,10 @@ import {
 } from '../dtos/product/product.response';
 
 import { uploadFile } from '../services/cloudinary.service';
-import { ProductListResponse, ProductListResponseSchema } from '../dtos/product/product-list.response';
+import {
+  ProductListResponse,
+  ProductListResponseSchema,
+} from '../dtos/product/product-list.response';
 import { ProductFilterSchema } from '../dtos/product/product-filter.request';
 
 // ------------------- CREATE PRODUCT -------------------
@@ -142,22 +145,21 @@ export const getAllProductsHandler = async (
   next: NextFunction,
 ) => {
   try {
-    const parsed = ProductFilterSchema.safeParse(req.query)
-    if (!parsed.success){
+    const parsed = ProductFilterSchema.safeParse(req.query);
+    if (!parsed.success) {
       throw new AppError(ErrorCode.BAD_REQUEST, parsed.error.issues[0].message);
-
     }
-    const options = parsed.data
+    const options = parsed.data;
     const { products, total } = await productService.getAllProducts(options);
 
     // Parse từng product
-    const data =  {
-        page: options.page,
-        limit: options.limit,
-        total_items: total,
-        total_pages: Math.ceil(total / options.limit),
-        results: products,
-      }
+    const data = {
+      page: options.page,
+      limit: options.limit,
+      total_items: total,
+      total_pages: Math.ceil(total / options.limit),
+      results: products,
+    };
     const validated = ProductListResponseSchema.parse(data);
 
     return res.status(200).json({

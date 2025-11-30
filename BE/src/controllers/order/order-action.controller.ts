@@ -1,9 +1,8 @@
-import { NextFunction, Request, Response } from "express";
-import { ApiResponse } from "../../dtos/common/api-response";
-import * as orderDto from "../../dtos/orders";
-import * as orderActionService from "../../services/order/order-action.service";
-import { AppError, ErrorCode } from "../../exeptions";
-
+import { NextFunction, Request, Response } from 'express';
+import { ApiResponse } from '../../dtos/common/api-response';
+import * as orderDto from '../../dtos/orders';
+import * as orderActionService from '../../services/order/order-action.service';
+import { AppError, ErrorCode } from '../../exeptions';
 
 // export const staffConfirmOrderHandler = async (
 //   req: Request,
@@ -108,8 +107,6 @@ export const staffCompleteOrderHandler = async (
     next(error);
   }
 };
-
-
 
 export const staffRefundOrderHandler = async (
   req: Request,

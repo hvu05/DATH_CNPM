@@ -64,7 +64,8 @@ export const productService = {
           },
         },
         ...productVariantBlock,
-        default_price: Math.min(...(data.variants?.map(v => v.price) || [])) | 0
+        default_price:
+          Math.min(...(data.variants?.map((v) => v.price) || [])) | 0,
       },
       include: {
         product_variants: true,
@@ -146,12 +147,24 @@ export const productService = {
 
   // ------------------- GET ALL PRODUCTS -------------------
   async getAllProducts(options: ProductFilterRequest) {
-    const { page, limit, search, category_id, brand_id, series_id, is_active, sort_by, order, min_price, max_price } = options;
-    let where : any = {};
+    const {
+      page,
+      limit,
+      search,
+      category_id,
+      brand_id,
+      series_id,
+      is_active,
+      sort_by,
+      order,
+      min_price,
+      max_price,
+    } = options;
+    let where: any = {};
 
     if (search) {
       where.OR = [
-        { name: { contains: search }},
+        { name: { contains: search } },
         { description: { contains: search } },
       ];
     }
@@ -159,7 +172,7 @@ export const productService = {
     if (category_id) {
       where.category_id = category_id;
     }
-      
+
     if (brand_id) {
       where.brand_id = brand_id;
     }
@@ -173,23 +186,23 @@ export const productService = {
     }
 
     if (min_price || max_price) {
-      if (min_price){
+      if (min_price) {
         where.product_variants = {
           some: {
             quantity: {
               gte: min_price,
             },
           },
-        }
+        };
       }
-      if (max_price){
+      if (max_price) {
         where.product_variants = {
           some: {
             quantity: {
               lte: max_price,
             },
           },
-        }
+        };
       }
     }
     const [products, total] = await prisma.$transaction([
@@ -214,7 +227,7 @@ export const productService = {
               is_thumbnail: true,
             },
           },
-        }
+        },
       }),
       prisma.product.count({ where }),
     ]);

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const UserUpdateAdminSchema = z.object({
   role_id: z.number().int().positive().optional(),

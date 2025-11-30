@@ -1,5 +1,5 @@
 // FE/src/pages/HomePage.scss
-@use '../styles/variable.scss' as var;
+@use '../../styles/variable.scss' as var;
 
 .homepage-wrapper {
     background-color: var.$background-color;
@@ -129,7 +129,6 @@
     -ms-overflow-style: none;
 
     scrollbar-width: none;
- 
 
     .product-card {
         flex-shrink: 0;

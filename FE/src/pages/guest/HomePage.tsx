@@ -15,7 +15,6 @@ const HomePage: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             const data = await getProducts();
-            console.log('data', data)
             setProductsList(data);
             setLoading(false);
         };
@@ -47,10 +46,7 @@ const HomePage: React.FC = () => {
             </div>
         );
 
-    {console.log('page', pagedProducts)}
-
     return (
-        
         <div className="homepage-wrapper">
             <div className="container">
                 {/* 1. SLIDER CHÍNH */}
@@ -60,19 +56,19 @@ const HomePage: React.FC = () => {
                             {
                                 id: 1,
                                 title: 'iPhone 15',
-                                image: 'https://placehold.co/1200x300.png?text=iPhone+15+Promo',
+                                image: 'https://mir-s3-cdn-cf.behance.net/project_modules/max_3840_webp/34b5bf180145769.6505ae7623131.jpg',
                                 link: '/search?q=iphone',
                             },
                             {
                                 id: 2,
                                 title: 'Laptop',
-                                image: 'https://placehold.co/1200x300.png?text=Laptop+Super+Sale',
+                                image: 'https://file.hstatic.net/200000277379/collection/asus_206cf740382a4fb98d1ba7315767faa1.png',
                                 link: '/search?q=laptop',
                             },
                             {
                                 id: 3,
                                 title: 'Summer',
-                                image: 'https://placehold.co/1200x300.png?text=Summer+Vibes',
+                                image: 'https://macad.vn/upload/banner-watch-seri4.jpg',
                                 link: '/search?q=watch',
                             },
                         ]}
@@ -83,13 +79,13 @@ const HomePage: React.FC = () => {
                 <section className="small-banners-section">
                     <Link to="/search?q=samsung" className="small-banner-item">
                         <img
-                            src="https://placehold.co/600x150.png?text=Samsung+Galaxy+S24"
+                            src="https://1546389216.rsc.cdn77.org/getthumbnail.aspx?q=60&crop=1&h=225&w=400&id_file=985121201"
                             alt="Banner 1"
                         />
                     </Link>
                     <Link to="/search?q=macbook" className="small-banner-item">
                         <img
-                            src="https://placehold.co/600x150.png?text=Macbook+Air+M2"
+                            src="https://www.fonezone.ae/cdn/shop/articles/MacBook_Air_M2_Price_and_Specifications_-_Fonezone.ae.png?v=1735129101"
                             alt="Banner 2"
                         />
                     </Link>
@@ -122,7 +118,6 @@ const HomePage: React.FC = () => {
                 {/* 4. LƯỚI SẢN PHẨM CHÍNH + PAGINATION */}
                 <section className="main-products-section">
                     <h2 className="section-title">Tất cả sản phẩm</h2>
-                    
                     <div className="product-grid">
                         {pagedProducts.map(product => (
                             <ProductCard key={product.id} {...product} />

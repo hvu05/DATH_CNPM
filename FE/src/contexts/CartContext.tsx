@@ -1,4 +1,13 @@
+// FE/src/contexts/CartContext.tsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useAuthContext } from './AuthContext';
+import {
+    getCartApi,
+    addToCartApi,
+    updateCartQuantityApi,
+    removeCartItemApi,
+} from '@/services/cartApi.ts';
+import { message } from 'antd';
 
 export interface CartItem {
     productId: number;
@@ -11,56 +20,87 @@ export interface CartItem {
 
 interface CartContextType {
     cartItems: CartItem[];
-    addToCart: (item: CartItem) => void;
-    removeFromCart: (variantId: number) => void;
-    updateQuantity: (variantId: number, quantity: number) => void;
+    addToCart: (item: CartItem) => Promise<void>;
+    removeFromCart: (productId: number, variantId: number) => void;
+    updateQuantity: (productId: number, variantId: number, quantity: number) => void;
     clearCart: () => void;
 }
 
 const CartContext = createContext<CartContextType | null>(null);
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
-    const [cartItems, setCartItems] = useState<CartItem[]>(() => {
-        try {
-            const stored = localStorage.getItem('GUEST_CART');
-            return stored ? JSON.parse(stored) : [];
-        } catch {
-            return [];
-        }
-    });
+    const { isLoggedIn } = useAuthContext();
+    const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
     useEffect(() => {
-        localStorage.setItem('GUEST_CART', JSON.stringify(cartItems));
-    }, [cartItems]);
-
-    const addToCart = (newItem: CartItem) => {
-        console.log('cart item trước khi thêm:', cartItems)
-        console.log('item cbi thêm:', newItem)
-
-        setCartItems(prev => {
-            const existingItemIndex = prev.findIndex(item => item.variantId === newItem.variantId && item.productId === newItem.productId);
-
-            if (existingItemIndex > -1) {
-                const newCart = [...prev];
-                newCart[existingItemIndex].quantity += newItem.quantity;
-                console.log('sản phẩm cộng dồn do đã tồn tại:', newCart)
-                return newCart;
+        const fetchCart = async () => {
+            if (isLoggedIn) {
+                const items = await getCartApi();
+                setCartItems(items);
             } else {
-                console.log('sản phẩm mới:', [...prev, newItem])
-                return [...prev, newItem];
+                try {
+                    const stored = localStorage.getItem('CART_GUEST');
+                    setCartItems(stored ? JSON.parse(stored) : []);
+                } catch {
+                    setCartItems([]);
+                }
             }
-        });
-    };
+        };
+        fetchCart();
+    }, [isLoggedIn]);
 
-    const removeFromCart = (variantId: number) => {
-        setCartItems(prev => prev.filter(i => i.variantId !== variantId));
-    };
-
-    const updateQuantity = (variantId: number, qty: number) => {
-        if (qty <= 0) return removeFromCart(variantId);
-        setCartItems(prev =>
-            prev.map(i => (i.variantId === variantId ? { ...i, quantity: qty } : i))
+    const addToCart = async (newItem: CartItem) => {
+        // Tìm kiếm dựa trên CẢ productId và variantId
+        const existingIndex = cartItems.findIndex(
+            item => item.variantId === newItem.variantId && item.productId === newItem.productId
         );
+
+        let updatedCart = [...cartItems];
+
+        if (existingIndex > -1) {
+            updatedCart[existingIndex].quantity += newItem.quantity;
+        } else {
+            updatedCart = [...updatedCart, newItem];
+        }
+
+        setCartItems(updatedCart);
+
+        if (isLoggedIn) {
+            await addToCartApi(newItem.variantId, newItem.quantity);
+        } else {
+            localStorage.setItem('CART_GUEST', JSON.stringify(updatedCart));
+        }
+    };
+
+    const updateQuantity = async (productId: number, variantId: number, qty: number) => {
+        if (qty <= 0) return removeFromCart(productId, variantId);
+
+        if (isLoggedIn) {
+            await updateCartQuantityApi(variantId, qty);
+            const items = await getCartApi();
+            setCartItems(items);
+        } else {
+            const updated = cartItems.map(i =>
+                i.variantId === variantId && i.productId === productId ? { ...i, quantity: qty } : i
+            );
+            setCartItems(updated);
+            localStorage.setItem('CART_GUEST', JSON.stringify(updated));
+        }
+    };
+
+    const removeFromCart = async (productId: number, variantId: number) => {
+        if (isLoggedIn) {
+            await removeCartItemApi(variantId);
+            setCartItems(prev =>
+                prev.filter(i => !(i.variantId === variantId && i.productId === productId))
+            );
+        } else {
+            const updated = cartItems.filter(
+                i => !(i.variantId === variantId && i.productId === productId)
+            );
+            setCartItems(updated);
+            localStorage.setItem('CART_GUEST', JSON.stringify(updated));
+        }
     };
 
     const clearCart = () => setCartItems([]);

@@ -1,5 +1,5 @@
 // FE/src/pages/CartPage.scss
-@use '../styles/variable.scss' as var;
+@use '../../styles/variable.scss' as var;
 
 .cart-page {
     padding: 2rem 0;
@@ -93,7 +93,6 @@
     }
 }
 
-// Phần sản phẩm đề xuất
 .recommended-products {
     margin-top: 30px;
 

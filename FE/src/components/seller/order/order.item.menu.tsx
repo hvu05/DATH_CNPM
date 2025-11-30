@@ -6,7 +6,7 @@ import {
     type IOrder,
 } from '@/services/seller/seller.service';
 import { App, type MenuProps } from 'antd';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 export const getActionItems = (order: IOrder): MenuProps['items'] => {
     const navigate = useNavigate();

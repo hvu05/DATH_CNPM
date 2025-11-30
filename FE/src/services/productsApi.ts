@@ -1,30 +1,40 @@
-// FE/src/services/productsAPI.ts
+// FE/src/services/productsApi.ts
 import axios from './axios.customize';
-import type { Product, BackendProduct, BackendReview } from '../types/product';
+import type { Product, BackendVariant, BackendImage } from '@/types/product';
 
-const mapToUiProduct = (item: BackendProduct): Product => {
-    let price = 0;
-    if (item.product_variants && item.product_variants.length > 0) {
-        price = Math.min(...item.product_variants.map(v => Number(v.price)));
-    }
+const transformProduct = (item: any): Product => {
+    // 1. Lấy giá: JSON trả về "default_price"
+    const price = Number(item.default_price ?? item.price ?? 0);
 
+    // 2. Lấy ảnh: JSON trả về mảng "product_image"
     let imageUrl = 'https://placehold.co/400?text=No+Image';
-    if (item.product_image && item.product_image.length > 0) {
-        const thumb = item.product_image.find(img => img.is_thumbnail);
+    if (item.product_image && Array.isArray(item.product_image) && item.product_image.length > 0) {
+        // Ưu tiên ảnh có is_thumbnail = true
+        const thumb = item.product_image.find((img: any) => img.is_thumbnail);
         imageUrl = thumb ? thumb.image_url : item.product_image[0].image_url;
+    } else if (item.image_url) {
+        imageUrl = item.image_url;
     }
+
+    // 3. Xử lý Brand/Category: JSON trả về object bên trong
+    const brand = item.brand?.name || 'Khác';
+    const category = item.category?.name || 'Khác';
+
+    // 4. Xử lý Rating: JSON trả về object "rate": { "avg": 0, "count": 0 }
+    const rating = item.rate?.avg ? Number(item.rate.avg) : 5;
 
     return {
         id: item.id,
         name: item.name,
-        description: item.description,
         price: price,
         imageUrl: imageUrl,
-        brand: item.brand?.name || '',
-        category: item.category?.name || '',
-        rating: item.rate?.avg || 0,
+        description: item.description || '',
+        brand: brand,
+        category: category,
+        rating: rating,
+        quantity: Number(item.quantity || 0),
         
-        originalData: item,
+        // Map nguyên gốc để dùng ở trang Detail nếu cần
         originalVariants: item.product_variants || [],
         originalImages: item.product_image || []
     };
@@ -32,21 +42,41 @@ const mapToUiProduct = (item: BackendProduct): Product => {
 
 export const getProducts = async (params?: any): Promise<Product[]> => {
     try {
-        const apiParams = { ...params };
-        if (apiParams.q) {
-            apiParams.search = apiParams.q;
-            delete apiParams.q;
+        const res: any = await axios.get('/products', { params });
+        
+        // 1. Lấy payload thực sự 
+        const payload = res.data || res; 
+
+        // 2. Trích xuất mảng results từ cấu trúc data.results
+        let rawData: any[] = [];
+        
+        if (payload.data && Array.isArray(payload.data.results)) {
+            rawData = payload.data.results;
+        } else if (Array.isArray(payload.data)) {
+            rawData = payload.data;
+        } else if (Array.isArray(payload)) {
+            rawData = payload;
         }
 
-        const res: any = await axios.get('/products', { params: apiParams });
-        
-        const payload = res?.data ?? res;
-        const rawData = Array.isArray(payload) ? payload : (payload?.results ?? payload?.data ?? []);
-        
-        if (!Array.isArray(rawData)) return [];
-        return rawData.map((item: BackendProduct) => mapToUiProduct(item));
+        if (rawData.length === 0) {
+            // console.warn('Không tìm thấy dữ liệu sản phẩm. Payload:', payload);
+        }
+
+        // 3. Map dữ liệu
+        let products = rawData.map((item: any) => transformProduct(item));
+
+        // 4. Filter Client-side nếu cần 
+        if (params?.q) {
+            const q = params.q.toLowerCase();
+            products = products.filter(p => 
+                p.name.toLowerCase().includes(q) || 
+                p.brand.toLowerCase().includes(q)
+            );
+        }
+
+        return products;
     } catch (error) {
-        console.error("Error fetching products:", error);
+        console.error('Lỗi API getProducts:', error);
         return [];
     }
 };
@@ -54,39 +84,14 @@ export const getProducts = async (params?: any): Promise<Product[]> => {
 export const getProductById = async (id: string | number): Promise<Product | null> => {
     try {
         const res: any = await axios.get(`/products/${id}`);
-        const payload = res?.data ?? res;
-        if (!payload) return null;
-        return mapToUiProduct(payload as BackendProduct);
-    } catch (error) {
-        console.error("Error fetching product by id:", error);
-        return null;
-    }
-};
-
-export const getProductReviews = async (productId: number | string): Promise<BackendReview[]> => {
-    try {
-        const res: any = await axios.get(`/products/${productId}/reviews`);
-        const payload = res?.data ?? res;
+        const payload = res.data || res;
         
-        if (payload?.reviews && Array.isArray(payload.reviews)) {
-            return payload.reviews;
-        }
-        return [];
+        const item = payload.data || payload;
+        
+        if (!item || !item.id) return null;
+        return transformProduct(item);
     } catch (error) {
-        console.error("Error fetching reviews:", error);
-        return [];
-    }
-};
-
-export const createProductReview = async (
-    productId: number | string, 
-    data: { comment: string; vote: number }
-): Promise<boolean> => {
-    try {
-        await axios.post(`/products/${productId}/reviews`, data);
-        return true;
-    } catch (error) {
-        console.error("Error creating review:", error);
-        return false;
+        console.error(`Lỗi API getProductById ${id}:`, error);
+        return null;
     }
 };

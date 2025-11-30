@@ -17,7 +17,7 @@ import {
 } from '../dtos/product/product.response';
 
 import { uploadFile } from '../services/cloudinary.service';
-import { ProductListResponse } from '../dtos/product/product-list.response';
+import { ProductListResponse, ProductListResponseSchema } from '../dtos/product/product-list.response';
 import { ProductFilterSchema } from '../dtos/product/product-filter.request';
 
 // ------------------- CREATE PRODUCT -------------------
@@ -151,18 +151,19 @@ export const getAllProductsHandler = async (
     const { products, total } = await productService.getAllProducts(options);
 
     // Parse từng product
-    const validated = ProductResponseSchema.array().parse(products);
-
-    return res.status(200).json({
-      success: true,
-      message: 'Products fetched successfully',
-      data: {
+    const data =  {
         page: options.page,
         limit: options.limit,
         total_items: total,
         total_pages: Math.ceil(total / options.limit),
-        results: validated,
-      },
+        results: products,
+      }
+    const validated = ProductListResponseSchema.parse(data);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Products fetched successfully',
+      data: validated,
     });
   } catch (error) {
     next(error);

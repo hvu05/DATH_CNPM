@@ -10,7 +10,7 @@ export const ProductListResponseSchema = z.object({
     product_specs: true,
     product_variants: true,
     reviews: true,
-  })),
+  }).strip()),
 }).strip();
 
 export type ProductListResponse = z.infer<typeof ProductListResponseSchema>;

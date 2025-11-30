@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import { AppError, ErrorCode } from '../../exeptions';
 import { createPayment } from '../payment.service';
 import { PaymentMethod } from '../../dtos/payment';
+import { toUserResponse } from '../../dtos/users';
 
 
 //! Tạm dùng được
@@ -99,7 +100,11 @@ export const getOrdersByUser = async (
     },
     include: {
       payment: true,
-      user: true,
+      user: {
+        include: {
+          role: true
+        }
+      },
       order_items: {
         include: {
           variant: {
@@ -130,12 +135,15 @@ export const getOrdersByUser = async (
     user = await prisma.user.findUniqueOrThrow({
       where: {
         id: userId
+      },
+      include: {
+        role: true
       }
     })
   }
   return {
     count: orders.length,
-    user: orders[0].user,
+    user: toUserResponse(user, user.role.name),
     orders: orders.map(orderDto.mapOrderToDTO),
   };
 };

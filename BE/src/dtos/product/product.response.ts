@@ -81,7 +81,7 @@ export const ProductResponseSchema = z.object({
   name: z.string(),
   description: z.string(),
   quantity: z.number(),
-
+  default_price: z.number(),
   brand_id: z.number(),
   category_id: z.number(),
   series_id: z.number(),
@@ -102,6 +102,6 @@ export const ProductResponseSchema = z.object({
     count: z.number(),
   }).optional(), // Tỷ lệ đánh giá
   reviews: z.any().array().optional(), // nếu muốn, tôi viết review.response luôn
-});
+}).strip();
 
 export type ProductResponse = z.infer<typeof ProductResponseSchema>;

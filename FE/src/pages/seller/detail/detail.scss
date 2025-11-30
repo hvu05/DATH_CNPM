@@ -136,6 +136,34 @@
         word-break: break-all;
     }
 
+    // Return info image gallery
+    &__image-gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 12px;
+        margin-top: 12px;
+    }
+
+    &__image-item {
+        position: relative;
+        aspect-ratio: 1;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+    }
+
+    &__return-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    &__return-divider {
+        margin: 20px 0;
+        border-color: #e5e7eb;
+    }
+
     &__change-btn {
         background: none;
         border: none;

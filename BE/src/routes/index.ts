@@ -9,6 +9,7 @@ import uploadRouter from './upload.route';
 import categoryRouter from "./category.route";
 import productRouter from "./product.route";
 import brandRouter from "./brand.route";
+import cartRouter from './cart.route'
 const router = Router();
 
 router.use('/users', userRouter);
@@ -17,7 +18,7 @@ router.use('/payments', paymentRouter);
 router.use('/orders', orderRouter);
 router.use('/admin', adminRouter);
 router.use('/upload', uploadRouter);
-
+router.use('/carts', cartRouter)
 router.use('/category', categoryRouter);
 router.use('/products', productRouter);
 router.use('/brand', brandRouter);

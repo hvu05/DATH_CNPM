@@ -9,6 +9,7 @@ export const ProfilePageClient = () => {
 
     const cloudinary = import.meta.env.VITE_CLOUDINARY_NAME
 
+    
     // const [refresh, setRefresh] = useState<boolean>(true)
     const { data: profile, loading: loading } = useClientProfile();
 

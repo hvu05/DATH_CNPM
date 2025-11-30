@@ -3,7 +3,7 @@ import { ConfirmPage } from '@/pages/auth/confirm';
 import { OtpPage } from '@/pages/auth/otp';
 import { ResetPasswordPage } from '@/pages/auth/reset';
 import { RegisterPage } from '@/pages/auth/register';
-import type { RouteObject } from 'react-router';
+import type { RouteObject } from 'react-router-dom';
 import { AppLayout } from '@/layout';
 import { ProtectedRoute } from './protected.route';
 

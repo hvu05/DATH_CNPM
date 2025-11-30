@@ -7,7 +7,7 @@ import ClientAvtImage from '@/assets/client/tab/client-avt.svg';
 import LogoutImage from '@/assets/client/tab/logout.svg';
 import MyOrderImage from '@/assets/client/tab/myorder.svg';
 import { removeTokens } from '@/services/auth/auth.service';
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 // End import Image
 type PathName = 'orders' | 'history' | 'address' | 'profile' | 'client';
@@ -63,9 +63,7 @@ export const TabClient = () => {
                         </span>
                         <span>Địa chỉ nhận hàng</span>
                     </li>
-                    <li
-                        onClick={logout}
-                    >
+                    <li onClick={logout}>
                         <span>
                             <img src={LogoutImage} alt="client logout logo" />
                         </span>

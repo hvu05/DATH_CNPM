@@ -1,5 +1,5 @@
-import z from "zod";
-import { PaymentMethod, PaymentStatus } from "./enum";
+import z from 'zod';
+import { PaymentMethod, PaymentStatus } from './enum';
 //  id: string;
 //     order_id: string;
 //     amount: bigint;
@@ -19,6 +19,6 @@ export const PaymentResponseSchema = z.object({
   method: z.enum(PaymentMethod),
   payment_status: z.enum(PaymentStatus),
   transaction_code: z.string().nullable(),
-})
+});
 
-export type PaymentResponse = z.infer<typeof PaymentResponseSchema>
+export type PaymentResponse = z.infer<typeof PaymentResponseSchema>;

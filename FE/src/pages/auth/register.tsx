@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { authAPI } from '@/services/auth/auth.service';
 import { StepOneForm } from '@/components/auth/register/step.one';

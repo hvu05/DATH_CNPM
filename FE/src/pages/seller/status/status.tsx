@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './status.scss';
 import default_order from '@/assets/seller/default_order.webp';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 type OptionsFilter = 'all' | 'unupdate' | 'waiting' | 'delivering' | 'success' | 'failed';
 

@@ -1,5 +1,5 @@
 import { Header } from '@/components/layout/header';
-import { Outlet } from 'react-router';
+import { Outlet } from 'react-router-dom';
 import './layout.scss';
 import { ScrollTop } from './components/common/scrollTop';
 

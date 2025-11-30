@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import './profile.scss';
 import defaultAvatar from '@/assets/default-avatar-icon.svg';
 import { UserOutlined } from '@ant-design/icons';

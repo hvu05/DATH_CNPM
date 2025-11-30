@@ -12,7 +12,7 @@ import {
 } from '@ant-design/icons';
 import { Avatar, Dropdown, Layout, Menu, Space, Typography, Drawer, Grid } from 'antd';
 import type { MenuProps } from 'antd';
-import { Outlet, useLocation, useNavigate } from 'react-router';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useMemo, useState } from 'react';
 import { useAuthContext } from '@/contexts/AuthContext';
 

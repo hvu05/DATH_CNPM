@@ -3,7 +3,7 @@ import { UserOutlined } from '@ant-design/icons';
 import { Avatar, Dropdown, Typography } from 'antd';
 import type { MenuProps } from 'antd';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 const { Text } = Typography;
 

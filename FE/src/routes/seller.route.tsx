@@ -3,7 +3,7 @@ import { ProfilePage } from '@/pages/seller/profile/profile';
 import { EditProfilePage } from '@/pages/seller/profile/edit.profile';
 import { OrderPage } from '@/pages/seller/orders/order';
 import { StatusPage } from '@/pages/seller/status/status';
-import type { RouteObject } from 'react-router';
+import type { RouteObject } from 'react-router-dom';
 import { ProtectedRoute } from './protected.route';
 import { DetailPage } from '@/pages/seller/detail/detail';
 

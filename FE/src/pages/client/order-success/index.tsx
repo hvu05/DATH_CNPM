@@ -1,6 +1,6 @@
 import Tick from '@/assets/client/tick.svg';
 import './index.scss';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 export const OrderSuccess = () => {
     const navigate = useNavigate();

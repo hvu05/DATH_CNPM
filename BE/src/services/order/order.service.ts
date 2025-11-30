@@ -6,7 +6,6 @@ import { createPayment } from '../payment.service';
 import { PaymentMethod } from '../../dtos/payment';
 import { toUserResponse } from '../../dtos/users';
 
-
 //! Tạm dùng được
 export const createOrder = async (
   data: orderDto.OrderCreateRequest,
@@ -87,7 +86,10 @@ export const createOrder = async (
       }),
     ),
   );
-  const payment = await createPayment({ order_id: order.id, payment_method: data.method }, user_id);
+  const payment = await createPayment(
+    { order_id: order.id, payment_method: data.method },
+    user_id,
+  );
   return { ...orderDto.mapOrderToDTO(order), url: payment.url };
 };
 
@@ -250,7 +252,6 @@ export const getAllOrders = async (
     orders: orders.map(orderDto.mapOrderToDTO),
   };
 };
-
 
 /**
  * generate order_id theo định dạng 'ORD-yyymmdd-HCM-123456'

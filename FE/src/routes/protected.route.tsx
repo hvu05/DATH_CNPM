@@ -1,5 +1,5 @@
 import { useAuthContext } from '@/contexts/AuthContext';
-import { Navigate } from 'react-router';
+import { Navigate } from 'react-router-dom';
 
 interface IProps {
     children: React.ReactNode;

@@ -3,7 +3,7 @@ import { useClientProfile } from '@/hooks/client/useClientProfile';
 import defaultAvatar from '@/assets/seller/user.svg';
 import '@/pages/client/profile/edit.profile.scss';
 import { message } from 'antd';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { UploadImage } from '@/components/admin/upload.img'; // Đảm bảo import UploadImage đúng đường dẫn
 import { uploadImageAPI } from '@/services/global'; // Đảm bảo import đúng API upload ảnh
 

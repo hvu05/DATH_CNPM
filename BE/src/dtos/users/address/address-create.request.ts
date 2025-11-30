@@ -1,4 +1,4 @@
-import z from "zod";
+import z from 'zod';
 
 export const AddressCreateSchema = z.object({
   receive_name : z.string().optional(),
@@ -8,4 +8,4 @@ export const AddressCreateSchema = z.object({
   detail : z.string().nonempty("Street is required"),
 })
 
-export type AddressCreateRequest = z.infer<typeof AddressCreateSchema>
+export type AddressCreateRequest = z.infer<typeof AddressCreateSchema>;

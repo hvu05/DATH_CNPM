@@ -1,5 +1,5 @@
-import z from "zod";
-import { OrderStatus } from "./enum";
+import z from 'zod';
+import { OrderStatus } from './enum';
 
 export const OrderListQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),

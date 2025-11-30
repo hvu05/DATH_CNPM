@@ -1,9 +1,9 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express';
 
-import * as orderReturnSerivce from "../../services/order/order-return.service";
-import { AppError, ErrorCode } from "../../exeptions";
-import * as orderDto from "../../dtos/orders";
-import { ApiResponse } from "../../dtos/common/api-response";
+import * as orderReturnSerivce from '../../services/order/order-return.service';
+import { AppError, ErrorCode } from '../../exeptions';
+import * as orderDto from '../../dtos/orders';
+import { ApiResponse } from '../../dtos/common/api-response';
 
 export const staffReturnOrderHandler = async (
   req: Request,
@@ -20,7 +20,11 @@ export const staffReturnOrderHandler = async (
         'Lỗi!!!! Chưa xác thực người dùng',
       );
     }
-    const order = await orderReturnSerivce.confirmReturned(orderId, orderItemId, user);
+    const order = await orderReturnSerivce.confirmReturned(
+      orderId,
+      orderItemId,
+      user,
+    );
     res.json({
       success: true,
       data: order,

@@ -113,6 +113,6 @@ router.delete("/:id",authenticateHandler, checkRole(["ADMIN"]), deleteProductHan
 // Upload ảnh cho sản phẩm theo id - admin hoặc seller
 router.post("/:id/upload",authenticateHandler, checkRole(["ADMIN", "SELLER"]),multerConfig.single('file'), uploadProductImageHandler);
 
-router.use('/:product_id/reviews', reviewRouter)
+router.use('/:product_id/reviews', reviewRouter);
 
 export default router;

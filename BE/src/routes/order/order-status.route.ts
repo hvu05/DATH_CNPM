@@ -181,15 +181,14 @@ registry.registerPath({
         },
       },
     },
-  }
-})
+  },
+});
 router.patch(
   '/complete',
   authenticateHandler,
   checkRole(['ADMIN', 'STAFF']),
   orderActionController.staffCompleteOrderHandler,
 );
-
 
 registry.registerPath({
   tags: ['Order - Status'],
@@ -224,8 +223,8 @@ registry.registerPath({
         },
       },
     },
-  }
-})
+  },
+});
 router.patch(
   '/return-confirm/:order_item_id',
   authenticateHandler,
@@ -263,7 +262,7 @@ registry.registerPath({
           schema: orderDto.OrderReturnRequestSchema,
         },
       },
-    }
+    },
   },
   responses: {
     '200': {
@@ -274,8 +273,8 @@ registry.registerPath({
         },
       },
     },
-  }
-})
+  },
+});
 router.post(
   '/return-request/:order_item_id',
   authenticateHandler,

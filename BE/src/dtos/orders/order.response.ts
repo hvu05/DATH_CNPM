@@ -5,7 +5,7 @@
 //   user_id: string;
 //   total: number;
 //   status: string;
-  
+
 //   province: string;
 //   ward: string;
 //   detail: string;
@@ -15,12 +15,12 @@
 //   create_at: Date;
 //   deliver_at?: Date ;
 //   order_items: OrderItemResponse[];
-  
+
 // }
-import z from "zod";
-import { OrderItemResponseSchema } from "./order-item.response";
-import { AddressResponseSchema } from "../users";
-import { PaymentResponseSchema } from "../payment";
+import z from 'zod';
+import { OrderItemResponseSchema } from './order-item.response';
+import { AddressResponseSchema } from '../users';
+import { PaymentResponseSchema } from '../payment';
 
 export const OrderResponseSchema = z.object({
   id: z.string(),

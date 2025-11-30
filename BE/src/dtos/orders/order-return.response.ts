@@ -1,6 +1,6 @@
-import z from "zod";
-import { OrderResponseSchema } from "./order.response";
-import { de, id } from "zod/v4/locales";
+import z from 'zod';
+import { OrderResponseSchema } from './order.response';
+import { de, id } from 'zod/v4/locales';
 
 export const OrderReturnResponseSchema = z.object({
   order: z.object({
@@ -34,6 +34,6 @@ export const OrderReturnResponseSchema = z.object({
   images: z.array(z.string()),
   create_at: z.date(),
   update_at: z.date(),
-})
+});
 
-export type OrderReturnResponse = z.infer<typeof OrderReturnResponseSchema>
+export type OrderReturnResponse = z.infer<typeof OrderReturnResponseSchema>;

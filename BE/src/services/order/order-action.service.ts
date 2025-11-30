@@ -63,9 +63,9 @@ const updateHandler = async (
 
 /**
  * Khách hàng hoặc Staff huỷ đơn hàng (Trước khi vận chuyển)
- * @param orderId 
- * @param userId 
- * @returns 
+ * @param orderId
+ * @param userId
+ * @returns
  */
 export const cancel = async (orderId: string, userId?: string) => {
   const order = await prisma.order.findFirst({
@@ -156,8 +156,8 @@ export const cancel = async (orderId: string, userId?: string) => {
 
 /**
  * Đã giao cho đơn vị vận chuyển
- * @param orderId 
- * @returns 
+ * @param orderId
+ * @returns
  */
 export const deliver = async (orderId: string) => {
   const order = await prisma.order.findUnique({
@@ -192,8 +192,8 @@ export const deliver = async (orderId: string) => {
 
 /**
  * Bên vận chuyển confirm, hiện tại thì do staff làm thủ công
- * @param orderId 
- * @returns 
+ * @param orderId
+ * @returns
  */
 export const complete = async (orderId: string) => {
   const order = await prisma.order.findFirst({

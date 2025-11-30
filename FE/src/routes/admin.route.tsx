@@ -1,4 +1,4 @@
-import { Navigate, type RouteObject } from 'react-router';
+import { Navigate, type RouteObject } from 'react-router-dom';
 import { ProtectedRoute } from './protected.route';
 import { AdminLayout } from '@/pages/admin/admin.layout';
 import { DashboardPage } from '@/pages/admin/admin.dashboard';

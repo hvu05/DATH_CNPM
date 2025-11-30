@@ -13,7 +13,7 @@
 //   quantity: number;
 //   product_variant: ProductVariant;
 // }
-import z from "zod";
+import z from 'zod';
 
 export const OrderItemResponseSchema = z.object({
   id: z.number(),

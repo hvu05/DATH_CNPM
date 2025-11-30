@@ -5,13 +5,13 @@ import { ErrorCode } from '../exeptions/error-status';
 import { prisma } from '../config/prisma.config';
 
 export const createUser = async (
-  data: userDto.UserCreateRequest
+  data: userDto.UserCreateRequest,
 ): Promise<userDto.UserResponse> => {
   const user = await prisma.user.findUnique({
     where: {
       email: data.email,
     },
-  })
+  });
   if (user) throw new AppError(ErrorCode.CONFLICT, 'User already exists');
 
   data.password = await hashPassword(data.password);
@@ -26,18 +26,19 @@ export const createUser = async (
       where: {
         name: 'Customer'.toUpperCase(),
       },
-    })
+    });
   }
-  if (!roleObj) throw new AppError(ErrorCode.BAD_REQUEST, "Không tìm thấy Role");
+  if (!roleObj)
+    throw new AppError(ErrorCode.BAD_REQUEST, 'Không tìm thấy Role');
   const { role, ...userData } = data;
   const created = await prisma.user.create({
     data: {
       ...userData,
-      role_id: roleObj?.id
+      role_id: roleObj?.id,
     },
     include: {
-      role: true
-    }
+      role: true,
+    },
   });
   return userDto.toUserResponse(created, created.role.name);
 };
@@ -45,35 +46,37 @@ export const createUser = async (
 /**
  * Lấy thông tin cơ bản của user
  * @param id id của user cần lấy
- * @returns 
+ * @returns
  */
-export const getUserInfo = async (id?: string): Promise<userDto.UserResponse> => {
-  const user = await prisma.user.findUnique(
-    {
-      where: { id },
-      include: {
-        role: true
-      }
-    })
-  if (!user) throw new AppError(ErrorCode.NOT_FOUND, "Không tìm thấy User")
+export const getUserInfo = async (
+  id?: string,
+): Promise<userDto.UserResponse> => {
+  const user = await prisma.user.findUnique({
+    where: { id },
+    include: {
+      role: true,
+    },
+  });
+  if (!user) throw new AppError(ErrorCode.NOT_FOUND, 'Không tìm thấy User');
   return userDto.toUserResponse(user, user.role.name);
-}
+};
 
-export const updateUser = async (data: userDto.UserUpdateRequest, id?: string): Promise<userDto.UserResponse> => {
+export const updateUser = async (
+  data: userDto.UserUpdateRequest,
+  id?: string,
+): Promise<userDto.UserResponse> => {
   const user = await prisma.user.findUnique({ where: { id } });
-  if (!user) throw new AppError(ErrorCode.NOT_FOUND, "Không tìm thấy User");
+  if (!user) throw new AppError(ErrorCode.NOT_FOUND, 'Không tìm thấy User');
   if (data.password) data.password = await hashPassword(data.password);
-  const updated = await prisma.user.update(
-    {
-      where: { id },
-      data,
-      include: {
-        role: true
-      }
-    });
+  const updated = await prisma.user.update({
+    where: { id },
+    data,
+    include: {
+      role: true,
+    },
+  });
   return userDto.toUserResponse(updated, updated.role.name);
-}
-
+};
 
 /**
  * Hash password sử dụng thuật toán bcrypt
@@ -84,5 +87,3 @@ const hashPassword = async (password: string): Promise<string> => {
   const salt = await genSalt(10);
   return hashSync(password, salt);
 };
-
-

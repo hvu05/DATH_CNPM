@@ -24,6 +24,10 @@ interface CartContextType {
     removeFromCart: (productId: number, variantId: number) => void;
     updateQuantity: (productId: number, variantId: number, quantity: number) => void;
     clearCart: () => void;
+    changeCartItemVariant: (
+        oldItem: CartItem,
+        newVariant: { id: number; name: string; price: number }
+    ) => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -102,12 +106,70 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
             localStorage.setItem('CART_GUEST', JSON.stringify(updated));
         }
     };
+    const changeCartItemVariant = async (
+        oldItem: CartItem,
+        newVariant: { id: number; name: string; price: number }
+    ) => {
+        // 1. Tạo bản sao giỏ hàng hiện tại để xử lý đồng bộ
+        const currentCart = [...cartItems];
+
+        // 2. Tìm vị trí item cũ
+        const oldIndex = currentCart.findIndex(
+            i => i.productId === oldItem.productId && i.variantId === oldItem.variantId
+        );
+
+        if (oldIndex === -1) return;
+
+        // 3. Kiểm tra xem Variant mới đã có trong giỏ chưa?
+        const existIndex = currentCart.findIndex(
+            i => i.productId === oldItem.productId && i.variantId === newVariant.id
+        );
+
+        let updatedCart = [];
+
+        if (existIndex > -1 && existIndex !== oldIndex) {
+            currentCart[existIndex].quantity += oldItem.quantity;
+            currentCart.splice(oldIndex, 1);
+            updatedCart = currentCart;
+        } else {
+            currentCart[oldIndex] = {
+                ...currentCart[oldIndex],
+                variantId: newVariant.id,
+                name: newVariant.name,
+                price: newVariant.price,
+            };
+            updatedCart = currentCart;
+        }
+
+        // 4. Cập nhật State FE ngay lập tức (cho mượt)
+        setCartItems(updatedCart);
+        if (!isLoggedIn) {
+            localStorage.setItem('CART_GUEST', JSON.stringify(updatedCart));
+        }
+
+        // 5. Gọi API Backend (Xóa cũ + Thêm mới)
+        if (isLoggedIn) {
+            try {
+                await removeCartItemApi(oldItem.variantId);
+                await addToCartApi(newVariant.id, oldItem.quantity);
+            } catch (error) {
+                console.error('Lỗi cập nhật backend', error);
+            }
+        }
+    };
 
     const clearCart = () => setCartItems([]);
 
     return (
         <CartContext.Provider
-            value={{ cartItems, addToCart, removeFromCart, updateQuantity, clearCart }}
+            value={{
+                cartItems,
+                addToCart,
+                removeFromCart,
+                updateQuantity,
+                clearCart,
+                changeCartItemVariant,
+            }}
         >
             {children}
         </CartContext.Provider>

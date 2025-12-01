@@ -5,7 +5,7 @@ import qrcodeIcon from '@/assets/client/qrcode.svg';
 import './index.scss';
 import { useState } from 'react';
 import { ChangeAddressPage } from '@/components/client/ChangeAddress';
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useClientProfile } from '@/hooks/client/useClientProfile';
 import type { Address } from '@/types/clients/client.address.types';
 import { orderAPI } from '@/services/user/orders/user.order.api';
@@ -28,8 +28,8 @@ export const OrderClient = () => {
     const [formChangeAddress, setFormChangeAddress] = useState<boolean>(false);
     const navigate = useNavigate();
     const location = useLocation();
-    // const orderItems: OrderItem[] = location.state?.order?.order_items || null; //! (1)
-    // console.log('reere', location.state.order);
+    const orderItems: OrderItem[] = location.state?.order?.order_items || null; //! (1)
+    console.log('reere', location.state.order);
     const [statusPayment, setStatusPayment] = useState<OptionsPayment>('COD');
 
     const { data: profile, loading: loadingProfile } = useClientProfile();
@@ -37,60 +37,60 @@ export const OrderClient = () => {
     const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
 
     //! (2)
-    const orderItems: OrderItem[] = [
-        {
-            id: 1,
-            price_per_item: 25000000,
-            quantity: 2,
-            product_variant: {
-                id: 1,
-                product_id: 101,
-                color: 'Đen',
-                storage: '128GB',
-                name: 'iPhone 15 Pro',
-                price: 25000000,
-            },
-        },
-        {
-            id: 2,
-            price_per_item: 28000000,
-            quantity: 1,
-            product_variant: {
-                id: 2,
-                product_id: 101,
-                color: 'Trắng',
-                storage: '256GB',
-                name: 'iPhone 15 Pro',
-                price: 28000000,
-            },
-        },
-        {
-            id: 3,
-            price_per_item: 22000000,
-            quantity: 3,
-            product_variant: {
-                id: 3,
-                product_id: 102,
-                color: 'Xanh',
-                storage: '512GB',
-                name: 'Samsung Galaxy S24',
-                price: 22000000,
-            },
-        },
-        {
-            id: 4,
-            price_per_item: 5000000,
-            quantity: 1,
-            product_variant: {
-                id: 4,
-                product_id: 103,
-                color: 'Đỏ',
-                storage: '64GB',
-                name: 'Xiaomi Redmi Note 13',
-                price: 5000000,
-            },
-        },
-    ];
+    //const orderItems: OrderItem[] = [
+    //     {
+    //         id: 1,
+    //         price_per_item: 25000000,
+    //         quantity: 2,
+    //         product_variant: {
+    //             id: 1,
+    //             product_id: 101,
+    //             color: 'Đen',
+    //             storage: '128GB',
+    //             name: 'iPhone 15 Pro',
+    //             price: 25000000,
+    //         },
+    //     },
+    //     {
+    //         id: 2,
+    //         price_per_item: 28000000,
+    //         quantity: 1,
+    //         product_variant: {
+    //             id: 2,
+    //             product_id: 101,
+    //             color: 'Trắng',
+    //             storage: '256GB',
+    //             name: 'iPhone 15 Pro',
+    //             price: 28000000,
+    //         },
+    //     },
+    //     {
+    //         id: 3,
+    //         price_per_item: 22000000,
+    //         quantity: 3,
+    //         product_variant: {
+    //             id: 3,
+    //             product_id: 102,
+    //             color: 'Xanh',
+    //             storage: '512GB',
+    //             name: 'Samsung Galaxy S24',
+    //             price: 22000000,
+    //         },
+    //     },
+    //     {
+    //         id: 4,
+    //         price_per_item: 5000000,
+    //         quantity: 1,
+    //         product_variant: {
+    //             id: 4,
+    //             product_id: 103,
+    //             color: 'Đỏ',
+    //             storage: '64GB',
+    //             name: 'Xiaomi Redmi Note 13',
+    //             price: 5000000,
+    //         },
+    //     },
+    // ];
 
     const order_fake: OrderRequest = {
         province: selectedAddress?.province || 'Chưa chọn',
@@ -123,7 +123,7 @@ export const OrderClient = () => {
 
     if (loadingProfile) return <p>Loading...</p>;
     if (!orderItems)
-        return <h1 style={{ fontSize: '30px' }}>Mua lòng chọn sản phẩm trước khi vào trang này</h1>;
+        return <h1 style={{ fontSize: '30px' }}>Vui lòng chọn sản phẩm trước khi vào trang này</h1>;
     return (
         <div className="client-order-detail">
             <div className="client-order-detail__main">

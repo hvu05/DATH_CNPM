@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import './index.scss';
 import '@/assets/seller/user.svg';
 import { useAuthContext } from '@/contexts/AuthContext';

@@ -1,7 +1,7 @@
-import cloudinary from "../config/cloudinary.config";
-import stream from "stream";
-import { AppError } from "../exeptions/app-error";
-import { ErrorCode } from "../exeptions/error-status";
+import cloudinary from '../config/cloudinary.config';
+import stream from 'stream';
+import { AppError } from '../exeptions/app-error';
+import { ErrorCode } from '../exeptions/error-status';
 
 //? /////////////////////////////////////////////////////
 //?
@@ -17,13 +17,17 @@ import { ErrorCode } from "../exeptions/error-status";
  * @param folder Tên thư mục sẽ lưu trên Cloudinary (mặc định 'uploads')
  * @returns Promise<{ url: string; public_id: string }>
  */
-export const uploadFile = async (fileBuffer: Buffer, public_id: string, folder: string = "uploads") => {
+export const uploadFile = async (
+  fileBuffer: Buffer,
+  public_id: string,
+  folder: string = 'uploads',
+) => {
   return new Promise<{ url: string; public_id: string }>((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder,
-        resource_type: "auto",
-        public_id: public_id
+        resource_type: 'auto',
+        public_id: public_id,
       },
       (error, result) => {
         if (error || !result) return reject(error);
@@ -31,18 +35,18 @@ export const uploadFile = async (fileBuffer: Buffer, public_id: string, folder: 
           url: result.secure_url,
           public_id: result.public_id,
         });
-      }
+      },
     );
 
     const bufferStream = new stream.PassThrough();
     bufferStream.end(fileBuffer);
     bufferStream.pipe(uploadStream);
   });
-}
+};
 
 /**
  * Xóa ảnh theo public_id
- * @param imageUrl URL hình anh (VD: 'https://res.cloudinary.com/...') 
+ * @param imageUrl URL hình anh (VD: 'https://res.cloudinary.com/...')
  * @returns Promise<void>
  */
 export const deleteFile = async (fileUrl: string): Promise<void> => {
@@ -51,12 +55,18 @@ export const deleteFile = async (fileUrl: string): Promise<void> => {
     const result = await cloudinary.uploader.destroy(publicId);
 
     // Optional: check if deletion actually succeeded
-    if (result.result !== "ok") {
-      throw new AppError(ErrorCode.NOT_FOUND, `❌ Image not found or could not be deleted: ${publicId}`);
+    if (result.result !== 'ok') {
+      throw new AppError(
+        ErrorCode.NOT_FOUND,
+        `❌ Image not found or could not be deleted: ${publicId}`,
+      );
     }
   } catch (error) {
     if (error instanceof AppError) throw error;
-    throw new AppError(ErrorCode.BAD_REQUEST, `❌ Failed to delete image: ${error}`);
+    throw new AppError(
+      ErrorCode.BAD_REQUEST,
+      `❌ Failed to delete image: ${error}`,
+    );
   }
 };
 
@@ -104,6 +114,9 @@ const getPublicIdFromUrl = (url: string): string => {
 
     return afterUpload.substring(0, lastDotIndex);
   } catch (err) {
-    throw new AppError(ErrorCode.BAD_REQUEST, `❌ Invalid Cloudinary URL: ${url}`);
+    throw new AppError(
+      ErrorCode.BAD_REQUEST,
+      `❌ Invalid Cloudinary URL: ${url}`,
+    );
   }
 };

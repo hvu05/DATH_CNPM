@@ -6,7 +6,9 @@ import { ApiResponse } from '../types/api-response';
 
 export const createPaymentHandler = async (
   req: Request,
-  res: Response<ApiResponse<{ payment: paymentDto.PaymentResponse; url?: string }>>,
+  res: Response<
+    ApiResponse<{ payment: paymentDto.PaymentResponse; url?: string }>
+  >,
   next: NextFunction,
 ) => {
   const parsed = paymentDto.paymentCreateSchema.safeParse(req.body);

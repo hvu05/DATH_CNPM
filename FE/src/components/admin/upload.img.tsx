@@ -56,7 +56,7 @@ export const UploadImage = (props: IProps) => {
             file.preview = await getBase64(file.originFileObj as FileType);
         }
 
-        console.log('file', file)
+        console.log('file', file);
         // Kiểm tra và chỉ set previewImage khi có giá trị hợp lệ
         if (file.url) {
             setPreviewImage(file.url);

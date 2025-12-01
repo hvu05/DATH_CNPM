@@ -26,13 +26,11 @@ export const createBrandHandler = async (
     const brand = await brandService.createBrand(parsed.data);
     const validated = BrandResponseSchema.parse(brand);
 
-    return res
-      .status(201)
-      .json({
-        success: true,
-        message: 'Brand created successfully',
-        data: validated,
-      });
+    return res.status(201).json({
+      success: true,
+      message: 'Brand created successfully',
+      data: validated,
+    });
   } catch (error) {
     next(error);
   }
@@ -53,13 +51,11 @@ export const updateBrandHandler = async (
     const updated = await brandService.updateBrand(id, parsed.data);
     const validated = BrandResponseSchema.parse(updated);
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: 'Brand updated successfully',
-        data: validated,
-      });
+    return res.status(200).json({
+      success: true,
+      message: 'Brand updated successfully',
+      data: validated,
+    });
   } catch (error) {
     next(error);
   }
@@ -75,13 +71,11 @@ export const deleteBrandHandler = async (
     const id = req.params.id;
     await brandService.deleteBrand(id);
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: 'Brand deleted successfully',
-        data: null,
-      });
+    return res.status(200).json({
+      success: true,
+      message: 'Brand deleted successfully',
+      data: null,
+    });
   } catch (error) {
     next(error);
   }
@@ -101,13 +95,11 @@ export const getBrandHandler = async (
     const brand = await brandService.getBrandById(id);
     const validated = BrandResponseSchema.parse(brand);
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: 'Brand fetched successfully',
-        data: validated,
-      });
+    return res.status(200).json({
+      success: true,
+      message: 'Brand fetched successfully',
+      data: validated,
+    });
   } catch (error) {
     next(error);
   }
@@ -126,13 +118,11 @@ export const getAllBrandsHandler = async (
     const { results } = await brandService.getAllBrands(limit, offset);
     const validated = BrandResponseSchema.array().parse(results);
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: 'Brands fetched successfully',
-        data: validated,
-      });
+    return res.status(200).json({
+      success: true,
+      message: 'Brands fetched successfully',
+      data: validated,
+    });
   } catch (error) {
     next(error);
   }

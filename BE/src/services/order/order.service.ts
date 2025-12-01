@@ -6,7 +6,6 @@ import { createPayment } from '../payment.service';
 import { PaymentMethod } from '../../dtos/payment';
 import { toUserResponse } from '../../dtos/users';
 
-
 //! Tạm dùng được
 export const createOrder = async (
   data: orderDto.OrderCreateRequest,
@@ -23,7 +22,10 @@ export const createOrder = async (
   const total = variants.reduce((sum, variant, i) => {
     return sum + variant.price * data.items[i].quantity;
   }, 0);
-  const status = data.method !== PaymentMethod.COD ? orderDto.OrderStatus.PENDING : orderDto.OrderStatus.PROCESSING;
+  const status =
+    data.method !== PaymentMethod.COD
+      ? orderDto.OrderStatus.PENDING
+      : orderDto.OrderStatus.PROCESSING;
   //? 3. Create order
   const order = await prisma.order.create({
     data: {
@@ -58,14 +60,14 @@ export const createOrder = async (
                 include: {
                   product_image: {
                     where: {
-                      is_thumbnail: true
+                      is_thumbnail: true,
                     },
                     select: {
-                      image_url: true
-                    }
-                  }
-                }
-              }
+                      image_url: true,
+                    },
+                  },
+                },
+              },
             },
           },
         },
@@ -87,7 +89,10 @@ export const createOrder = async (
       }),
     ),
   );
-  const payment = await createPayment({ order_id: order.id, payment_method: data.method }, user_id);
+  const payment = await createPayment(
+    { order_id: order.id, payment_method: data.method },
+    user_id,
+  );
   return { ...orderDto.mapOrderToDTO(order), url: payment.url };
 };
 
@@ -102,8 +107,8 @@ export const getOrdersByUser = async (
       payment: true,
       user: {
         include: {
-          role: true
-        }
+          role: true,
+        },
       },
       order_items: {
         include: {
@@ -113,33 +118,32 @@ export const getOrdersByUser = async (
                 include: {
                   product_image: {
                     where: {
-                      is_thumbnail: true
+                      is_thumbnail: true,
                     },
                     select: {
-                      image_url: true
-                    }
-                  }
-                }
-              }
+                      image_url: true,
+                    },
+                  },
+                },
+              },
             },
           },
         },
       },
     },
   });
-  let user
+  let user;
   if (orders.length > 0) {
-    user = orders[0].user
-  }
-  else {
+    user = orders[0].user;
+  } else {
     user = await prisma.user.findUniqueOrThrow({
       where: {
-        id: userId
+        id: userId,
       },
       include: {
-        role: true
-      }
-    })
+        role: true,
+      },
+    });
   }
   return {
     count: orders.length,
@@ -199,12 +203,12 @@ export const getAllOrders = async (
           some: {
             variant: {
               product: {
-                name: { contains: search }
-              }
-            }
-          }
-        }
-      }
+                name: { contains: search },
+              },
+            },
+          },
+        },
+      },
     ];
   }
   const [totalOrders, orders] = await prisma.$transaction([
@@ -229,14 +233,14 @@ export const getAllOrders = async (
                   include: {
                     product_image: {
                       where: {
-                        is_thumbnail: true
+                        is_thumbnail: true,
                       },
                       select: {
-                        image_url: true
-                      }
-                    }
-                  }
-                }
+                        image_url: true,
+                      },
+                    },
+                  },
+                },
               },
             },
           },
@@ -250,7 +254,6 @@ export const getAllOrders = async (
     orders: orders.map(orderDto.mapOrderToDTO),
   };
 };
-
 
 /**
  * generate order_id theo định dạng 'ORD-yyymmdd-HCM-123456'

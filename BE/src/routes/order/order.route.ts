@@ -33,9 +33,11 @@ registry.registerPath({
       description: 'OK',
       content: {
         'application/json': {
-          schema: ApiResponseSchema(orderDto.OrderResponseSchema.extend({
-            url: string(),
-          })),
+          schema: ApiResponseSchema(
+            orderDto.OrderResponseSchema.extend({
+              url: string(),
+            }),
+          ),
         },
       },
     },

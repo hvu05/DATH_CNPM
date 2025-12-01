@@ -1,5 +1,5 @@
 import default_order from '@/assets/seller/default_order.webp';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import '@/styles/client/clientOrderList.scss';
 import type { DataInOrder, OrdersInOrder } from '@/types/clients/client.order.types';
 

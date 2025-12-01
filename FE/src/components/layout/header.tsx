@@ -161,7 +161,7 @@ export const Header = () => {
     const handleMenuClick: MenuProps['onClick'] = e => {
         const { key } = e;
         if (key === 'logout') logout();
-        else if (key === 'profile') navigate('/client/profile');
+        else if (key === 'profile') navigate('/client');
         else if (key === 'adminpage') navigate('/admin/dashboard');
         else if (key === 'sellerpage') navigate('/seller/dashboard');
     };

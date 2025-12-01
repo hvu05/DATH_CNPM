@@ -1,24 +1,36 @@
-// FE/src/pages/CartPage.tsx
 import React, { useState, useEffect } from 'react';
 import { useCart } from '@/contexts/CartContext';
-import { useAuthContext } from '@/contexts/AuthContext'; // <--- 1. Import AuthContext
+import type { CartItem } from '@/contexts/CartContext';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { Button, Empty, message, Divider, Checkbox } from 'antd';
-import { DeleteOutlined, LoginOutlined } from '@ant-design/icons';
+import { Button, Empty, message, Divider, Checkbox, Modal, Tag, Spin } from 'antd';
+import { DeleteOutlined, LoginOutlined, DownOutlined, CheckOutlined } from '@ant-design/icons';
 import ProductCard from '@/components/common/ProductCard';
-import { getProducts } from '@/services/productsApi';
-import type { Product } from '@/types/product';
+import { getProducts, getProductById } from '@/services/productsApi'; // Import thêm getProductById
+import type { Product, BackendVariant } from '@/types/product';
 import './CartPage.scss';
 
 const CartPage: React.FC = () => {
-    const { cartItems, updateQuantity, removeFromCart } = useCart();
+    const { cartItems, updateQuantity, removeFromCart, addToCart, changeCartItemVariant } =
+        useCart();
     const { isLoggedIn } = useAuthContext();
     const navigate = useNavigate();
+
+    // Data
     const [recommended, setRecommended] = useState<Product[]>([]);
 
+    // Checkbox State
     const [checkedItems, setCheckedItems] = useState<string[]>([]);
     const [checkAll, setCheckAll] = useState(false);
 
+    // --- VARIANT MODAL STATE ---
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingItem, setEditingItem] = useState<CartItem | null>(null); // Item đang được sửa
+    const [loadingVariants, setLoadingVariants] = useState(false);
+    const [currentProductVariants, setCurrentProductVariants] = useState<BackendVariant[]>([]); // List variants của sp đang sửa
+    const [selectedNewVariant, setSelectedNewVariant] = useState<BackendVariant | null>(null); // Variant mới user chọn
+
+    // Helper tạo key unique
     const getItemKey = (item: any) => `${item.productId}-${item.variantId}`;
 
     useEffect(() => {
@@ -54,24 +66,60 @@ const CartPage: React.FC = () => {
         .reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     const handleCheckout = () => {
-        // 1. Kiểm tra đăng nhập trước
         if (!isLoggedIn) {
             message.warning('Bạn chưa đăng nhập! Vui lòng đăng nhập để thanh toán.');
-
             return;
         }
-
-        // 2. Kiểm tra có chọn sản phẩm không
         if (checkedItems.length === 0) {
             message.warning('Vui lòng chọn ít nhất 1 sản phẩm để thanh toán');
             return;
         }
-
         const selectedProducts = cartItems.filter(item => checkedItems.includes(getItemKey(item)));
-
         navigate('/client/order', {
             state: { orderItems: selectedProducts, total: totalSelected },
         });
+    };
+
+    const openVariantModal = async (item: CartItem) => {
+        setEditingItem(item);
+        setIsModalOpen(true);
+        setLoadingVariants(true);
+
+        try {
+            const productDetail = await getProductById(item.productId);
+            if (productDetail && productDetail.originalVariants) {
+                setCurrentProductVariants(productDetail.originalVariants);
+
+                const current = productDetail.originalVariants.find(v => v.id === item.variantId);
+                setSelectedNewVariant(current || null);
+            }
+        } catch (error) {
+            message.error('Không thể tải thông tin biến thể');
+        } finally {
+            setLoadingVariants(false);
+        }
+    };
+
+    const handleConfirmChangeVariant = async () => {
+        if (!editingItem || !selectedNewVariant) return;
+
+        if (editingItem.variantId === selectedNewVariant.id) {
+            setIsModalOpen(false);
+            return;
+        }
+
+        const baseName = editingItem.name.split('(')[0].trim();
+        const newName = `${baseName} (${selectedNewVariant.color} - ${selectedNewVariant.storage})`;
+
+        await changeCartItemVariant(editingItem, {
+            id: selectedNewVariant.id,
+            name: newName,
+            price: Number(selectedNewVariant.price),
+        });
+
+        message.success('Đã cập nhật phân loại hàng');
+        setIsModalOpen(false);
+        setEditingItem(null);
     };
 
     if (cartItems.length === 0) {
@@ -91,14 +139,7 @@ const CartPage: React.FC = () => {
             <h1>Giỏ hàng</h1>
             <div className="cart-layout">
                 <div className="cart-items-list">
-                    <div
-                        style={{
-                            marginBottom: 15,
-                            background: '#fff',
-                            padding: '10px 20px',
-                            borderRadius: 8,
-                        }}
-                    >
+                    <div className="cart-header-row">
                         <Checkbox checked={checkAll} onChange={onCheckAllChange}>
                             Chọn tất cả ({cartItems.length} sản phẩm)
                         </Checkbox>
@@ -108,52 +149,96 @@ const CartPage: React.FC = () => {
                         const uniqueKey = getItemKey(item);
                         return (
                             <div className="cart-item" key={uniqueKey}>
-                                <Checkbox
-                                    style={{ marginRight: 15 }}
-                                    checked={checkedItems.includes(uniqueKey)}
-                                    onChange={e => onCheckItemChange(uniqueKey, e.target.checked)}
-                                />
-                                <Link to={`/product/${item.productId}`} className="cart-item__link">
-                                    <img
-                                        src={item.imageUrl}
-                                        alt={item.name}
-                                        className="cart-item__image"
-                                    />
-                                </Link>
-                                <div className="cart-item__info">
-                                    <Link
-                                        to={`/product/${item.productId}`}
-                                        style={{ color: 'inherit', textDecoration: 'none' }}
-                                    >
-                                        <h3 className="cart-item__name">{item.name}</h3>
-                                    </Link>
-                                    <p className="cart-item__price">
-                                        {item.price.toLocaleString('vi-VN')}₫
-                                    </p>
-                                </div>
-                                <div className="cart-item__quantity">
-                                    <input
-                                        type="number"
-                                        value={item.quantity}
-                                        min="1"
+                                <div className="cart-item__checkbox">
+                                    <Checkbox
+                                        checked={checkedItems.includes(uniqueKey)}
                                         onChange={e =>
-                                            updateQuantity(
-                                                item.productId,
-                                                item.variantId,
-                                                parseInt(e.target.value) || 1
-                                            )
+                                            onCheckItemChange(uniqueKey, e.target.checked)
                                         }
                                     />
                                 </div>
-                                <div className="cart-item__total">
-                                    {(item.price * item.quantity).toLocaleString('vi-VN')}₫
+
+                                <div className="cart-item__overview">
+                                    <Link
+                                        to={`/product/${item.productId}`}
+                                        className="cart-item__image-link"
+                                    >
+                                        <img
+                                            src={item.imageUrl}
+                                            alt={item.name}
+                                            className="cart-item__image"
+                                        />
+                                    </Link>
+
+                                    <div className="cart-item__details">
+                                        <Link
+                                            to={`/product/${item.productId}`}
+                                            className="cart-item__name-link"
+                                        >
+                                            <h3 className="cart-item__name">{item.name}</h3>
+                                        </Link>
+
+                                        <div
+                                            className="cart-item__variant-selector"
+                                            onClick={() => openVariantModal(item)}
+                                        >
+                                            <span className="variant-label">Phân loại hàng:</span>
+                                            <span className="variant-value">
+                                                <DownOutlined
+                                                    style={{ fontSize: 10, marginLeft: 4 }}
+                                                />
+                                            </span>
+                                        </div>
+
+                                        <p className="cart-item__price">
+                                            {item.price.toLocaleString('vi-VN')}₫
+                                        </p>
+                                    </div>
                                 </div>
-                                <Button
-                                    type="text"
-                                    danger
-                                    icon={<DeleteOutlined />}
-                                    onClick={() => removeFromCart(item.productId, item.variantId)}
-                                />
+
+                                <div className="cart-item__actions-wrapper">
+                                    <div className="cart-item__quantity">
+                                        <button
+                                            onClick={() =>
+                                                updateQuantity(
+                                                    item.productId,
+                                                    item.variantId,
+                                                    item.quantity - 1
+                                                )
+                                            }
+                                            disabled={item.quantity <= 1}
+                                        >
+                                            -
+                                        </button>
+                                        <input type="number" value={item.quantity} readOnly />
+                                        <button
+                                            onClick={() =>
+                                                updateQuantity(
+                                                    item.productId,
+                                                    item.variantId,
+                                                    item.quantity + 1
+                                                )
+                                            }
+                                        >
+                                            +
+                                        </button>
+                                    </div>
+
+                                    <div className="cart-item__total-price">
+                                        {(item.price * item.quantity).toLocaleString('vi-VN')}₫
+                                    </div>
+
+                                    <Button
+                                        type="text"
+                                        danger
+                                        className="btn-delete"
+                                        onClick={() =>
+                                            removeFromCart(item.productId, item.variantId)
+                                        }
+                                    >
+                                        Xóa
+                                    </Button>
+                                </div>
                             </div>
                         );
                     })}
@@ -169,21 +254,12 @@ const CartPage: React.FC = () => {
                     </div>
                     <h3>Tạm tính: {totalSelected.toLocaleString('vi-VN')}₫</h3>
 
-                    {/* Nút thanh toán */}
                     <Button type="primary" block size="large" onClick={handleCheckout}>
                         Mua Hàng
                     </Button>
 
-                    {/* Dòng thông báo hiển thị nếu chưa đăng nhập (UX bổ sung) */}
                     {!isLoggedIn && (
-                        <div
-                            style={{
-                                marginTop: 10,
-                                color: '#faad14',
-                                fontSize: '13px',
-                                textAlign: 'center',
-                            }}
-                        >
+                        <div className="login-warning">
                             <LoginOutlined /> Bạn cần đăng nhập để thanh toán
                         </div>
                     )}
@@ -191,6 +267,89 @@ const CartPage: React.FC = () => {
             </div>
 
             <Divider />
+
+            {/* --- MODAL ĐỔI BIẾN THỂ --- */}
+            <Modal
+                title="Đổi phân loại hàng"
+                open={isModalOpen}
+                onCancel={() => setIsModalOpen(false)}
+                footer={[
+                    <Button key="back" onClick={() => setIsModalOpen(false)}>
+                        Hủy
+                    </Button>,
+                    <Button key="submit" type="primary" onClick={handleConfirmChangeVariant}>
+                        Xác nhận
+                    </Button>,
+                ]}
+            >
+                {loadingVariants ? (
+                    <div style={{ textAlign: 'center', padding: 20 }}>
+                        <Spin />
+                    </div>
+                ) : (
+                    <div className="variant-change-content">
+                        <div
+                            className="current-product-info"
+                            style={{ display: 'flex', gap: 10, marginBottom: 20 }}
+                        >
+                            <img
+                                src={editingItem?.imageUrl}
+                                alt="thumb"
+                                style={{
+                                    width: 50,
+                                    height: 50,
+                                    objectFit: 'cover',
+                                    borderRadius: 4,
+                                }}
+                            />
+                            <div>
+                                <div style={{ fontWeight: 600 }}>{editingItem?.name}</div>
+                                <div style={{ color: '#d70018' }}>
+                                    {selectedNewVariant
+                                        ? Number(selectedNewVariant.price).toLocaleString('vi-VN')
+                                        : editingItem?.price.toLocaleString('vi-VN')}
+                                    ₫
+                                </div>
+                            </div>
+                        </div>
+
+                        {currentProductVariants.length > 0 ? (
+                            <div className="variant-options">
+                                <p style={{ fontWeight: 600, marginBottom: 8 }}>Chọn phân loại:</p>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                                    {currentProductVariants.map(v => {
+                                        const isSelected = selectedNewVariant?.id === v.id;
+                                        return (
+                                            <Tag.CheckableTag
+                                                key={v.id}
+                                                checked={isSelected}
+                                                onChange={() => setSelectedNewVariant(v)}
+                                                style={{
+                                                    padding: '6px 12px',
+                                                    border: isSelected
+                                                        ? '1px solid #d70018'
+                                                        : '1px solid #d9d9d9',
+                                                    background: isSelected ? '#fff1f0' : '#fff',
+                                                    color: isSelected ? '#d70018' : '#333',
+                                                    fontSize: 14,
+                                                }}
+                                            >
+                                                {v.color} - {v.storage}
+                                                {isSelected && (
+                                                    <CheckOutlined style={{ marginLeft: 5 }} />
+                                                )}
+                                            </Tag.CheckableTag>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        ) : (
+                            <p>Sản phẩm này không có biến thể khác.</p>
+                        )}
+                    </div>
+                )}
+            </Modal>
+
             <section className="recommended-products">
                 <h2 className="section-title">Có thể bạn thích</h2>
                 <div className="product-grid">

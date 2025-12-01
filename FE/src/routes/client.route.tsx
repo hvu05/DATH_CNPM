@@ -44,7 +44,7 @@ export const clientRoutes: RouteObject[] = [
         element: <AppLayout />,
         children: [
             {
-                path: 'order/:id',
+                path: 'order',
                 element: <OrderClient />,
             },
             {

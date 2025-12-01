@@ -1,43 +1,19 @@
 import { Fragment } from 'react/jsx-runtime';
 import defaultItem from '@/assets/client/default_order.webp';
 import carIcon from '@/assets/client/car.svg';
-import qrcodeIcon from '@/assets/client/qrcode.svg';
-// import './index.scss';
-import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useClientProfile } from '@/hooks/client/useClientProfile';
-import type { Address } from '@/types/clients/client.address.types';
-import { orderAPI } from '@/services/user/orders/user.order.api';
-import type { OrderRequest, OrdersInOrder } from '@/types/clients/client.order.types';
-import { message } from 'antd';
 
-type OptionsPayment = 'COD' | 'VNPAY';
+import { useLocation } from 'react-router-dom';
+import { useClientProfile } from '@/hooks/client/useClientProfile';
+
+import type { OrdersInOrder } from '@/types/clients/client.order.types';
+
 
 export const ReOrderClient = () => {
-    const [formChangeAddress, setFormChangeAddress] = useState<boolean>(false);
-    const navigate = useNavigate();
+
     const location = useLocation();
     const order: OrdersInOrder = location.state.order || '';
-    console.log('re', order);
-    const [statusPayment, setStatusPayment] = useState<OptionsPayment>('COD');
 
     const { data: profile, loading: loadingProfile } = useClientProfile();
-
-    const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
-
-    const order_fake: OrderRequest = {
-        province: selectedAddress?.province || 'Chưa chọn',
-        ward: selectedAddress?.ward || 'Chưa chọn',
-        detail: selectedAddress?.detail || 'Chưa chọn',
-        items: [
-            {
-                product_id: 1,
-                product_variant_id: 2,
-                quantity: 1,
-            },
-        ],
-        method: statusPayment,
-    };
 
     if (loadingProfile) return <p>Loading...</p>;
     return (
@@ -54,7 +30,7 @@ export const ReOrderClient = () => {
                                 <div className="client-order-detail__product-item">
                                     <div className="client-order-detail__product-info">
                                         <div className="client-order-detail__product-img-container">
-                                            <img src={defaultItem} alt="item" />
+                                            <img src={ord.product_variant.thumbnail || defaultItem} alt="item" />
                                         </div>
                                         <div className="client-order-detail__product-details">
                                             <h3 className="client-order-detail__product-name">
@@ -114,7 +90,6 @@ export const ReOrderClient = () => {
                     <div className="client-order-detail__payment-options">
                         <div
                             className="client-order-detail__payment-option"
-                            onClick={() => setStatusPayment('COD')}
                         >
                             <input type="radio" name="payment" id="payment-cash" defaultChecked />
                             <label htmlFor="payment-cash">

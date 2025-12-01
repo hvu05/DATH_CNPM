@@ -2,6 +2,7 @@ import default_order from '@/assets/seller/default_order.webp';
 import { useNavigate } from 'react-router-dom';
 import '@/styles/client/clientOrderList.scss';
 import type { DataInOrder, OrdersInOrder, StatusOrder } from '@/types/clients/client.order.types';
+import { handleRebuy } from '@/helpers/client/rebuy';
 
 type Props = {
     orders: DataInOrder | null;
@@ -14,9 +15,6 @@ export const ReturnOrder = ({ orders }: Props) => {
         item => item?.status === 'RETURNED' || item?.status === 'RETURN_REQUEST'
     );
 
-    const handleRebuy = (order: OrdersInOrder) => {
-        navigate(`/client/order/${order.id}`, { state: { order: order } });
-    };
     const convertView = (status: StatusOrder) => {
         switch (status) {
             case 'RETURNED':
@@ -37,7 +35,7 @@ export const ReturnOrder = ({ orders }: Props) => {
                             <div className="client-order__img-container">
                                 <img
                                     className="client-order__img"
-                                    src={default_order}
+                                    src={item.product_variant.thumbnail || default_order}
                                     alt="order_img"
                                 />
                             </div>
@@ -59,7 +57,7 @@ export const ReturnOrder = ({ orders }: Props) => {
                         <div className="client-order__price">
                             Giá: {order?.total?.toLocaleString()}đ
                         </div>
-                        <div className="btn-rebuy" onClick={() => handleRebuy(order)}>
+                        <div className="btn-rebuy" onClick={() => handleRebuy(order, navigate)}>
                             Mua lại
                         </div>
                         <button className="client-order__return">

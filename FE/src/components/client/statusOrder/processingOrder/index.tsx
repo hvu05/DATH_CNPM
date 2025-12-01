@@ -68,7 +68,7 @@ export const ProcessingOrder = ({ orders, setRefresh }: Props) => {
                             <div className="client-order__img-container">
                                 <img
                                     className="client-order__img"
-                                    src={default_order}
+                                    src={item.product_variant.thumbnail || default_order}
                                     alt="order_img"
                                 />
                             </div>

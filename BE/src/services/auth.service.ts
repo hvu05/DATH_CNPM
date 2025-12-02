@@ -10,6 +10,7 @@ import { generateOTP } from '../utils/otp.utils';
 import { transporter } from '../config/nodemailer.config';
 import { createUser } from './user.service';
 import { UserResponse } from '../dtos/users';
+import { StringValue } from 'ms';
 import { AuthPayload } from '../types/auth-payload';
 
 /**
@@ -43,7 +44,10 @@ export const login = async (
     full_name: user.full_name,
   };
   const access_token = generateToken(payload);
-  const refresh_token = generateToken({ id: user.id }, '7d');
+  const refresh_token = generateToken(
+    { id: user.id },
+    (process.env.JWT_REFRESH_TOKEN_EXPIRED as StringValue) || '7d',
+  );
   return {
     access_token: access_token,
     refresh_token: refresh_token,
@@ -162,7 +166,10 @@ export const refreshToken = async (
     full_name: user.full_name,
   };
   const access_token = generateToken(payload);
-  const refresh_token = generateToken({ id: user.id }, '7d');
+  const refresh_token = generateToken(
+    { id: user.id },
+    (process.env.JWT_REFRESH_TOKEN_EXPIRED as StringValue) || '7d',
+  );
   return {
     access_token: access_token,
     refresh_token: refresh_token,

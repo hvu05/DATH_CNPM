@@ -2,7 +2,6 @@ import axios from '@/services/axios.customize';
 import {
     type LoginRequest,
     type LoginResponse,
-    type RefreshTokenResponse,
     type RegisterRequest,
     type RegisterResponse,
     type SendOtpRequest,
@@ -11,16 +10,6 @@ import {
 export const authAPI = {
     login: async (data: LoginRequest) => {
         const response = await axios.post<ApiResponse<LoginResponse>>('/auth/login', data);
-        return response.data;
-    },
-
-    refreshToken: async (refreshToken: string): Promise<ApiResponse<RefreshTokenResponse>> => {
-        const response = await axios.post<ApiResponse<RefreshTokenResponse>>(
-            '/auth/refresh-token',
-            {
-                refresh_token: refreshToken,
-            }
-        );
         return response.data;
     },
 

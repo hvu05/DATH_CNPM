@@ -14,10 +14,13 @@ export const authAPI = {
         return response.data;
     },
 
-    refreshToken: async (refreshToken: string): Promise<RefreshTokenResponse> => {
-        const response = await axios.post('/auth/refresh', {
-            refresh_token: refreshToken,
-        });
+    refreshToken: async (refreshToken: string): Promise<ApiResponse<RefreshTokenResponse>> => {
+        const response = await axios.post<ApiResponse<RefreshTokenResponse>>(
+            '/auth/refresh-token',
+            {
+                refresh_token: refreshToken,
+            }
+        );
         return response.data;
     },
 
@@ -38,7 +41,6 @@ export const authAPI = {
 };
 
 export const setTokens = (tokens: LoginResponse) => {
-    console.log('settoken method', tokens);
     localStorage.setItem('tokens', JSON.stringify(tokens));
 };
 

@@ -6,12 +6,13 @@ import ClientAvtImage from '@/assets/client/tab/client-avt.svg';
 // import HistoryImage from '@/assets/client/tab/history.svg'
 import LogoutImage from '@/assets/client/tab/logout.svg';
 import MyOrderImage from '@/assets/client/tab/myorder.svg';
-import { removeTokens } from '@/services/auth/auth.service';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 // End import Image
 type PathName = 'orders' | 'history' | 'address' | 'profile' | 'client';
 export const TabClient = () => {
+    const { logout } = useAuthContext();
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -21,10 +22,10 @@ export const TabClient = () => {
         }
         return location.pathname.includes(path);
     };
-    const logout = () => {
-        removeTokens();
-        navigate('/login');
-    };
+    // const logout = () => {
+    //     removeTokens();
+    //     navigate('/login');
+    // };
     return (
         <>
             <div className="client-tab-container">

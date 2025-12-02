@@ -45,19 +45,19 @@ router.get(
 router.get(
   '/categories',
   authenticateHandler,
-  checkRole(['ADMIN']),
+  checkRole(['ADMIN', 'CUSTOMER']),
   productController.getAllCategories,
 );
 router.get(
   '/brands',
   authenticateHandler,
-  checkRole(['ADMIN']),
+  checkRole(['ADMIN', 'CUSTOMER']),
   productController.getBrands,
 );
 router.get(
   '/series',
   authenticateHandler,
-  checkRole(['ADMIN']),
+  checkRole(['ADMIN', 'CUSTOMER']),
   productController.getSeries,
 );
 // POST with multer for image uploads - max 10 images

@@ -1,49 +1,95 @@
-import { ca } from 'zod/v4/locales';
 import { prisma } from '../config/prisma.config';
 import { CartCreateRequest } from '../dtos/cart/cart-create.reques';
 import { CartResponse } from '../dtos/cart/cart-list-response';
 import { AuthPayload } from '../types/auth-payload';
+import { mapToCartDTO } from '../dtos/cart/helper';
 
 export const createCart = async (
   data: CartCreateRequest,
   user: AuthPayload,
 ): Promise<CartResponse> => {
-  const lastId = await prisma.cartItem.findFirst({
+  const existing = await prisma.cartItem.findFirst({
     where: {
       user_id: user.id,
+      product_id: data.product_id,
+      product_variant_id: data.product_variant_id,
     },
     orderBy: { id: 'desc' },
     select: { id: true },
   });
-  const nextId = (lastId?.id ?? 0) + 1;
-  const cart = await prisma.cartItem.create({
-    data: {
-      id: nextId,
-      product_id: data.product_id,
-      product_variant_id: data.product_variant_id,
-      quantity: data.quantity,
-      user_id: user.id,
-      thumbnail_id: 0,
-    },
-    include: {
-      product_variant: {
-        include: {
-          product: {
-            include: {
-              product_image: {
-                where: {
-                  is_thumbnail: true,
+  let cart ; 
+  if (existing) {
+    cart = await prisma.cartItem.update({
+      where: {
+        id_user_id: {
+          id: existing.id,
+          user_id: user.id,
+        }
+      },
+      data: {
+        quantity: {
+          increment: data.quantity,
+        },
+      },
+      include: {
+        product_variant: {
+          include: {
+            product: {
+              include: {
+                product_image: {
+                  where: {
+                    is_thumbnail: true,
+                  },
+                  select: {
+                    image_url: true,
+                  },
                 },
-                select: {
-                  image_url: true,
+              },
+            },
+          },
+        },
+      }
+    });
+  }
+  else {
+    const lastId = await prisma.cartItem.findFirst({
+      where: {
+        user_id: user.id,
+      },
+      orderBy: { id: 'desc' },
+      select: { id: true },
+    })
+    const nextId = (lastId?.id ?? 0) + 1;
+    cart = await prisma.cartItem.create({
+      data: {
+        id: nextId,
+        product_id: data.product_id,
+        product_variant_id: data.product_variant_id,
+        quantity: data.quantity,
+        user_id: user.id,
+        thumbnail_id: 0,
+      },
+      include: {
+        product_variant: {
+          include: {
+            product: {
+              include: {
+                product_image: {
+                  where: {
+                    is_thumbnail: true,
+                  },
+                  select: {
+                    image_url: true,
+                  },
                 },
               },
             },
           },
         },
       },
-    },
-  });
+    });
+  }
+  
   // id: z.number(),
   //     product_id: z.number(),
   //     thumbnail: z.string().optional(),
@@ -51,21 +97,7 @@ export const createCart = async (
   //     storage: z.string().optional(),
   //     name: z.string(),
   //     price: z.number(),
-  return {
-    ...cart,
-    product_variant: {
-      id: cart.product_variant.id,
-      product_id: cart.product_variant.product_id,
-      color: cart.product_variant.color ?? undefined,
-      storage: cart.product_variant.storage ?? undefined,
-      name: cart.product_variant.product.name,
-      price: cart.product_variant.price,
-      thumbnail:
-        cart.product_variant.product?.product_image?.[0]?.image_url ||
-        undefined,
-    },
-    thumbnail: cart.product_variant.product.product_image[0].image_url,
-  };
+  return mapToCartDTO(cart);
 };
 
 export const getCart = async (user: AuthPayload): Promise<CartResponse[]> => {
@@ -95,19 +127,52 @@ export const getCart = async (user: AuthPayload): Promise<CartResponse[]> => {
   if (!cart) {
     return [];
   }
-  return cart.map((item) => ({
-    ...item,
-    product_variant: {
-      id: item.product_variant.id,
-      product_id: item.product_variant.product_id,
-      color: item.product_variant.color ?? undefined,
-      storage: item.product_variant.storage ?? undefined,
-      name: item.product_variant.product.name,
-      price: item.product_variant.price,
-      thumbnail:
-        item.product_variant.product?.product_image?.[0]?.image_url ||
-        undefined,
+  return cart.map(mapToCartDTO);
+};
+
+export const deleteCart = async (id: number, user: AuthPayload) => {
+  await prisma.cartItem.deleteMany({
+    where: {
+      id: id,
+      user_id: user.id,
     },
-    thumbnail: item.product_variant.product.product_image[0].image_url,
-  }));
+  });
+  return getCart(user);
+};
+
+export const updateCart = async (
+  id: number,
+  quantity: number,
+  user: AuthPayload,
+) => {
+  const cart = await prisma.cartItem.update({
+    where : {
+      id_user_id: {
+        id: id,
+        user_id: user.id
+      }
+    },
+    data: {
+      quantity: quantity,
+    },
+    include: {
+      product_variant: {
+        include: {
+          product: {
+            include: {
+              product_image: {
+                where: {
+                  is_thumbnail: true,
+                },
+                select: {
+                  image_url: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+  });
+  return mapToCartDTO(cart);
 };

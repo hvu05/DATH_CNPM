@@ -26,19 +26,38 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- Roles ----------------------------------------------------------------------
 INSERT INTO `Role` (`id`, `name`) VALUES
 (1, 'ADMIN'),
-(2, 'CUSTOMER');
+(2, 'CUSTOMER'),
+(3, 'STAFF');
 
 -- Users and addresses --------------------------------------------------------
 INSERT INTO `User`
 (`id`, `full_name`, `email`, `password`, `phone`, `role_id`, `is_active`, `avatar`, `create_at`, `update_at`)
 VALUES
-('USR-001', 'Nguyen Admin', 'admin@eshop.local', '$2a$10$adminseedhash', '0900000001', 1, TRUE, NULL, NOW(), NOW()),
-('USR-002', 'Tran Customer', 'customer@eshop.local', '$2a$10$customerseedhash', '0900000002', 2, TRUE, NULL, NOW(), NOW());
+('USR-001', 'Nguyễn Văn An', 'an.nguyen@example.com', '$2a$10$sbTvmDx8AldPXzsJ76LGYuq4J4aiqEp7/s0XopFLkPDlP2dg.vUb.', '0901234567', 2, TRUE, NULL, NOW(), NOW()),
+('USR-002', 'Trần Thị Bình', 'binh.tran@example.com', '$2a$10$sbTvmDx8AldPXzsJ76LGYuq4J4aiqEp7/s0XopFLkPDlP2dg.vUb.', '0912345678', 2, TRUE, NULL, NOW(), NOW()),
+('USR-003', 'Lê Văn Cường', 'cuong.le@example.com', '$2a$10$sbTvmDx8AldPXzsJ76LGYuq4J4aiqEp7/s0XopFLkPDlP2dg.vUb.', '0923456789', 2, TRUE, NULL, NOW(), NOW()),
+('USR-004', 'Phạm Thị Dung', 'dung.pham@example.com', '$2a$10$sbTvmDx8AldPXzsJ76LGYuq4J4aiqEp7/s0XopFLkPDlP2dg.vUb.', '0934567890', 2, TRUE, NULL, NOW(), NOW()),
+('USR-005', 'Hoàng Văn Em', 'em.hoang@example.com', '$2a$10$sbTvmDx8AldPXzsJ76LGYuq4J4aiqEp7/s0XopFLkPDlP2dg.vUb.', '0945678901', 2, TRUE, NULL, NOW(), NOW()),
+('USR-006', 'Đỗ Thị Giang', 'giang.do@example.com', '$2a$10$sbTvmDx8AldPXzsJ76LGYuq4J4aiqEp7/s0XopFLkPDlP2dg.vUb.', '0956789012', 3, TRUE, NULL, NOW(), NOW()),
+('USR-007', 'Vũ Văn Hùng', 'hung.vu@example.com', '$2a$10$sbTvmDx8AldPXzsJ76LGYuq4J4aiqEp7/s0XopFLkPDlP2dg.vUb.', '0967890123', 2, TRUE, NULL, NOW(), NOW()),
+('USR-008', 'Bùi Thị Lan', 'lan.bui@example.com', '$2a$10$sbTvmDx8AldPXzsJ76LGYuq4J4aiqEp7/s0XopFLkPDlP2dg.vUb.', '0978901234', 2, TRUE, NULL, NOW(), NOW()),
+('USR-009', 'Đinh Văn Minh', 'minh.dinh@example.com', '$2a$10$sbTvmDx8AldPXzsJ76LGYuq4J4aiqEp7/s0XopFLkPDlP2dg.vUb.', '0989012345', 3, TRUE, NULL, NOW(), NOW()),
+('USR-010', 'Ngô Thị Nga', 'nga.ngo@example.com', '$2a$10$sbTvmDx8AldPXzsJ76LGYuq4J4aiqEp7/s0XopFLkPDlP2dg.vUb.', '0990123456', 2, TRUE, NULL, NOW(), NOW()),
+('USR-011', 'Ông Văn Phúc', 'phuc.ong@example.com', '$2a$10$sbTvmDx8AldPXzsJ76LGYuq4J4aiqEp7/s0XopFLkPDlP2dg.vUb.', '0901234876', 2, TRUE, NULL, NOW(), NOW()),
+('USR-012', 'Phan Thị Quỳnh', 'quynh.phan@example.com', '$2a$10$sbTvmDx8AldPXzsJ76LGYuq4J4aiqEp7/s0XopFLkPDlP2dg.vUb.', '0912345987', 2, TRUE, NULL, NOW(), NOW()),
+('USR-013', 'Tô Văn Rạng', 'rang.to@example.com', '$2a$10$sbTvmDx8AldPXzsJ76LGYuq4J4aiqEp7/s0XopFLkPDlP2dg.vUb.', '0923456098', 3, TRUE, NULL, NOW(), NOW()),
+('USR-014', 'Đào Thị Sương', 'suong.dao@example.com', '$2a$10$sbTvmDx8AldPXzsJ76LGYuq4J4aiqEp7/s0XopFLkPDlP2dg.vUb.', '0934567109', 2, TRUE, NULL, NOW(), NOW()),
+('USR-015', 'Trương Văn Tài', 'tai.truong@example.com', '$2a$10$sbTvmDx8AldPXzsJ76LGYuq4J4aiqEp7/s0XopFLkPDlP2dg.vUb.', '0945678210', 2, TRUE, NULL, NOW(), NOW()),
+('USR-016', 'Vương Thị Uyên', 'uyen.vuong@example.com', '$2a$10$sbTvmDx8AldPXzsJ76LGYuq4J4aiqEp7/s0XopFLkPDlP2dg.vUb.', '0956789321', 2, TRUE, NULL, NOW(), NOW()),
+('USR-017', 'Yên Văn Vinh', 'vinh.yen@example.com', '$2a$10$sbTvmDx8AldPXzsJ76LGYuq4J4aiqEp7/s0XopFLkPDlP2dg.vUb.', '0967890432', 2, TRUE, NULL, NOW(), NOW()),
+('USR-018', 'Lâm Thị Xuân', 'xuan.lam@example.com', '$2a$10$sbTvmDx8AldPXzsJ76LGYuq4J4aiqEp7/s0XopFLkPDlP2dg.vUb.', '0978901543', 1, TRUE, NULL, NOW(), NOW()),
+('USR-019', 'Mai Văn Yến', 'yen.mai@example.com', '$2a$10$sbTvmDx8AldPXzsJ76LGYuq4J4aiqEp7/s0XopFLkPDlP2dg.vUb.', '0989012654', 2, TRUE, NULL, NOW(), NOW()),
+('USR-020', 'Nông Thị Zizi', 'zizi.nong@example.com', '$2a$10$sbTvmDx8AldPXzsJ76LGYuq4J4aiqEp7/s0XopFLkPDlP2dg.vUb.', '0990123765', 2, TRUE, NULL, NOW(), NOW());
 
 INSERT INTO `Address`
 (`id`, `user_id`, `province`, `ward`, `detail`, `phone`, `receive_name`)
 VALUES
-(1, 'USR-002', 'Ho Chi Minh City', 'District 1', '123 Nguyen Hue', '0900000002', 'Tran Customer'),
+(1, 'USR-002', 'Ho Chi Minh City', 'District 1', '123 Nguyen Hue', '0912345678', 'Trần Thị Bình'),
 (2, 'USR-002', 'Ho Chi Minh City', 'Thu Duc City', '45 Le Van Viet', NULL, NULL);
 
 -- Catalog --------------------------------------------------------------------
@@ -923,13 +942,13 @@ VALUES
 INSERT INTO `Otp`
 (`id`, `code`, `created_at`, `expire_at`, `email`, `limit`)
 VALUES
-('OTP-001', '123456', NOW(), DATE_ADD(NOW(), INTERVAL 10 MINUTE), 'customer@eshop.local', 5);
+('OTP-001', '123456', NOW(), DATE_ADD(NOW(), INTERVAL 10 MINUTE), 'binh.tran@example.com', 5);
 
 -- Returns --------------------------------------------------------------------
 INSERT INTO `ReturnOrderRequest`
 (`order_id`, `order_item_id`, `reason`, `approved_by`, `create_at`, `update_at`)
 VALUES
-('ORD-001', 1, 'Customer reported minor scratch on frame.', 'USR-001', NOW(), NOW());
+('ORD-001', 1, 'Customer reported minor scratch on frame.', 'USR-018', NOW(), NOW());
 
 INSERT INTO `ReturnOrderImage`
 (`public_id`, `image_url`, `order_id`, `order_item_id`)

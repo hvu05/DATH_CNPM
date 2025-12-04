@@ -6,20 +6,11 @@ import type { Product } from '@/types/product';
 import { Select, Empty, Slider, Checkbox, Button, Input, Popover, Tag, Spin } from 'antd';
 import { FilterOutlined, DownOutlined } from '@ant-design/icons';
 import './SearchPage.scss';
-
+import { getCategories } from '@/services/categoryApi';
+import { getBrands } from '@/services/brandApi';
 const { Option } = Select;
 
 // --- DỮ LIỆU BỘ LỌC CỐ ĐỊNH  ---
-const HARDCODED_CATEGORIES = [
-    { id: 'Laptop', name: 'Laptop' },
-    { id: 'Điện thoại', name: 'Điện thoại' },
-    { id: 'Máy tính bảng', name: 'Máy tính bảng' },
-    { id: 'Đồng hồ', name: 'Đồng hồ' },
-    { id: 'Phụ kiện', name: 'Phụ kiện' },
-];
-
-const HARDCODED_BRANDS = ['iPhone', 'Samsung', 'Macbook', 'Dell', 'Asus', 'Xiaomi', 'Oppo', 'iPad'];
-
 const SearchPage: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const query = searchParams.get('q') || searchParams.get('search') || '';
@@ -34,9 +25,20 @@ const SearchPage: React.FC = () => {
     const [loading, setLoading] = useState(false);
 
     // States bộ lọc
+    const [apiCategories, setApiCategories] = useState<{ id: string; name: string }[]>([]);
+    const [apiBrands, setApiBrands] = useState<{ id: string; name: string }[]>([]);
     const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000000]);
     const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+
+    useEffect(() => {
+        const brandParam = searchParams.get('brand');
+
+        if (brandParam) {
+            setSelectedBrands([brandParam]);
+        }
+    }, [searchParams]);
+
     const [sortBy, setSortBy] = useState('default');
 
     // UI Popover States
@@ -48,10 +50,21 @@ const SearchPage: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
-            const data = await getProducts();
-            setAllProducts(data);
+
+            const [products, categories, brands] = await Promise.all([
+                getProducts(),
+                getCategories(),
+                getBrands(),
+            ]);
+
+            setAllProducts(Array.isArray(products) ? products : []);
+
+            setApiCategories(Array.isArray(categories) ? categories : []);
+            setApiBrands(Array.isArray(brands) ? brands : []);
+
             setLoading(false);
         };
+
         fetchData();
     }, []);
 
@@ -115,13 +128,15 @@ const SearchPage: React.FC = () => {
     const categoryContent = (
         <div className="filter-popup-content">
             <div className="checkbox-group-scroll">
-                {HARDCODED_CATEGORIES.map(c => (
+                {(Array.isArray(apiCategories) ? apiCategories : []).map(c => (
                     <div key={c.id} className="filter-item-row">
                         <Checkbox
-                            checked={selectedCategories.includes(c.id)}
+                            checked={selectedCategories.includes(c.name)}
                             onChange={e =>
-                                setSelectedCategories(p =>
-                                    e.target.checked ? [...p, c.id] : p.filter(x => x !== c.id)
+                                setSelectedCategories(prev =>
+                                    e.target.checked
+                                        ? [...prev, c.name]
+                                        : prev.filter(x => x !== c.name)
                                 )
                             }
                         >
@@ -144,17 +159,19 @@ const SearchPage: React.FC = () => {
     const brandContent = (
         <div className="filter-popup-content">
             <div className="checkbox-group-scroll">
-                {HARDCODED_BRANDS.map(b => (
-                    <div key={b} className="filter-item-row">
+                {(Array.isArray(apiBrands) ? apiBrands : []).map(b => (
+                    <div key={b.id} className="filter-item-row">
                         <Checkbox
-                            checked={selectedBrands.includes(b)}
+                            checked={selectedBrands.includes(b.name)}
                             onChange={e =>
-                                setSelectedBrands(p =>
-                                    e.target.checked ? [...p, b] : p.filter(x => x !== b)
+                                setSelectedBrands(prev =>
+                                    e.target.checked
+                                        ? [...prev, b.name]
+                                        : prev.filter(x => x !== b.name)
                                 )
                             }
                         >
-                            {b}
+                            {b.name}
                         </Checkbox>
                     </div>
                 ))}

@@ -11,8 +11,14 @@ import type { Product, BackendVariant } from '@/types/product';
 import './CartPage.scss';
 
 const CartPage: React.FC = () => {
-    const { cartItems, updateQuantity, removeFromCart, addToCart, changeCartItemVariant } =
-        useCart();
+    const {
+        cartItems,
+        updateQuantity,
+        removeFromCart,
+        addToCart,
+        changeCartItemVariant,
+        removeManyFromCart,
+    } = useCart();
     const { isLoggedIn } = useAuthContext();
     const navigate = useNavigate();
 
@@ -115,11 +121,20 @@ const CartPage: React.FC = () => {
             id: selectedNewVariant.id,
             name: newName,
             price: Number(selectedNewVariant.price),
+            quantity: selectedNewVariant.quantity,
         });
 
         message.success('Đã cập nhật phân loại hàng');
         setIsModalOpen(false);
         setEditingItem(null);
+    };
+    const handleDeleteSelected = async () => {
+        const toDelete = cartItems.filter(i => checkedItems.includes(getItemKey(i)));
+
+        await removeManyFromCart(toDelete);
+
+        setCheckedItems([]);
+        message.success('Đã xóa các sản phẩm đã chọn');
     };
 
     if (cartItems.length === 0) {
@@ -140,9 +155,23 @@ const CartPage: React.FC = () => {
             <div className="cart-layout">
                 <div className="cart-items-list">
                     <div className="cart-header-row">
-                        <Checkbox checked={checkAll} onChange={onCheckAllChange}>
-                            Chọn tất cả ({cartItems.length} sản phẩm)
-                        </Checkbox>
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                width: '100%',
+                            }}
+                        >
+                            <Checkbox checked={checkAll} onChange={onCheckAllChange}>
+                                Chọn tất cả ({cartItems.length} sản phẩm)
+                            </Checkbox>
+
+                            {checkedItems.length > 0 && (
+                                <Button danger type="link" onClick={handleDeleteSelected}>
+                                    Xóa các sản phẩm đã chọn
+                                </Button>
+                            )}
+                        </div>
                     </div>
 
                     {cartItems.map(item => {
@@ -268,7 +297,6 @@ const CartPage: React.FC = () => {
 
             <Divider />
 
-            {/* --- MODAL ĐỔI BIẾN THỂ --- */}
             <Modal
                 title="Đổi phân loại hàng"
                 open={isModalOpen}

@@ -1,8 +1,8 @@
 import default_order from '@/assets/seller/default_order.webp';
-// import { useNavigate } from 'react-router';
+// import { useNavigate } from 'react-router-dom';
 import '@/styles/client/clientOrderList.scss';
 import type { DataInOrder, StatusOrder } from '@/types/clients/client.order.types';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
     orders: DataInOrder | null; // Định nghĩa kiểu dữ liệu cho props.orders
@@ -43,7 +43,7 @@ export const AllOrders = ({ orders }: Props) => {
                             <div className="client-order__img-container">
                                 <img
                                     className="client-order__img"
-                                    src={default_order}
+                                    src={item.product_variant.thumbnail || default_order}
                                     alt="order_img"
                                 />
                             </div>

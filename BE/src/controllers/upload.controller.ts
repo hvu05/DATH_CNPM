@@ -102,24 +102,27 @@ export const uploadMultipleImageHandler = async (
   }
 };
 
-
 //? For test only
-export const testHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const testHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const parsed = OrderReturnRequestSchema.safeParse({
     ...req.body,
-    images: (req.files ?? []) as Express.Multer.File[]
+    images: (req.files ?? []) as Express.Multer.File[],
   });
 
   if (!parsed.success) {
     return res.status(400).json({
       success: false,
-      error: parsed.error.issues[0].message
-    })
+      error: parsed.error.issues[0].message,
+    });
   }
-  console.log("parsed data",parsed.data);
+  console.log('parsed data', parsed.data);
   try {
-    res.json("sdsd");
+    res.json('sdsd');
   } catch (error) {
     next(error);
   }
-}
+};

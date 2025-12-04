@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import defaultAvatar from '@/assets/default-avatar-icon.svg';
 import '@/pages/client/profile/index.scss';
 // import { useState } from 'react';
@@ -7,13 +7,12 @@ import { useClientProfile } from '@/hooks/client/useClientProfile';
 export const ProfilePageClient = () => {
     const navigate = useNavigate();
 
-    const cloudinary = import.meta.env.VITE_CLOUDINARY_NAME
+    const cloudinary = import.meta.env.VITE_CLOUDINARY_NAME;
 
-    
     // const [refresh, setRefresh] = useState<boolean>(true)
     const { data: profile, loading: loading } = useClientProfile();
 
-    if(!loading) console.log('user', profile)
+    if (!loading) console.log('user', profile);
     if (loading) return <p>Loading...</p>;
     return (
         <div className="client-profile">
@@ -21,7 +20,11 @@ export const ProfilePageClient = () => {
             <div className="client-profile__card">
                 <div className="client-profile__main">
                     <div className="client-profile__avatar-container">
-                        <img className="client-profile__avatar" src={`${cloudinary}/${profile?.avatar}`} alt="avatar" />
+                        <img
+                            className="client-profile__avatar"
+                            src={`${cloudinary}/${profile?.avatar}`}
+                            alt="avatar"
+                        />
                     </div>
                     <div className="client-profile__info-row">
                         <div className="client-profile__label">Họ và tên</div>

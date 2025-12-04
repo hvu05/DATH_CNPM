@@ -1,7 +1,8 @@
 import default_order from '@/assets/seller/default_order.webp';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import '@/styles/client/clientOrderList.scss';
 import type { DataInOrder, OrdersInOrder } from '@/types/clients/client.order.types';
+import { handleRebuy } from '@/helpers/client/rebuy';
 
 type Props = {
     orders: DataInOrder | null;
@@ -13,9 +14,7 @@ export const SuccessOrder = ({ orders }: Props) => {
     const successOrders = orders?.orders?.filter(item => item?.status === 'COMPLETED');
 
     const handleEvaluate = (id: string) => {};
-    const handleRebuy = (order: OrdersInOrder) => {
-        navigate(`/client/order/${order.id}`, { state: { order: order } });
-    };
+
     return (
         <div className="client-order__list">
             {successOrders?.map(order => (
@@ -25,7 +24,7 @@ export const SuccessOrder = ({ orders }: Props) => {
                             <div className="client-order__img-container">
                                 <img
                                     className="client-order__img"
-                                    src={default_order}
+                                    src={item.product_variant.thumbnail || default_order}
                                     alt="order_img"
                                 />
                             </div>
@@ -51,7 +50,7 @@ export const SuccessOrder = ({ orders }: Props) => {
                             <div className="btn-evaluate" onClick={() => handleEvaluate(order?.id)}>
                                 Đánh giá
                             </div>
-                            <div className="btn-rebuy" onClick={() => handleRebuy(order)}>
+                            <div className="btn-rebuy" onClick={() => handleRebuy(order, navigate)}>
                                 Mua lại
                             </div>
                         </div>

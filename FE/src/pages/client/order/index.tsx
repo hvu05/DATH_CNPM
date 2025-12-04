@@ -5,7 +5,7 @@ import qrcodeIcon from '@/assets/client/qrcode.svg';
 import './index.scss';
 import { useState } from 'react';
 import { ChangeAddressPage } from '@/components/client/ChangeAddress';
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useClientProfile } from '@/hooks/client/useClientProfile';
 import type { Address } from '@/types/clients/client.address.types';
 import { orderAPI } from '@/services/user/orders/user.order.api';
@@ -17,9 +17,14 @@ import type {
     ProductVariant,
 } from '@/types/clients/client.order.types';
 import { message } from 'antd';
+import type { CartItem } from '@/contexts/CartContext';
 
 type OptionsPayment = 'COD' | 'VNPAY';
-
+type ItemHandleOrder = {
+    product_id: number;
+    product_variant_id: number;
+    quantity: number;
+};
 //?================================================================================================
 //! LÚC GHÉP GIỎ HÀNG VÔ THÌ BẬT DÒNG (1) LÊN VÀ BỎ DÒNG (2). SAU ĐÓ BẬT CHỖ "TỔNG TIỀN" VÀ "CẦN THANH TOÁN" LÊN LÀ XONG
 //?================================================================================================
@@ -28,8 +33,10 @@ export const OrderClient = () => {
     const [formChangeAddress, setFormChangeAddress] = useState<boolean>(false);
     const navigate = useNavigate();
     const location = useLocation();
-    // const orderItems: OrderItem[] = location.state?.order?.order_items || null; //! (1)
-    // console.log('reere', location.state.order);
+    const cartOrder: CartItem[] = location.state?.orderItems || null; //! (1)
+    const totalOrder: number = location.state?.total || 0;
+
+    // console.log('reere', location.state);
     const [statusPayment, setStatusPayment] = useState<OptionsPayment>('COD');
 
     const { data: profile, loading: loadingProfile } = useClientProfile();
@@ -37,76 +44,80 @@ export const OrderClient = () => {
     const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
 
     //! (2)
-    const orderItems: OrderItem[] = [
-        {
-            id: 1,
-            price_per_item: 25000000,
-            quantity: 2,
-            product_variant: {
-                id: 1,
-                product_id: 101,
-                color: 'Đen',
-                storage: '128GB',
-                name: 'iPhone 15 Pro',
-                price: 25000000,
-            },
-        },
-        {
-            id: 2,
-            price_per_item: 28000000,
-            quantity: 1,
-            product_variant: {
-                id: 2,
-                product_id: 101,
-                color: 'Trắng',
-                storage: '256GB',
-                name: 'iPhone 15 Pro',
-                price: 28000000,
-            },
-        },
-        {
-            id: 3,
-            price_per_item: 22000000,
-            quantity: 3,
-            product_variant: {
-                id: 3,
-                product_id: 102,
-                color: 'Xanh',
-                storage: '512GB',
-                name: 'Samsung Galaxy S24',
-                price: 22000000,
-            },
-        },
-        {
-            id: 4,
-            price_per_item: 5000000,
-            quantity: 1,
-            product_variant: {
-                id: 4,
-                product_id: 103,
-                color: 'Đỏ',
-                storage: '64GB',
-                name: 'Xiaomi Redmi Note 13',
-                price: 5000000,
-            },
-        },
-    ];
+    //const cartOrder: OrderItem[] = [
+    //     {
+    //         id: 1,
+    //         price_per_item: 25000000,
+    //         quantity: 2,
+    //         product_variant: {
+    //             id: 1,
+    //             product_id: 101,
+    //             color: 'Đen',
+    //             storage: '128GB',
+    //             name: 'iPhone 15 Pro',
+    //             price: 25000000,
+    //         },
+    //     },
+    //     {
+    //         id: 2,
+    //         price_per_item: 28000000,
+    //         quantity: 1,
+    //         product_variant: {
+    //             id: 2,
+    //             product_id: 101,
+    //             color: 'Trắng',
+    //             storage: '256GB',
+    //             name: 'iPhone 15 Pro',
+    //             price: 28000000,
+    //         },
+    //     },
+    //     {
+    //         id: 3,
+    //         price_per_item: 22000000,
+    //         quantity: 3,
+    //         product_variant: {
+    //             id: 3,
+    //             product_id: 102,
+    //             color: 'Xanh',
+    //             storage: '512GB',
+    //             name: 'Samsung Galaxy S24',
+    //             price: 22000000,
+    //         },
+    //     },
+    //     {
+    //         id: 4,
+    //         price_per_item: 5000000,
+    //         quantity: 1,
+    //         product_variant: {
+    //             id: 4,
+    //             product_id: 103,
+    //             color: 'Đỏ',
+    //             storage: '64GB',
+    //             name: 'Xiaomi Redmi Note 13',
+    //             price: 5000000,
+    //         },
+    //     },
+    // ];
 
-    const order_fake: OrderRequest = {
-        province: selectedAddress?.province || 'Chưa chọn',
-        ward: selectedAddress?.ward || 'Chưa chọn',
-        detail: selectedAddress?.detail || 'Chưa chọn',
-        items: [
-            {
-                product_id: 1,
-                product_variant_id: 2,
-                quantity: 1,
-            },
-        ],
-        method: statusPayment,
-    };
     const HandleOrder = async () => {
-        const res = await orderAPI.createOrder(order_fake);
+        let order: OrderRequest = {
+            province: selectedAddress?.province || 'Chưa chọn',
+            ward: selectedAddress?.ward || 'Chưa chọn',
+            detail: selectedAddress?.detail || 'Chưa chọn',
+            items: [],
+            method: statusPayment,
+        };
+        let items: Array<ItemHandleOrder> = [];
+        cartOrder.forEach(item => {
+            const itemOrder: ItemHandleOrder = {
+                product_id: item.productId,
+                product_variant_id: item.variantId,
+                quantity: item.quantity
+            } 
+            items.push(itemOrder)
+        });
+        order.items = items
+        const res = await orderAPI.createOrder(order);
         if (res) {
             if (!selectedAddress) {
                 message.warning('Vui lòng chọn địa chỉ');
@@ -122,8 +133,8 @@ export const OrderClient = () => {
     };
 
     if (loadingProfile) return <p>Loading...</p>;
-    if (!orderItems)
-        return <h1 style={{ fontSize: '30px' }}>Mua lòng chọn sản phẩm trước khi vào trang này</h1>;
+    if (!cartOrder)
+        return <h1 style={{ fontSize: '30px' }}>Vui lòng chọn sản phẩm trước khi vào trang này</h1>;
     return (
         <div className="client-order-detail">
             <div className="client-order-detail__main">
@@ -131,25 +142,25 @@ export const OrderClient = () => {
                 <div className="client-order-detail__card">
                     <h2 className="client-order-detail__card-title">Sản phẩm trong đơn (2)</h2>
                     <div className="client-order-detail__product-list">
-                        {orderItems.map((item, index) => (
+                        {cartOrder.map((item, index) => (
                             <Fragment key={index}>
                                 <div className="client-order-detail__product-item">
                                     <div className="client-order-detail__product-info">
                                         <div className="client-order-detail__product-img-container">
-                                            <img src={defaultItem} alt="item" />
+                                            <img src={item.imageUrl || defaultItem} alt="item" />
                                         </div>
                                         <div className="client-order-detail__product-details">
                                             <h3 className="client-order-detail__product-name">
-                                                {item?.product_variant?.name}
+                                                {item?.name}
                                             </h3>
                                             <div className="client-order-detail__product-attrs">
-                                                <span>{item?.product_variant?.color}</span>
-                                                <span>{item?.quantity}</span>
+                                               
+                                                <span>Số lượng: {item?.quantity}</span>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="client-order-detail__product-price">
-                                        {item?.price_per_item.toLocaleString()} VNĐ
+                                        {item.price.toLocaleString()} VNĐ
                                     </div>
                                 </div>
                                 {<hr className="client-order-detail__separator" />}
@@ -232,7 +243,7 @@ export const OrderClient = () => {
                     <div className="client-order-detail__summary-row">
                         <span>Tổng tiền</span>
                         <span className="client-order-detail__summary-price">
-                            {/* {location.state.order.total.toLocaleString()} VNĐ */}
+                            {totalOrder.toLocaleString()} VNĐ
                         </span>
                     </div>
                     <div className="client-order-detail__summary-row">
@@ -243,7 +254,7 @@ export const OrderClient = () => {
                     <div className="client-order-detail__summary-row client-order-detail__summary-row--final">
                         <span>Cần thanh toán</span>
                         <span className="client-order-detail__summary-price--final">
-                            {/* {location.state.order.total.toLocaleString()} VND */}
+                            {totalOrder.toLocaleString()} VNĐ
                         </span>
                     </div>
                 </div>

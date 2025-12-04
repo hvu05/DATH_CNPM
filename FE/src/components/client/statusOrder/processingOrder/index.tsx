@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import default_order from '@/assets/seller/default_order.webp';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import '@/styles/client/clientOrderList.scss';
 import type { DataInOrder } from '@/types/clients/client.order.types';
 import { orderAPI } from '@/services/user/orders/user.order.api'; // Assuming this API exists for cancelation
@@ -68,7 +68,7 @@ export const ProcessingOrder = ({ orders, setRefresh }: Props) => {
                             <div className="client-order__img-container">
                                 <img
                                     className="client-order__img"
-                                    src={default_order}
+                                    src={item.product_variant.thumbnail || default_order}
                                     alt="order_img"
                                 />
                             </div>

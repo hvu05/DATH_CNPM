@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { EditOutlined } from '@ant-design/icons';
 import { updateProfileSellerAPI } from '@/services/seller/seller.service';
 import { App, Breadcrumb } from 'antd';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 
 export const EditProfilePage = () => {
     const { user, updateUser } = useAuthContext();

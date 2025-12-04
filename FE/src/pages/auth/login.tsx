@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { authAPI, setTokens } from '@/services/auth/auth.service';
 import './auth.scss';

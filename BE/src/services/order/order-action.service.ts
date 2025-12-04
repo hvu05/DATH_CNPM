@@ -1,8 +1,8 @@
-import { prisma } from "../../config/prisma.config";
-import { AppError, ErrorCode } from "../../exeptions";
-import * as orderDto from "../../dtos/orders";
-import { PaymentMethod, PaymentStatus } from "../../dtos/payment";
-import { InventoryType } from "../../dtos/inventory/enum";
+import { prisma } from '../../config/prisma.config';
+import { AppError, ErrorCode } from '../../exeptions';
+import * as orderDto from '../../dtos/orders';
+import { PaymentMethod, PaymentStatus } from '../../dtos/payment';
+import { InventoryType } from '../../dtos/inventory/enum';
 
 const updateHandler = async (
   orderId: string,
@@ -43,8 +43,8 @@ const updateHandler = async (
 };
 // /**
 //  * Staff xác nhận đơn hàng
-//  * @param orderId 
-//  * @returns 
+//  * @param orderId
+//  * @returns
 //  */
 // export const confirm = async (orderId: string) => {
 //   const order = await prisma.order.findFirst({
@@ -63,9 +63,9 @@ const updateHandler = async (
 
 /**
  * Khách hàng hoặc Staff huỷ đơn hàng (Trước khi vận chuyển)
- * @param orderId 
- * @param userId 
- * @returns 
+ * @param orderId
+ * @param userId
+ * @returns
  */
 export const cancel = async (orderId: string, userId?: string) => {
   const order = await prisma.order.findFirst({
@@ -84,8 +84,7 @@ export const cancel = async (orderId: string, userId?: string) => {
     throw new AppError(ErrorCode.NOT_FOUND, 'Không tìm thấy Order');
   }
   if (
-    order.status !== orderDto.OrderStatus.PENDING 
-    &&
+    order.status !== orderDto.OrderStatus.PENDING &&
     order.status !== orderDto.OrderStatus.PROCESSING
   ) {
     throw new AppError(ErrorCode.BAD_REQUEST, 'Không thể huỷ đơn hàng');
@@ -107,37 +106,36 @@ export const cancel = async (orderId: string, userId?: string) => {
         },
       }),
       prisma.orderItem.update({
-          where: {
-            item_id: {
-              id: item.id,
-              order_id: orderId
-            }
+        where: {
+          item_id: {
+            id: item.id,
+            order_id: orderId,
           },
-          data: {
-            status: orderDto.OrderItemStatus.CANCELLED,
+        },
+        data: {
+          status: orderDto.OrderItemStatus.CANCELLED,
+        },
+      }),
+      prisma.productVariant.update({
+        where: {
+          variant_id: {
+            product_id: item.variant.product_id,
+            id: item.variant.id,
           },
-        }),
-        prisma.productVariant.update({
-          where: {
-            variant_id: {
-              product_id: item.variant.product_id,
-              id: item.variant.id,
-            },
-          },
-          data: {
-            quantity: { increment: item.quantity },
-          },
-        }),
-    ]
-    ),
+        },
+        data: {
+          quantity: { increment: item.quantity },
+        },
+      }),
+    ]),
   );
   return updateHandler(orderId, orderDto.OrderStatus.CANCELLED);
 };
 
 // /**
 //  * Bắt đầu đóng gói hàng
-//  * @param orderId 
-//  * @returns 
+//  * @param orderId
+//  * @returns
 //  */
 // export const process = async (orderId: string) => {
 //   const order = await prisma.order.findFirst({
@@ -156,8 +154,8 @@ export const cancel = async (orderId: string, userId?: string) => {
 
 /**
  * Đã giao cho đơn vị vận chuyển
- * @param orderId 
- * @returns 
+ * @param orderId
+ * @returns
  */
 export const deliver = async (orderId: string) => {
   const order = await prisma.order.findUnique({
@@ -170,7 +168,7 @@ export const deliver = async (orderId: string) => {
           variant: true,
         },
       },
-    }
+    },
   });
   if (!order) {
     throw new AppError(ErrorCode.NOT_FOUND, 'Không tìm thấy Order');
@@ -183,7 +181,7 @@ export const deliver = async (orderId: string) => {
       type: InventoryType.OUT,
       reason: `Xuất hàng cho đơn hàng ${orderId}`,
     })),
-  }) 
+  });
   if (order.status !== orderDto.OrderStatus.PROCESSING) {
     throw new AppError(ErrorCode.BAD_REQUEST, 'Trang thai khong hop le');
   }
@@ -192,8 +190,8 @@ export const deliver = async (orderId: string) => {
 
 /**
  * Bên vận chuyển confirm, hiện tại thì do staff làm thủ công
- * @param orderId 
- * @returns 
+ * @param orderId
+ * @returns
  */
 export const complete = async (orderId: string) => {
   const order = await prisma.order.findFirst({
@@ -201,8 +199,8 @@ export const complete = async (orderId: string) => {
       id: orderId,
     },
     include: {
-      payment: true
-    }
+      payment: true,
+    },
   });
   if (!order) {
     throw new AppError(ErrorCode.NOT_FOUND, 'Không tìm thấy Order');
@@ -221,12 +219,12 @@ export const complete = async (orderId: string) => {
   if (order.payment?.method == PaymentMethod.COD) {
     await prisma.payment.update({
       where: {
-        order_id: orderId
+        order_id: orderId,
       },
       data: {
-        payment_status: PaymentStatus.SUCCESS
-      }
-    })
+        payment_status: PaymentStatus.SUCCESS,
+      },
+    });
   }
   return updateHandler(orderId, orderDto.OrderStatus.COMPLETED);
 };
@@ -255,5 +253,3 @@ export const refunded = async (orderId: string, order_item_id: string) => {
   }
   return updateHandler(orderId, orderDto.OrderStatus.REFUNDED);
 };
-
-

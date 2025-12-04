@@ -1,7 +1,9 @@
 import default_order from '@/assets/seller/default_order.webp';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import '@/styles/client/clientOrderList.scss';
 import type { DataInOrder, OrdersInOrder } from '@/types/clients/client.order.types';
+import type { CartItem } from '@/contexts/CartContext';
+import { handleRebuy } from '@/helpers/client/rebuy';
 
 type Props = {
     orders: DataInOrder | null;
@@ -12,9 +14,7 @@ export const CancelOrders = ({ orders }: Props) => {
     // Filter orders that are in "CANCELLED" status
     const cancelledOrders = orders?.orders?.filter(item => item?.status === 'CANCELLED');
 
-    const handleRebuy = (order: OrdersInOrder) => {
-        navigate(`/client/order/${order.id}`, { state: { order: order } });
-    };
+
     return (
         <div className="client-order__list">
             {cancelledOrders?.map(order => (
@@ -24,7 +24,7 @@ export const CancelOrders = ({ orders }: Props) => {
                             <div className="client-order__img-container">
                                 <img
                                     className="client-order__img"
-                                    src={default_order}
+                                    src={item.product_variant.thumbnail || default_order}
                                     alt="order_img"
                                 />
                             </div>
@@ -46,7 +46,7 @@ export const CancelOrders = ({ orders }: Props) => {
                         <div className="client-order__price">
                             Giá: {order?.total?.toLocaleString()}đ
                         </div>
-                        <div className="btn-rebuy" onClick={() => handleRebuy(order)}>
+                        <div className="btn-rebuy" onClick={() => handleRebuy(order, navigate)}>
                             Mua lại
                         </div>
 

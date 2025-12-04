@@ -75,5 +75,5 @@ export const seriesService = {
       where: { brand: { name: brandName } },
     });
     return series;
-  }
+  },
 };

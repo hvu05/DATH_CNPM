@@ -25,6 +25,7 @@ export interface ProductVariant {
     storage: string;
     name: string;
     price: number;
+    thumbnail: string
 }
 
 // Định nghĩa kiểu dữ liệu cho OrderItem (Mỗi sản phẩm trong đơn hàng)

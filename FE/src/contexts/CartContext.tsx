@@ -41,18 +41,23 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         const syncCart = async () => {
             if (isLoggedIn) {
                 const guest = localStorage.getItem('CART_GUEST');
+                let shouldFetch = true;
+
                 if (guest) {
                     const guestItems = JSON.parse(guest);
 
                     for (const item of guestItems) {
-                        await addToCartApi(item.variantId, item.quantity);
+                        await addToCartApi(item.productId, item.variantId, item.quantity);
                     }
 
                     localStorage.removeItem('CART_GUEST');
+                    shouldFetch = true;
                 }
 
-                const items = await getCartApi();
-                setCartItems(items);
+                if (shouldFetch) {
+                    const items = await getCartApi();
+                    setCartItems(items);
+                }
             } else {
                 const stored = localStorage.getItem('CART_GUEST');
                 setCartItems(stored ? JSON.parse(stored) : []);
@@ -64,22 +69,51 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
     const addToCart = async (newItem: CartItem) => {
         const existingIndex = cartItems.findIndex(
-            item => item.variantId === newItem.variantId && item.productId === newItem.productId
+            i => i.productId === newItem.productId && i.variantId === newItem.variantId
         );
-
         let updatedCart = [...cartItems];
 
         if (existingIndex > -1) {
             updatedCart[existingIndex].quantity += newItem.quantity;
         } else {
-            updatedCart = [...updatedCart, newItem];
+            updatedCart.push(newItem);
         }
 
         setCartItems(updatedCart);
-
         if (isLoggedIn) {
-            await addToCartApi(newItem.variantId, newItem.quantity);
+            try {
+                const success = await addToCartApi(
+                    newItem.productId,
+                    newItem.variantId,
+                    newItem.quantity
+                );
+
+                if (success) {
+                    const items = await getCartApi();
+                    setCartItems(items);
+                } else {
+                    message.error('Thêm vào giỏ hàng thất bại. Vui lòng thử lại.');
+                    const remote = await getCartApi();
+                    setCartItems(remote);
+                }
+            } catch (error) {
+                console.error('Lỗi thêm giỏ hàng backend:', error);
+                message.error('Thêm vào giỏ hàng thất bại. Vui lòng thử lại.');
+            }
         } else {
+            const existingIndex = cartItems.findIndex(
+                item => item.variantId === newItem.variantId && item.productId === newItem.productId
+            );
+
+            let updatedCart = [...cartItems];
+
+            if (existingIndex > -1) {
+                updatedCart[existingIndex].quantity += newItem.quantity;
+            } else {
+                updatedCart = [...updatedCart, newItem];
+            }
+
+            setCartItems(updatedCart);
             localStorage.setItem('CART_GUEST', JSON.stringify(updatedCart));
         }
     };
@@ -88,9 +122,13 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         if (qty <= 0) return removeFromCart(productId, variantId);
 
         if (isLoggedIn) {
-            await updateCartQuantityApi(variantId, qty);
-            const items = await getCartApi();
-            setCartItems(items);
+            const success = await updateCartQuantityApi(productId, variantId, qty);
+            if (success) {
+                const items = await getCartApi();
+                setCartItems(items);
+            } else {
+                message.error('Cập nhật số lượng giỏ hàng thất bại');
+            }
         } else {
             const updated = cartItems.map(i =>
                 i.variantId === variantId && i.productId === productId ? { ...i, quantity: qty } : i
@@ -102,10 +140,20 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
     const removeFromCart = async (productId: number, variantId: number) => {
         if (isLoggedIn) {
-            await removeCartItemApi(variantId);
-            setCartItems(prev =>
-                prev.filter(i => !(i.variantId === variantId && i.productId === productId))
-            );
+            try {
+                const success = await removeCartItemApi(variantId);
+
+                if (success) {
+                    message.success('Đã xóa sản phẩm khỏi giỏ hàng.');
+                    const remote = await getCartApi();
+                    setCartItems(remote);
+                } else {
+                    message.error('Xóa sản phẩm khỏi giỏ hàng thất bại.');
+                }
+            } catch (error) {
+                console.error(error);
+                message.error('Đã xảy ra lỗi khi xóa sản phẩm khỏi giỏ hàng.');
+            }
         } else {
             const updated = cartItems.filter(
                 i => !(i.variantId === variantId && i.productId === productId)
@@ -167,7 +215,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
                 await removeCartItemApi(oldItem.variantId);
 
                 if (finalQuantity > 0) {
-                    await addToCartApi(newVariant.id, finalQuantity);
+                    await addToCartApi(oldItem.productId, newVariant.id, finalQuantity);
                 }
 
                 const remote = await getCartApi();

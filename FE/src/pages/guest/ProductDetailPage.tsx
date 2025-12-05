@@ -145,7 +145,7 @@ const ProductDetailPage: React.FC = () => {
         await addToCart({
             productId: Number(product.id),
             variantId: finalVariantId,
-            name: `${product.name} ${selectedVariant ? `(${selectedVariant.color})` : ''}`,
+            name: `${product.name} ${selectedVariant ? `(${selectedVariant.color} - ${selectedVariant.storage})` : ''}`,
             price: displayPrice,
             imageUrl: product.imageUrl,
             quantity: finalQty,

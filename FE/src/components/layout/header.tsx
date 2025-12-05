@@ -37,6 +37,14 @@ export const Header = () => {
         message.success('Đăng xuất thành công');
     };
 
+    const handleMenuClick: MenuProps['onClick'] = e => {
+        const { key } = e;
+        if (key === 'logout') logout();
+        else if (key === 'profile') navigate('/client');
+        else if (key === 'adminpage') navigate('/admin/dashboard');
+        else if (key === 'sellerpage') navigate('/seller/dashboard');
+    };
+
     const menuItems: MenuProps['items'] = [
         ...(user?.role === 'CUSTOMER' || !user?.role
             ? [{ key: 'profile', label: 'Tài khoản của tôi', icon: <UserOutlined /> }]
@@ -45,7 +53,7 @@ export const Header = () => {
             ? [{ key: 'adminpage', label: 'Trang quản trị', icon: <SettingOutlined /> }]
             : []),
         { type: 'divider' },
-        { key: 'logout', label: 'Đăng xuất', danger: true },
+        { key: 'logout', label: 'Đăng xuất', danger: true, icon: <LogoutOutlined /> }, // Nên thêm icon cho Đăng xuất
     ];
 
     const handleSearch = (e: React.FormEvent) => {
@@ -155,7 +163,11 @@ export const Header = () => {
                 </Link>
 
                 {isLoggedIn ? (
-                    <Dropdown menu={{ items: menuItems }} placement="bottomRight" arrow>
+                    <Dropdown
+                        menu={{ items: menuItems, onClick: handleMenuClick }}
+                        placement="bottomRight"
+                        arrow
+                    >
                         <div style={{ cursor: 'pointer' }}>
                             <Avatar src={user?.avatar || defaultAvatar} />
                             <span className="header__user-name">{user?.full_name || 'User'}</span>

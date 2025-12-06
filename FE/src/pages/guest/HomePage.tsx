@@ -8,28 +8,34 @@ import ProductCard from '@/components/common/ProductCard';
 import BannerSlider from '@/components/common/BannerSlider';
 
 // Import UI cho bộ lọc
-import { Select, Slider, Checkbox, Button, Input, Popover, Tag, Empty } from 'antd';
+import { Select, Slider, Checkbox, Button, Input, Popover, Tag, Empty, Spin } from 'antd';
 import { FilterOutlined, DownOutlined } from '@ant-design/icons';
 
 import './HomePage.scss';
 
 const { Option } = Select;
 
+// Type định nghĩa cho bộ lọc
+interface FilterItem {
+    id: string | number;
+    name: string;
+}
+
 const HomePage: React.FC = () => {
     // --- 1. STATE & HOOKS ---
     const [searchParams, setSearchParams] = useSearchParams();
 
-    // Dữ liệu gốc và dữ liệu sau khi lọc
+    // Dữ liệu
     const [allProducts, setAllProducts] = useState<Product[]>([]);
     const [filteredResults, setFilteredResults] = useState<Product[]>([]);
 
-    // Dữ liệu cho bộ lọc
-    const [apiCategories, setApiCategories] = useState<{ id: string; name: string }[]>([]);
-    const [apiBrands, setApiBrands] = useState<{ id: string; name: string }[]>([]);
+    // Dữ liệu bộ lọc từ API
+    const [apiCategories, setApiCategories] = useState<FilterItem[]>([]);
+    const [apiBrands, setApiBrands] = useState<FilterItem[]>([]);
 
     const [loading, setLoading] = useState(true);
 
-    // State của bộ lọc
+    // State lựa chọn của bộ lọc
     const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000000]);
     const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -40,85 +46,104 @@ const HomePage: React.FC = () => {
     const [openBrand, setOpenBrand] = useState(false);
     const [openPrice, setOpenPrice] = useState(false);
 
-    // Pagination Params
-    const pageParam = parseInt(searchParams.get('page') || '1', 10);
-    const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
-    const pageSize = 20;
-
-    // --- 2. FETCH DATA ---
+    // --- 2. FETCH DATA (CHỈ CHẠY 1 LẦN) ---
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
-            const [productsData, categoriesData, brandsData] = await Promise.all([
-                getProducts({ limit: 1000, page: 1 }),
-                getCategories(),
-                getBrands(),
-            ]);
+            try {
+                const [productsData, categoriesData, brandsData] = await Promise.all([
+                    getProducts({ limit: 1000, page: 1 }), // Lấy tất cả để lọc client-side
+                    getCategories(),
+                    getBrands(),
+                ]);
 
-            setAllProducts(Array.isArray(productsData) ? productsData : []);
-            setApiCategories(Array.isArray(categoriesData) ? categoriesData : []);
-            setApiBrands(Array.isArray(brandsData) ? brandsData : []);
-
-            setLoading(false);
+                setAllProducts(Array.isArray(productsData) ? productsData : []);
+                setApiCategories(Array.isArray(categoriesData) ? categoriesData : []);
+                setApiBrands(Array.isArray(brandsData) ? brandsData : []);
+            } catch (error) {
+                console.error('Failed to fetch homepage data', error);
+            } finally {
+                setLoading(false);
+            }
         };
         fetchData();
-    }, []);
+    }, []); // Bỏ dependency searchParams để tránh fetch lại khi đổi trang
 
-    // Scroll lên đầu khi đổi trang
-    useEffect(() => {
-        if (!loading) {
-            const productSection = document.getElementById('main-products-anchor');
-            if (productSection) {
-                productSection.scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-    }, [page]);
-
-    // --- 3. LOGIC LỌC (CLIENT-SIDE) ---
+    // --- 3. LOGIC LỌC & SẮP XẾP (CLIENT-SIDE) ---
     useEffect(() => {
         let results = [...allProducts];
 
         // Lọc Giá
         results = results.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
 
-        // Lọc Hãng
+        // Lọc Hãng (Case insensitive)
         if (selectedBrands.length > 0) {
             results = results.filter(p => {
-                const brand = (p.brand || '').toLowerCase();
-                return selectedBrands.some(b => brand.includes(b.toLowerCase()));
+                const brandName = (p.brand || '').toLowerCase();
+                return selectedBrands.some(b => brandName.includes(b.toLowerCase()));
             });
         }
 
-        // Lọc Danh mục
+        // Lọc Danh mục (Case insensitive)
         if (selectedCategories.length > 0) {
             results = results.filter(p => {
-                const cat = (p.category || '').toLowerCase();
-                return selectedCategories.some(c => cat.includes(c.toLowerCase()));
+                const catName = (p.category || '').toLowerCase();
+                return selectedCategories.some(c => catName.includes(c.toLowerCase()));
             });
         }
 
         // Sắp xếp
-        if (sortBy === 'price-asc') results.sort((a, b) => a.price - b.price);
-        else if (sortBy === 'price-desc') results.sort((a, b) => b.price - a.price);
-        else if (sortBy === 'name-asc') results.sort((a, b) => a.name.localeCompare(b.name));
+        if (sortBy === 'price-asc') {
+            results.sort((a, b) => a.price - b.price);
+        } else if (sortBy === 'price-desc') {
+            results.sort((a, b) => b.price - a.price);
+        } else if (sortBy === 'name-asc') {
+            results.sort((a, b) => a.name.localeCompare(b.name));
+        }
 
         setFilteredResults(results);
 
-        if (page !== 1) {
+        // Reset về trang 1 nếu đang ở trang khác và bộ lọc thay đổi
+        // Lưu ý: Logic này chạy mỗi khi filter thay đổi
+        const currentPage = parseInt(searchParams.get('page') || '1', 10);
+        if (currentPage !== 1) {
             setSearchParams(prev => {
                 prev.set('page', '1');
                 return prev;
             });
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [allProducts, priceRange, selectedBrands, selectedCategories, sortBy]);
 
-    // --- 4. TÍNH TOÁN PHÂN TRANG DỰA TRÊN KẾT QUẢ LỌC ---
+    // --- 4. PHÂN TRANG & SCROLL ---
+    const pageParam = parseInt(searchParams.get('page') || '1', 10);
+    const currentPage = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
+    const pageSize = 20;
+
+    // Scroll lên đầu khu vực sản phẩm khi đổi trang
+    useEffect(() => {
+        if (!loading && allProducts.length > 0) {
+            const productSection = document.getElementById('main-products-anchor');
+            if (productSection) {
+                productSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    }, [currentPage, loading, allProducts.length]);
+
     const totalPages = Math.max(1, Math.ceil(filteredResults.length / pageSize));
-    const start = (page - 1) * pageSize;
+    const start = (currentPage - 1) * pageSize;
     const pagedProducts = filteredResults.slice(start, start + pageSize);
     const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
 
-    // Logic Carousel (Không đổi)
+    // Helper tạo link phân trang giữ nguyên các params khác (nếu có)
+    const getPaginationLink = (pageNumber: number) => {
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set('page', pageNumber.toString());
+        return `?${newParams.toString()}`;
+    };
+
+    // --- 5. LOGIC CAROUSEL GỢI Ý ---
+    const topPicks = allProducts.slice(0, 8);
     const carouselRef = useRef<HTMLDivElement | null>(null);
     const scrollByCard = (dir: 'left' | 'right') => {
         const el = carouselRef.current;
@@ -127,8 +152,7 @@ const HomePage: React.FC = () => {
         el.scrollBy({ left: dir === 'right' ? amount : -amount, behavior: 'smooth' });
     };
 
-    const topPicks = allProducts.slice(0, 8);
-    // --- 5. RENDER CONTENT CHO POPOVER (Copy từ SearchPage) ---
+    // --- 6. RENDER POPUP CONTENT ---
     const categoryContent = (
         <div className="filter-popup-content">
             <div className="checkbox-group-scroll">
@@ -229,8 +253,11 @@ const HomePage: React.FC = () => {
 
     if (loading)
         return (
-            <div className="container" style={{ padding: '50px' }}>
-                Đang tải sản phẩm...
+            <div className="container" style={{ padding: '100px', textAlign: 'center' }}>
+                <Spin size="large" />
+                <div style={{ marginTop: '16px', color: '#1890ff', fontWeight: 500 }}>
+                    Đang tải sản phẩm...
+                </div>
             </div>
         );
 
@@ -441,23 +468,25 @@ const HomePage: React.FC = () => {
                             <div className="pagination-wrapper">
                                 <div className="pagination">
                                     <Link
-                                        to={`?page=${Math.max(1, page - 1)}`}
-                                        className={`page-btn ${page === 1 ? 'disabled' : ''}`}
+                                        to={getPaginationLink(Math.max(1, currentPage - 1))}
+                                        className={`page-btn ${currentPage === 1 ? 'disabled' : ''}`}
                                     >
                                         &laquo; Prev
                                     </Link>
                                     {pageNumbers.map(p => (
                                         <Link
                                             key={p}
-                                            to={`?page=${p}`}
-                                            className={`page-number ${p === page ? 'active' : ''}`}
+                                            to={getPaginationLink(p)}
+                                            className={`page-number ${p === currentPage ? 'active' : ''}`}
                                         >
                                             {p}
                                         </Link>
                                     ))}
                                     <Link
-                                        to={`?page=${Math.min(totalPages, page + 1)}`}
-                                        className={`page-btn ${page === totalPages ? 'disabled' : ''}`}
+                                        to={getPaginationLink(
+                                            Math.min(totalPages, currentPage + 1)
+                                        )}
+                                        className={`page-btn ${currentPage === totalPages ? 'disabled' : ''}`}
                                     >
                                         Next &raquo;
                                     </Link>

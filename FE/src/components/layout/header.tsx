@@ -14,6 +14,7 @@ import { useCart } from '@/contexts/CartContext';
 import React, { useState, useEffect, useRef } from 'react';
 import { getCategories } from '@/services/categoryApi';
 import { getBrands } from '@/services/brandApi';
+import type { BrandResponse, Series } from '@/services/brandApi';
 
 export const Header = () => {
     const navigate = useNavigate();
@@ -26,6 +27,7 @@ export const Header = () => {
 
     // State theo dõi danh mục đang được hover
     const [activeCategory, setActiveCategory] = useState<string>('');
+    const [activeBrandId, setActiveBrandId] = useState<string | number>('');
     const [loadingBrands, setLoadingBrands] = useState(false);
 
     const dropdownRef = useRef<HTMLDivElement | null>(null);
@@ -100,21 +102,27 @@ export const Header = () => {
             setLoadingBrands(true);
             const brs = await getBrands(activeCategory);
             setBrands(brs || []);
+            if (brs && brs.length > 0) {
+                setActiveBrandId(brs[0].id);
+            } else {
+                setActiveBrandId('');
+            }
+
             setLoadingBrands(false);
         };
-
         loadBrandsByCategory();
     }, [activeCategory]);
 
+    const activeSeriesList = brands.find(b => b.id === activeBrandId)?.series || [];
+
     const onClickBrand = (brandName: string) => {
         setIsCategoryDropdownOpen(false);
-        const params = new URLSearchParams();
-        if (brandName) params.set('brand', brandName);
-        if (activeCategory) {
-            const catName = categories.find(c => String(c.id) === String(activeCategory))?.name;
-            if (catName) params.set('category', catName);
-        }
-        navigate(`/search?${params.toString()}`);
+        navigate(`/search?brand=${encodeURIComponent(brandName)}`);
+    };
+
+    const onClickSeries = (seriesName: string) => {
+        setIsCategoryDropdownOpen(false);
+        navigate(`/search?q=${encodeURIComponent(seriesName)}`);
     };
 
     return (
@@ -130,55 +138,67 @@ export const Header = () => {
                         onClick={() => setIsCategoryDropdownOpen(v => !v)}
                         type="button"
                     >
-                        <img src={menuIcon} className="header__button-icon" alt="menu" />
+                        {/* ... Icon Menu ... */}
                         <span className="header__button-text">Danh mục</span>
                     </button>
 
                     {isCategoryDropdownOpen && (
                         <div className="category-dropdown__menu">
-                            {/* Cột Trái: Danh sách Categories */}
-                            <div className="category-dropdown__categories">
+                            {/* CỘT 1: CATEGORIES */}
+                            <div className="category-dropdown__col category-dropdown__categories">
+                                <h4 className="dropdown-col-title">Danh mục</h4>
                                 {categories.map(cat => (
                                     <button
                                         key={cat.id}
-                                        className={`category-dropdown__category-item ${String(activeCategory) === String(cat.id) ? 'active' : ''}`}
+                                        className={`dropdown-item ${String(activeCategory) === String(cat.id) ? 'active' : ''}`}
                                         onMouseEnter={() => setActiveCategory(String(cat.id))}
-                                        type="button"
                                     >
-                                        {cat.name}
+                                        {cat.name} <span className="arrow">›</span>
                                     </button>
                                 ))}
                             </div>
 
-                            {/* Cột Phải: Danh sách Brands tương ứng */}
-                            <div className="category-dropdown__content-wrapper">
+                            {/* CỘT 2: BRANDS */}
+                            <div className="category-dropdown__col category-dropdown__brands">
+                                <h4 className="dropdown-col-title">Thương hiệu</h4>
                                 {loadingBrands ? (
-                                    <div style={{ padding: 20, textAlign: 'center' }}>
+                                    <div className="loading-state">
                                         <Spin />
                                     </div>
+                                ) : brands.length > 0 ? (
+                                    brands.map(b => (
+                                        <button
+                                            key={b.id}
+                                            className={`dropdown-item ${activeBrandId === b.id ? 'active' : ''}`}
+                                            onMouseEnter={() => setActiveBrandId(b.id)}
+                                            onClick={() => onClickBrand(b.name)}
+                                        >
+                                            {b.name} <span className="arrow">›</span>
+                                        </button>
+                                    ))
                                 ) : (
-                                    <div className="category-dropdown__content">
-                                        {brands.length > 0 ? (
-                                            brands.map(b => (
-                                                <button
-                                                    key={b.id}
-                                                    className="category-dropdown__brand-item"
-                                                    onClick={() => onClickBrand(b.name)}
-                                                >
-                                                    {b.name}
-                                                </button>
-                                            ))
-                                        ) : (
-                                            <div
-                                                style={{
-                                                    color: '#999',
-                                                    fontStyle: 'italic',
-                                                    gridColumn: 'span 2',
-                                                }}
-                                            >
-                                                Chưa có thương hiệu cho danh mục này
-                                            </div>
-                                        )}
+                                    <div className="empty-state">Trống</div>
+                                )}
+                            </div>
+
+                            {/* CỘT 3: SERIES (MỚI) */}
+                            <div className="category-dropdown__col category-dropdown__series">
+                                <h4 className="dropdown-col-title">Dòng sản phẩm</h4>
+                                {loadingBrands ? (
+                                    <div className="loading-state">...</div>
+                                ) : activeSeriesList.length > 0 ? (
+                                    activeSeriesList.map((s: Series) => (
+                                        <button
+                                            key={s.id}
+                                            className="dropdown-item"
+                                            onClick={() => onClickSeries(s.name)}
+                                        >
+                                            {s.name}
+                                        </button>
+                                    ))
+                                ) : (
+                                    <div className="empty-state">
+                                        {brands.length > 0 ? 'Chưa có dòng sản phẩm' : ''}
                                     </div>
                                 )}
                             </div>

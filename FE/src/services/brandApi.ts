@@ -5,9 +5,11 @@ export interface BrandResponse {
     name: string;
 }
 
-export const getBrands = async (): Promise<BrandResponse[]> => {
+export const getBrands = async (categoryId?: string | number): Promise<BrandResponse[]> => {
     try {
-        const res = await axios.get('/brand');
+        const params = categoryId ? { category_id: categoryId } : {};
+        
+        const res = await axios.get('/brand', { params });
 
         if (Array.isArray(res.data?.data)) {
             return res.data.data;

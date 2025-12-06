@@ -5,7 +5,7 @@ import searchIcon from '@/assets/search-icon.svg';
 import cartIcon from '@/assets/cart-icon.svg';
 import defaultAvatar from '@/assets/default-avatar-icon.svg';
 import { Link, useNavigate } from 'react-router-dom';
-import { Dropdown, Avatar, Badge, message } from 'antd';
+import { Dropdown, Avatar, Badge, message, Spin } from 'antd';
 import type { MenuProps } from 'antd';
 import { UserOutlined, LogoutOutlined, SettingOutlined } from '@ant-design/icons';
 import { useAuthContext } from '@/contexts/AuthContext';
@@ -23,12 +23,17 @@ export const Header = () => {
     const [categories, setCategories] = useState<any[]>([]);
     const [brands, setBrands] = useState<any[]>([]);
     const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+
+    // State theo dõi danh mục đang được hover
     const [activeCategory, setActiveCategory] = useState<string>('');
+    const [loadingBrands, setLoadingBrands] = useState(false);
+
     const dropdownRef = useRef<HTMLDivElement | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
 
     const totalCartItems = cartItems.reduce((t, i) => t + i.quantity, 0);
 
+    // --- Logout & Menu Logic ---
     const logout = () => {
         removeTokens();
         setUser(null);
@@ -53,7 +58,7 @@ export const Header = () => {
             ? [{ key: 'adminpage', label: 'Trang quản trị', icon: <SettingOutlined /> }]
             : []),
         { type: 'divider' },
-        { key: 'logout', label: 'Đăng xuất', danger: true, icon: <LogoutOutlined /> }, // Nên thêm icon cho Đăng xuất
+        { key: 'logout', label: 'Đăng xuất', danger: true, icon: <LogoutOutlined /> },
     ];
 
     const handleSearch = (e: React.FormEvent) => {
@@ -75,20 +80,40 @@ export const Header = () => {
     }, []);
 
     useEffect(() => {
-        const load = async () => {
-            const [cats, brs] = await Promise.all([getCategories(), getBrands()]);
+        const loadCategories = async () => {
+            const cats = await getCategories();
             setCategories(cats || []);
-            setBrands(brs || []);
-            if (cats && cats.length > 0) setActiveCategory(String(cats[0].id));
+            if (cats && cats.length > 0) {
+                setActiveCategory(String(cats[0].id));
+            }
         };
-        load();
+        loadCategories();
     }, []);
+
+    useEffect(() => {
+        const loadBrandsByCategory = async () => {
+            if (!activeCategory) {
+                setBrands([]);
+                return;
+            }
+
+            setLoadingBrands(true);
+            const brs = await getBrands(activeCategory);
+            setBrands(brs || []);
+            setLoadingBrands(false);
+        };
+
+        loadBrandsByCategory();
+    }, [activeCategory]);
 
     const onClickBrand = (brandName: string) => {
         setIsCategoryDropdownOpen(false);
         const params = new URLSearchParams();
         if (brandName) params.set('brand', brandName);
-        if (activeCategory) params.set('category', String(activeCategory));
+        if (activeCategory) {
+            const catName = categories.find(c => String(c.id) === String(activeCategory))?.name;
+            if (catName) params.set('category', catName);
+        }
         navigate(`/search?${params.toString()}`);
     };
 
@@ -111,6 +136,7 @@ export const Header = () => {
 
                     {isCategoryDropdownOpen && (
                         <div className="category-dropdown__menu">
+                            {/* Cột Trái: Danh sách Categories */}
                             <div className="category-dropdown__categories">
                                 {categories.map(cat => (
                                     <button
@@ -124,18 +150,37 @@ export const Header = () => {
                                 ))}
                             </div>
 
+                            {/* Cột Phải: Danh sách Brands tương ứng */}
                             <div className="category-dropdown__content-wrapper">
-                                <div className="category-dropdown__content">
-                                    {brands.map(b => (
-                                        <button
-                                            key={b.id}
-                                            className="category-dropdown__brand-item"
-                                            onClick={() => onClickBrand(b.name)}
-                                        >
-                                            {b.name}
-                                        </button>
-                                    ))}
-                                </div>
+                                {loadingBrands ? (
+                                    <div style={{ padding: 20, textAlign: 'center' }}>
+                                        <Spin />
+                                    </div>
+                                ) : (
+                                    <div className="category-dropdown__content">
+                                        {brands.length > 0 ? (
+                                            brands.map(b => (
+                                                <button
+                                                    key={b.id}
+                                                    className="category-dropdown__brand-item"
+                                                    onClick={() => onClickBrand(b.name)}
+                                                >
+                                                    {b.name}
+                                                </button>
+                                            ))
+                                        ) : (
+                                            <div
+                                                style={{
+                                                    color: '#999',
+                                                    fontStyle: 'italic',
+                                                    gridColumn: 'span 2',
+                                                }}
+                                            >
+                                                Chưa có thương hiệu cho danh mục này
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}
@@ -168,9 +213,21 @@ export const Header = () => {
                         placement="bottomRight"
                         arrow
                     >
-                        <div style={{ cursor: 'pointer' }}>
+                        <div
+                            style={{
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 8,
+                            }}
+                        >
                             <Avatar src={user?.avatar || defaultAvatar} />
-                            <span className="header__user-name">{user?.full_name || 'User'}</span>
+                            <span
+                                className="header__user-name"
+                                style={{ color: 'white', fontWeight: 500 }}
+                            >
+                                {user?.full_name || 'User'}
+                            </span>
                         </div>
                     </Dropdown>
                 ) : (

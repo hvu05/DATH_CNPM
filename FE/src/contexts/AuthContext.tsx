@@ -34,8 +34,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                     }
                 } catch (error) {
                     console.error('Failed to load user profile:', error);
-                    // If we can't get the profile, log out the user
-                    setIsLoggedIn(false);
+                    logout();
                 }
             }
             setIsLoading(false);

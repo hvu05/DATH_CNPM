@@ -9,6 +9,7 @@ interface ViteTypeOptions {
 interface ImportMetaEnv {
     readonly VITE_BACKEND_URL: string;
     readonly VITE_CLOUDINARY_NAME: string;
+    readonly VITE_RESPONSE_REFRESH_TOKEN: string;
     // more env variables...
 }
 

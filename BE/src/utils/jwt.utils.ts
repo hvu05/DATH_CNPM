@@ -9,8 +9,10 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key';
 
 export const generateToken = (
   payload: JwtPayload,
-  expiresIn: StringValue = '1d',
+  expiresIn: StringValue = (process.env
+    .JWT_ACCESS_TOKEN_EXPIRED as StringValue) || '1d',
 ): string => {
+  console.log('[JWT]: ', expiresIn);
   return jwt.sign(payload, JWT_SECRET, { expiresIn: expiresIn });
 };
 

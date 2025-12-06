@@ -38,4 +38,5 @@ export const router = createBrowserRouter([
     ...sellerRoutes,
     ...clientRoutes,
     ...adminRoutes,
+    ...errorRoutes,
 ]);

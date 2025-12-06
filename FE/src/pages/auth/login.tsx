@@ -63,11 +63,11 @@ export const LoginPage = () => {
                     </button>
                 </form>
                 <div className="auth__footer">
-                    <span className="auth__footer-text">Bạn quên mật khẩu ?</span>
+                    <span className="auth__footer-text">Bạn quên mật khẩu?</span>
                     <Link to="/user-confirm" className="auth__footer-link">
                         Đặt lại mật khẩu
                     </Link>
-                    <span className="auth__footer-text">Bạn chưa có tài khoản ?</span>
+                    <span className="auth__footer-text">Bạn chưa có tài khoản?</span>
                     <Link to="/register" className="auth__footer-link">
                         Đăng kí
                     </Link>

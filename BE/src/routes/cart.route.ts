@@ -60,4 +60,68 @@ registry.registerPath({
 });
 router.get('/', authenticateHandler, cartController.getCartHandler);
 
+registry.registerPath({
+  tags: ['Cart'],
+  path: '/carts',
+  method: 'put',
+  security: [
+    {
+      bearerAuth: [],
+    },
+  ],
+  request: {
+    body: {
+      content: {
+        'application/json': {
+          schema: CartCreateSchema, // Tái sử dụng schema
+        },
+      },
+    },
+  },
+  responses: {
+    '200': {
+      description: 'Cập nhật OK',
+      content: {
+        'application/json': {
+          schema: CartResponseSchema,
+        },
+      },
+    },
+  },
+});
+router.put('/', authenticateHandler, cartController.updateCartHandler);
+
+registry.registerPath({
+  tags: ['Cart'],
+  path: '/carts/{variantId}',
+  method: 'delete',
+  security: [
+    {
+      bearerAuth: [],
+    },
+  ],
+  parameters: [
+    {
+      name: 'variantId',
+      in: 'path',
+      required: true,
+      schema: {
+        type: 'number',
+      },
+      description: 'ID của Product Variant cần xóa khỏi giỏ hàng',
+    },
+  ],
+  responses: {
+    '200': {
+      description: 'Xóa OK',
+      content: {
+        'application/json': {
+          schema: CartResponseSchema.array(), // Trả về giỏ hàng mới
+        },
+      },
+    },
+  },
+});
+router.delete('/:variantId', authenticateHandler, cartController.deleteCartHandler);
+
 export default router;

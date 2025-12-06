@@ -32,11 +32,11 @@ export const login = async (
   if (!user)
     throw new AppError(
       ErrorCode.NOT_FOUND,
-      `Người dùng với email ${data.email} khong ton tai`,
+      `Người dùng email ${data.email} không tồn tại`,
     );
   const isPasswordValid = compareSync(data.password, user.password);
   if (!isPasswordValid)
-    throw new AppError(ErrorCode.BAD_REQUEST, 'Mat khau khong dung');
+    throw new AppError(ErrorCode.BAD_REQUEST, 'Mật khẩu không đúng');
   const payload: JwtPayload = {
     id: user.id,
     email: user.email,

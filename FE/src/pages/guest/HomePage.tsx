@@ -14,15 +14,21 @@ const HomePage: React.FC = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const data = await getProducts();
+            const data = await getProducts({ limit: 1000, page: 1 });
             setProductsList(data);
             setLoading(false);
         };
         fetchData();
-    }, []);
+    }, [searchParams]);
 
     const pageParam = parseInt(searchParams.get('page') || '1', 10);
     const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
+    useEffect(() => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth',
+        });
+    }, [page]);
     const pageSize = 20; // 20 sản phẩm mỗi trang
     const totalPages = Math.max(1, Math.ceil(productsList.length / pageSize));
     const start = (page - 1) * pageSize;

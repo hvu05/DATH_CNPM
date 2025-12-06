@@ -70,11 +70,13 @@ export const WarehousePage = () => {
             key: 'STT',
             width: 60,
             align: 'center',
-            render: (_, __, index) => (
-                <span className="font-medium">
-                    {((filters.page ?? 1) - 1) * (filters.limit ?? 10) + index + 1}
-                </span>
-            ),
+            render: (_, __, index) => {
+                return (
+                    <span className="font-medium">
+                        {((meta?.page ?? 1) - 1) * (meta?.limit ?? 10) + index + 1}
+                    </span>
+                );
+            },
         },
         {
             title: 'Tên sản phẩm',

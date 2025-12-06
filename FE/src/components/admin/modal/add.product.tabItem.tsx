@@ -354,7 +354,6 @@ export const AddProductTabItems = ({
                             <Form.Item
                                 name="is_active"
                                 label="Trạng thái"
-                                initialValue={true}
                                 rules={[{ required: true }]}
                             >
                                 <Select

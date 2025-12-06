@@ -59,9 +59,9 @@ export const userOrderGrowth: GrowthPoint[] = [
     { period: 'T7', users: 260, orders: 178 },
     { period: 'T8', users: 29, orders: 90 },
     { period: 'T9', users: 295, orders: 192 },
-    { period: 'T10', users: 295, orders: 192 },
-    { period: 'T11', users: 295, orders: 192 },
-    { period: 'T12', users: 295, orders: 192 },
+    { period: 'T10', users: 295, orders: 190 },
+    { period: 'T11', users: 100, orders: 290 },
+    { period: 'T12', users: 300, orders: 100 },
 ];
 
 export const ordersColumns = [

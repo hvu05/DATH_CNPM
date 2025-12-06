@@ -25,7 +25,6 @@ export const getAllProductsAPI = async (params: IGetProductsParam = {}) => {
     if (isActive && isActive.length === 1)
         queryParams.append('is_active', isActive[0] ? 'true' : 'false');
     if (search) queryParams.append('search', search);
-    console.log({ queryParams });
     const result = await axios.get<ApiResponse<IPagination<IProduct[]>>>(
         `${import.meta.env.VITE_BACKEND_URL}/admin/products?${queryParams.toString()}`
     );

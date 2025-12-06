@@ -48,7 +48,8 @@ const MOCK_REVIEWS: LocalReview[] = [
 const ProductDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { addToCart } = useCart();
+    const { addToCart, cartItems } = useCart();
+
     const [reviewForm] = Form.useForm();
 
     const [product, setProduct] = useState<Product | null>(null);
@@ -87,7 +88,6 @@ const ProductDetailPage: React.FC = () => {
         message.success('Cảm ơn bạn đã đánh giá sản phẩm!');
     };
 
-    // --- LOGIC SẢN PHẨM: API ---
     useEffect(() => {
         if (id) {
             getProductById(id).then(data => {
@@ -108,12 +108,10 @@ const ProductDetailPage: React.FC = () => {
         }
     }, [id]);
 
-    // Tính toán hiển thị
     const displayPrice = selectedVariant ? Number(selectedVariant.price) : product?.price || 0;
     const stock = selectedVariant ? selectedVariant.quantity : product?.quantity || 0;
     const isOutOfStock = stock <= 0;
 
-    // Tính trung bình sao dựa trên Review Local
     const avgRating =
         reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 5;
 
@@ -130,13 +128,24 @@ const ProductDetailPage: React.FC = () => {
             return;
         }
 
-        const finalQty = quantity > stock ? stock : quantity;
         const finalVariantId = selectedVariant?.id || product.id;
+        const finalQty = quantity;
+
+        const cartItem = cartItems.find(
+            i => i.variantId === finalVariantId && i.productId === Number(product.id)
+        );
+
+        const existingQty = cartItem ? cartItem.quantity : 0;
+
+        if (existingQty + finalQty > stock) {
+            message.error(`Bạn đã có ${existingQty} sản phẩm trong giỏ. Tồn kho chỉ còn ${stock}.`);
+            return;
+        }
 
         await addToCart({
             productId: Number(product.id),
             variantId: finalVariantId,
-            name: `${product.name} ${selectedVariant ? `(${selectedVariant.color})` : ''}`,
+            name: `${product.name} ${selectedVariant ? `(${selectedVariant.color} - ${selectedVariant.storage})` : ''}`,
             price: displayPrice,
             imageUrl: product.imageUrl,
             quantity: finalQty,

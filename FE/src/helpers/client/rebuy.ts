@@ -5,9 +5,15 @@ import type { NavigateFunction } from 'react-router-dom';
 export const handleRebuy = (order: OrdersInOrder, navigate: NavigateFunction) => {
     const CartOrder = mapToCartItem(order)
     // console.log('cartorder', CartOrder)
-    navigate(`/client/order`, { state: { orderItems: CartOrder } });
+    navigate(`/client/order`, { state: { orderItems: CartOrder, total: total} });
 };
-
+const calculateTotal = (CartOrder: CartItem[]): number => {
+    let total: number = 0;
+    CartOrder.forEach(item => {
+        total += item.price * item.quantity
+    })
+    return total
+}
 export const mapToCartItem = (order: OrdersInOrder): CartItem[] => {
     let cartItem: CartItem[] = [];
     order.order_items.forEach(item => {

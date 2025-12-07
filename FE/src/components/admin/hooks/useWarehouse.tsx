@@ -1,7 +1,8 @@
-import { type TablePaginationConfig } from 'antd';
+import { message, type TablePaginationConfig } from 'antd';
 import type { FilterValue, TableCurrentDataSource } from 'antd/es/table/interface';
 import { useEffect, useState } from 'react';
 import {
+    deleteProductByID,
     getAllCategoriesAPI,
     getAllProductsAPI,
     getBrandsAPI,
@@ -30,6 +31,8 @@ export const useWarehouse = () => {
         sortBy: 'create_at',
         sortOrder: 'desc',
         search: '',
+        category: '',
+        is_active: [true, false],
     });
     const [meta, setMeta] = useState<{ total: number; page: number; limit: number } | null>(null);
 
@@ -67,11 +70,15 @@ export const useWarehouse = () => {
         sorter: any,
         extra: TableCurrentDataSource<IProduct>
     ) => {
+        console.log('[Check] table filters: ', tableFilters);
+        console.log('[Check] extra: ', extra);
         const { current, pageSize } = pagination;
         const newFilters = {
             ...filters,
             page: current,
             limit: pageSize,
+            category: tableFilters['category'],
+            is_active: tableFilters['is_active'],
         };
 
         if (sorter.field && sorter.order) {
@@ -150,6 +157,19 @@ export const useWarehouse = () => {
         setIsOpenEditModal(false);
     };
 
+    const handleDeleteProduct = async (productId: string | number) => {
+        try {
+            const result = await deleteProductByID(productId);
+            if (result.data) {
+                message.success('Xóa sản phẩm thành công');
+                refreshProducts();
+            }
+        } catch (error: any) {
+            console.error(error);
+            message.error(`${error.response.data.error}`);
+        }
+    };
+
     return {
         dataTable,
         filters,
@@ -170,5 +190,6 @@ export const useWarehouse = () => {
         handlePublishProduct,
         publishLoading,
         refreshSelectOptions,
+        handleDeleteProduct,
     };
 };

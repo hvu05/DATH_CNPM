@@ -472,7 +472,7 @@ export const ProductFormModal = (props: IProductFormModalProps) => {
             open={isModalOpen}
             onOk={isEditMode ? handleClose : () => form.submit()}
             onCancel={handleClose}
-            width={900}
+            width={950}
             okText={okText}
             cancelText={isEditMode ? undefined : 'Hủy'}
             okButtonProps={{
@@ -484,6 +484,13 @@ export const ProductFormModal = (props: IProductFormModalProps) => {
             }}
             destroyOnHidden
             maskClosable={false}
+            styles={{
+                body: {
+                    maxHeight: 700,
+                    overflowY: 'auto',
+                    overflowX: 'hidden',
+                },
+            }}
         >
             {!isReady ? (
                 <div className="flex items-center justify-center py-20">

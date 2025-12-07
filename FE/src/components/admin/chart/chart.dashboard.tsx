@@ -18,6 +18,7 @@ export const GrowthChart = ({ data }: { data: GrowthPoint[] }) => {
             legend: {
                 data: ['Người dùng', 'Đơn hàng'],
                 icon: 'circle',
+                textStyle: { fontSize: 14 },
             },
             grid: { top: 40, right: 16, bottom: 36, left: 48 },
             xAxis: {
@@ -26,17 +27,23 @@ export const GrowthChart = ({ data }: { data: GrowthPoint[] }) => {
                 axisTick: { alignWithLabel: true },
                 axisLine: { lineStyle: { color: '#d9d9d9' } },
                 data: categories,
+                axisLabel: { color: 'red' },
+                name: '(Tháng)',
+                nameLocation: 'middle',
+                nameGap: 18,
+                nameTextStyle: { color: 'red', fontsize: 12 },
             },
             yAxis: {
                 type: 'value',
                 axisLine: { lineStyle: { color: '#d9d9d9' } },
                 splitLine: { lineStyle: { type: 'dashed', color: '#e6e6e6' } },
+                axisLabel: { color: 'orange' },
             },
             series: [
                 {
                     name: 'Người dùng',
                     type: 'line',
-                    smooth: true,
+                    // smooth: true,
                     data: usersSeries,
                     showSymbol: false,
                     lineStyle: { width: 3, color: '#1677ff' },
@@ -45,7 +52,7 @@ export const GrowthChart = ({ data }: { data: GrowthPoint[] }) => {
                 {
                     name: 'Đơn hàng',
                     type: 'line',
-                    smooth: true,
+                    // smooth: true,
                     data: ordersSeries,
                     showSymbol: false,
                     lineStyle: { width: 3, color: '#52c41a' },

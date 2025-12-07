@@ -39,7 +39,6 @@ export const ProductPage = () => {
     const {
         dataTable,
         filters,
-        setFilters,
         handleSearch,
         refreshProducts,
         meta,
@@ -63,7 +62,7 @@ export const ProductPage = () => {
             align: 'center',
             render: (_, __, index) => (
                 <span className="font-medium">
-                    {((filters.page ?? 1) - 1) * (filters.limit ?? 10) + index + 1}
+                    {((meta?.page ?? 1) - 1) * (meta?.limit ?? 10) + index + 1}
                 </span>
             ),
         },
@@ -170,20 +169,6 @@ export const ProductPage = () => {
                                 loading={unpublishLoading === record.id}
                             />
                         </Popconfirm>
-                    </Tooltip>
-                    <Tooltip title="Chỉnh sửa">
-                        <Button
-                            type="text"
-                            icon={<EditOutlined />}
-                            className="text-blue-500 hover:text-blue-600 hover:bg-blue-50"
-                        />
-                    </Tooltip>
-                    <Tooltip title="Xóa">
-                        <Button
-                            type="text"
-                            icon={<DeleteOutlined />}
-                            className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                        />
                     </Tooltip>
                 </Space>
             ),

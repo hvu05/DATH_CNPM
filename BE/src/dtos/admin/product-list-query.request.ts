@@ -5,7 +5,7 @@ export const ProductListQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(10),
   sortBy: z.enum(['create_at', 'name', 'quantity']).default('create_at'),
   sortOrder: z.enum(['asc', 'desc']).default('desc'),
-  categoryId: z.coerce.number().int().min(1).optional(),
+  categoryId: z.string().optional(),
   search: z.string().optional(),
   is_active: z
     .string()

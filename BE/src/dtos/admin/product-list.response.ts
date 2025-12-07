@@ -29,7 +29,7 @@ export interface ProductListResponse {
   filters?: {
     sortBy?: string;
     sortOrder?: string;
-    categoryId?: number;
+    categoryId?: string;
     search?: string;
   };
 }

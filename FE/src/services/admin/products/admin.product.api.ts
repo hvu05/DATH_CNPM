@@ -13,17 +13,16 @@ import type {
 } from '@/types/admin/product';
 
 export const getAllProductsAPI = async (params: IGetProductsParam = {}) => {
-    const { page = 1, limit = 10, sortBy, sortOrder, category, isActive, search } = params;
-
+    const { page = 1, limit = 10, sortBy, sortOrder, category, is_active, search } = params;
     const queryParams = new URLSearchParams();
     queryParams.append('page', page.toString());
     queryParams.append('limit', limit.toString());
 
     if (sortBy) queryParams.append('sortBy', sortBy);
     if (sortOrder) queryParams.append('sortOrder', sortOrder);
-    if (category) queryParams.append('roles', category.join(','));
-    if (isActive && isActive.length === 1)
-        queryParams.append('is_active', isActive[0] ? 'true' : 'false');
+    if (category) queryParams.append('categoryId', category.join(','));
+    if (is_active && is_active.length === 1)
+        queryParams.append('is_active', is_active[0] ? 'true' : 'false');
     if (search) queryParams.append('search', search);
     const result = await axios.get<ApiResponse<IPagination<IProduct[]>>>(
         `${import.meta.env.VITE_BACKEND_URL}/admin/products?${queryParams.toString()}`
@@ -59,6 +58,12 @@ export const getSeriesAPI = async () => {
     return result.data;
 };
 
+export const deleteProductByID = async (
+    id: number | string
+): Promise<ApiResponse<{ id: number }>> => {
+    const result = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/admin/products/${id}`);
+    return result.data;
+};
 /**
  * Create product with full data: variants, specifications, images
  * Uses FormData for multipart/form-data upload

@@ -5,7 +5,7 @@ import {
     getAllProductsAPI,
     updateProductStatusAPI,
 } from '@/services/admin/products/admin.product.api';
-import type { IProduct } from '@/types/admin/product';
+import type { IGetProductsParam, IProduct } from '@/types/admin/product';
 
 /**
  * Hook for Product Listing page
@@ -15,19 +15,19 @@ import type { IProduct } from '@/types/admin/product';
 export const useProductListing = () => {
     const [dataTable, setDataTable] = useState<IProduct[]>([]);
     const [unpublishLoading, setUnpublishLoading] = useState<string | null>(null);
-    const [filters, setFilters] = useState({
+    const [filters, setFilters] = useState<IGetProductsParam>({
         page: 1,
         limit: 10,
         sortBy: 'create_at',
         sortOrder: 'desc',
         search: '',
-        isActive: [true], // Only active products
+        is_active: [true], // Only active products
     });
     const [meta, setMeta] = useState<{ total: number; page: number; limit: number } | null>(null);
 
     const loadProducts = async (params?: any) => {
         try {
-            const queryParams = { ...filters, ...params, isActive: [true] };
+            const queryParams = { ...filters, ...params };
             const result = await getAllProductsAPI(queryParams);
             if (result.data) {
                 setDataTable(result.data.results);

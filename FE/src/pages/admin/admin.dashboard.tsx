@@ -3,137 +3,23 @@ import {
     ArrowDownOutlined,
     ArrowUpOutlined,
     BarChartOutlined,
-    DollarOutlined,
-    ShoppingCartOutlined,
-    TeamOutlined,
-    UserOutlined,
+    SketchOutlined,
+    StockOutlined,
 } from '@ant-design/icons';
-import { Avatar, Card, Col, Row, Statistic, Table, Tag, Typography } from 'antd';
+import {
+    kpis,
+    ordersColumns,
+    ordersData,
+    userOrderGrowth,
+    currencyVN,
+} from '@/pages/admin/data/dashboard';
+import { Avatar, Card, Col, Row, Table, Typography } from 'antd';
 import CountUp from 'react-countup';
 import { GrowthChart } from '@/components/admin/chart/chart.dashboard';
 
-const { Title, Text } = Typography;
-
-const numberFormatter = (value: number) => <CountUp end={value} separator="," />;
-
-const currency = (n: number) =>
-    new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        maximumFractionDigits: 0,
-    }).format(n);
-
-type GrowthPoint = {
-    period: string;
-    users: number;
-    orders: number;
-};
+const { Text } = Typography;
 
 export const DashboardPage: React.FC = () => {
-    // Demo data - replace with API calls as needed
-    const kpis = [
-        {
-            title: 'Doanh thu',
-            value: 128400,
-            icon: <DollarOutlined />,
-            trend: +12.4,
-            color: '#1677ff',
-        },
-        {
-            title: 'Đơn hàng',
-            value: 2450,
-            icon: <ShoppingCartOutlined />,
-            trend: +3.1,
-            color: '#52c41a',
-        },
-        {
-            title: 'Khách hàng',
-            value: 980,
-            icon: <UserOutlined />,
-            trend: +1.8,
-            color: '#faad14',
-        },
-        {
-            title: 'Hoàn đơn',
-            value: 34,
-            icon: <ArrowDownOutlined />,
-            trend: -0.6,
-            color: '#f5222d',
-        },
-    ];
-
-    const userOrderGrowth: GrowthPoint[] = [
-        { period: 'Aug', users: 180, orders: 112 },
-        { period: 'Sep', users: 210, orders: 135 },
-        { period: 'Oct', users: 240, orders: 160 },
-        { period: 'Nov', users: 260, orders: 178 },
-        { period: 'Dec', users: 295, orders: 192 },
-        { period: 'Jan', users: 320, orders: 210 },
-        { period: 'Feb', users: 340, orders: 238 },
-        { period: 'Mar', users: 360, orders: 275 },
-    ];
-
-    const ordersColumns = [
-        { title: 'Order #', dataIndex: 'id', key: 'id' },
-        { title: 'Customer', dataIndex: 'customer', key: 'customer' },
-        {
-            title: 'Total',
-            dataIndex: 'total',
-            key: 'total',
-            render: (v: number) => currency(v),
-            align: 'right' as const,
-        },
-        {
-            title: 'Status',
-            dataIndex: 'status',
-            key: 'status',
-            render: (s: string) => {
-                const map: Record<string, any> = {
-                    Paid: 'green',
-                    Pending: 'gold',
-                    Refunded: 'red',
-                };
-                return <Tag color={map[s] || 'default'}>{s}</Tag>;
-            },
-        },
-        { title: 'Date', dataIndex: 'date', key: 'date' },
-    ];
-
-    const ordersData = [
-        {
-            key: 1,
-            id: 'INV-1045',
-            customer: 'Jane Cooper',
-            total: 289,
-            status: 'Paid',
-            date: '2025-09-14',
-        },
-        {
-            key: 2,
-            id: 'INV-1046',
-            customer: 'Cody Fisher',
-            total: 159,
-            status: 'Pending',
-            date: '2025-09-13',
-        },
-        {
-            key: 3,
-            id: 'INV-1047',
-            customer: 'Devon Lane',
-            total: 540,
-            status: 'Paid',
-            date: '2025-09-13',
-        },
-        {
-            key: 4,
-            id: 'INV-1048',
-            customer: 'Eleanor Pena',
-            total: 120,
-            status: 'Refunded',
-            date: '2025-09-12',
-        },
-    ];
-
     return (
         <div className="space-y-6">
             {/* header  */}
@@ -160,8 +46,8 @@ export const DashboardPage: React.FC = () => {
                                 <div>
                                     <Text type="secondary">{kpi.title}</Text>
                                     <div className="text-2xl font-semibold">
-                                        {kpi.title === 'Revenue' ? (
-                                            currency(kpi.value)
+                                        {kpi.title === 'Doanh thu' ? (
+                                            currencyVN(kpi.value)
                                         ) : (
                                             <CountUp end={kpi.value} separator="," />
                                         )}
@@ -197,8 +83,14 @@ export const DashboardPage: React.FC = () => {
             <Row gutter={[16, 16]} className="mt-2">
                 <Col span={24}>
                     <Card
-                        title="Tăng trưởng người dùng và đơn hàng"
-                        extra={<Text type="secondary">Last 8 months</Text>}
+                        title={
+                            <span className="text-2xl">
+                                <StockOutlined style={{ color: 'red' }} />
+                                {'  '}
+                                Tăng trưởng người dùng và đơn hàng qua 12 tháng của năm 2025
+                            </span>
+                        }
+                        extra={<Text type="secondary">12 tháng vừa qua</Text>}
                         className="shadow-sm"
                         hoverable
                     >
@@ -210,7 +102,17 @@ export const DashboardPage: React.FC = () => {
             {/* Recent orders */}
             <Row gutter={[16, 16]} className="mt-2">
                 <Col span={24}>
-                    <Card title="Đơn hàng gần đây" className="shadow-sm" hoverable>
+                    <Card
+                        title={
+                            <span>
+                                {' '}
+                                <SketchOutlined style={{ color: 'blue' }} /> Top 5 đơn hàng có giá
+                                trị nhất trong năm 2025
+                            </span>
+                        }
+                        className="shadow-sm"
+                        hoverable
+                    >
                         <Table
                             size="middle"
                             columns={ordersColumns as any}

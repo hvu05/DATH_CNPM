@@ -4,7 +4,8 @@ import type { NavigateFunction } from 'react-router-dom';
 
 export const handleRebuy = (order: OrdersInOrder, navigate: NavigateFunction) => {
     const CartOrder = mapToCartItem(order)
-    const total = calculateTotal(CartOrder)
+
+    const total: number = calculateTotal(CartOrder)
     // console.log('cartorder', CartOrder)
     navigate(`/client/order`, { state: { orderItems: CartOrder, total: total} });
 };

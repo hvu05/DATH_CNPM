@@ -88,7 +88,7 @@ export interface IGetProductsParam {
     sortBy?: 'create_at';
     sortOrder?: 'asc' | 'desc';
     category?: string[] | null;
-    isActive?: boolean[] | null;
+    is_active?: boolean[] | null;
     search?: string;
 }
 

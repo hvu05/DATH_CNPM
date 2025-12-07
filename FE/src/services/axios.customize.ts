@@ -48,7 +48,8 @@ instance.interceptors.response.use(
 
         // Check if error is due to expired token
         if (
-            error.response?.data?.message === import.meta.env.VITE_RESPONSE_REFRESH_TOKEN &&
+            error.response?.data?.message ===
+                (import.meta.env.VITE_RESPONSE_REFRESH_TOKEN ?? 'Token không hợp lệ') &&
             !originalRequest._retry
         ) {
             const tokens = getTokens();

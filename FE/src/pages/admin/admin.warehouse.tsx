@@ -7,6 +7,7 @@ import {
     CloudUploadOutlined,
     CheckCircleOutlined,
     EditOutlined,
+    DeleteOutlined,
 } from '@ant-design/icons';
 import {
     Card,
@@ -55,6 +56,7 @@ export const WarehousePage = () => {
         handlePublishProduct,
         publishLoading,
         refreshSelectOptions,
+        handleDeleteProduct,
     } = useWarehouse();
 
     const handlePublish = async (record: IProduct) => {
@@ -70,11 +72,13 @@ export const WarehousePage = () => {
             key: 'STT',
             width: 60,
             align: 'center',
-            render: (_, __, index) => (
-                <span className="font-medium">
-                    {((filters.page ?? 1) - 1) * (filters.limit ?? 10) + index + 1}
-                </span>
-            ),
+            render: (_, __, index) => {
+                return (
+                    <span className="font-medium">
+                        {((meta?.page ?? 1) - 1) * (meta?.limit ?? 10) + index + 1}
+                    </span>
+                );
+            },
         },
         {
             title: 'Tên sản phẩm',
@@ -110,6 +114,11 @@ export const WarehousePage = () => {
             width: 120,
             align: 'center',
             render: (_, record) => <Tag color="blue">{record.category?.name || 'N/A'}</Tag>,
+            filters: categoriesList.map(value => ({
+                text: value.label,
+                value: value.value,
+            })),
+            filterSearch: true,
         },
         {
             title: 'Tồn kho',
@@ -146,6 +155,10 @@ export const WarehousePage = () => {
                 ) : (
                     <Tag color="default">Trong kho</Tag>
                 ),
+            filters: [
+                { text: 'Đang bán', value: true },
+                { text: 'Ngừng bán', value: false },
+            ],
         },
         {
             title: 'Ngày nhập',
@@ -201,6 +214,21 @@ export const WarehousePage = () => {
                             </Popconfirm>
                         </Tooltip>
                     )}
+                    <Popconfirm
+                        title="Xóa sản phẩm"
+                        description="Bạn có muốn xóa sản phẩm này ?"
+                        onConfirm={() => handleDeleteProduct(record.id)}
+                        okText="Yes"
+                        cancelText="No"
+                    >
+                        <Tooltip title="Xóa sản phẩm">
+                            <Button
+                                type="text"
+                                icon={<DeleteOutlined />}
+                                className="text-red-600 hover:text-blue-600 hover:bg-blue-50"
+                            />
+                        </Tooltip>
+                    </Popconfirm>
                 </Space>
             ),
         },

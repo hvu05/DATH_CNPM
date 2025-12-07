@@ -5,7 +5,7 @@ import searchIcon from '@/assets/search-icon.svg';
 import cartIcon from '@/assets/cart-icon.svg';
 import defaultAvatar from '@/assets/default-avatar-icon.svg';
 import { Link, useNavigate } from 'react-router-dom';
-import { Dropdown, Avatar, Badge, message } from 'antd';
+import { Dropdown, Avatar, Badge, message, Spin } from 'antd';
 import type { MenuProps } from 'antd';
 import { UserOutlined, LogoutOutlined, SettingOutlined } from '@ant-design/icons';
 import { useAuthContext } from '@/contexts/AuthContext';
@@ -14,6 +14,7 @@ import { useCart } from '@/contexts/CartContext';
 import React, { useState, useEffect, useRef } from 'react';
 import { getCategories } from '@/services/categoryApi';
 import { getBrands } from '@/services/brandApi';
+import type { BrandResponse, Series } from '@/services/brandApi';
 
 export const Header = () => {
     const navigate = useNavigate();
@@ -23,12 +24,18 @@ export const Header = () => {
     const [categories, setCategories] = useState<any[]>([]);
     const [brands, setBrands] = useState<any[]>([]);
     const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+
+    // State theo dõi danh mục đang được hover
     const [activeCategory, setActiveCategory] = useState<string>('');
+    const [activeBrandId, setActiveBrandId] = useState<string | number>('');
+    const [loadingBrands, setLoadingBrands] = useState(false);
+
     const dropdownRef = useRef<HTMLDivElement | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
 
     const totalCartItems = cartItems.reduce((t, i) => t + i.quantity, 0);
 
+    // --- Logout & Menu Logic ---
     const logout = () => {
         removeTokens();
         setUser(null);
@@ -53,7 +60,7 @@ export const Header = () => {
             ? [{ key: 'adminpage', label: 'Trang quản trị', icon: <SettingOutlined /> }]
             : []),
         { type: 'divider' },
-        { key: 'logout', label: 'Đăng xuất', danger: true, icon: <LogoutOutlined /> }, // Nên thêm icon cho Đăng xuất
+        { key: 'logout', label: 'Đăng xuất', danger: true, icon: <LogoutOutlined /> },
     ];
 
     const handleSearch = (e: React.FormEvent) => {
@@ -75,21 +82,47 @@ export const Header = () => {
     }, []);
 
     useEffect(() => {
-        const load = async () => {
-            const [cats, brs] = await Promise.all([getCategories(), getBrands()]);
+        const loadCategories = async () => {
+            const cats = await getCategories();
             setCategories(cats || []);
-            setBrands(brs || []);
-            if (cats && cats.length > 0) setActiveCategory(String(cats[0].id));
+            if (cats && cats.length > 0) {
+                setActiveCategory(String(cats[0].id));
+            }
         };
-        load();
+        loadCategories();
     }, []);
+
+    useEffect(() => {
+        const loadBrandsByCategory = async () => {
+            if (!activeCategory) {
+                setBrands([]);
+                return;
+            }
+
+            setLoadingBrands(true);
+            const brs = await getBrands(activeCategory);
+            setBrands(brs || []);
+            if (brs && brs.length > 0) {
+                setActiveBrandId(brs[0].id);
+            } else {
+                setActiveBrandId('');
+            }
+
+            setLoadingBrands(false);
+        };
+        loadBrandsByCategory();
+    }, [activeCategory]);
+
+    const activeSeriesList = brands.find(b => b.id === activeBrandId)?.series || [];
 
     const onClickBrand = (brandName: string) => {
         setIsCategoryDropdownOpen(false);
-        const params = new URLSearchParams();
-        if (brandName) params.set('brand', brandName);
-        if (activeCategory) params.set('category', String(activeCategory));
-        navigate(`/search?${params.toString()}`);
+        navigate(`/search?brand=${encodeURIComponent(brandName)}`);
+    };
+
+    const onClickSeries = (seriesName: string) => {
+        setIsCategoryDropdownOpen(false);
+        navigate(`/search?q=${encodeURIComponent(seriesName)}`);
     };
 
     return (
@@ -105,37 +138,69 @@ export const Header = () => {
                         onClick={() => setIsCategoryDropdownOpen(v => !v)}
                         type="button"
                     >
-                        <img src={menuIcon} className="header__button-icon" alt="menu" />
+                        {/* ... Icon Menu ... */}
                         <span className="header__button-text">Danh mục</span>
                     </button>
 
                     {isCategoryDropdownOpen && (
                         <div className="category-dropdown__menu">
-                            <div className="category-dropdown__categories">
+                            {/* CỘT 1: CATEGORIES */}
+                            <div className="category-dropdown__col category-dropdown__categories">
+                                <h4 className="dropdown-col-title">Danh mục</h4>
                                 {categories.map(cat => (
                                     <button
                                         key={cat.id}
-                                        className={`category-dropdown__category-item ${String(activeCategory) === String(cat.id) ? 'active' : ''}`}
+                                        className={`dropdown-item ${String(activeCategory) === String(cat.id) ? 'active' : ''}`}
                                         onMouseEnter={() => setActiveCategory(String(cat.id))}
-                                        type="button"
                                     >
-                                        {cat.name}
+                                        {cat.name} <span className="arrow">›</span>
                                     </button>
                                 ))}
                             </div>
 
-                            <div className="category-dropdown__content-wrapper">
-                                <div className="category-dropdown__content">
-                                    {brands.map(b => (
+                            {/* CỘT 2: BRANDS */}
+                            <div className="category-dropdown__col category-dropdown__brands">
+                                <h4 className="dropdown-col-title">Thương hiệu</h4>
+                                {loadingBrands ? (
+                                    <div className="loading-state">
+                                        <Spin />
+                                    </div>
+                                ) : brands.length > 0 ? (
+                                    brands.map(b => (
                                         <button
                                             key={b.id}
-                                            className="category-dropdown__brand-item"
+                                            className={`dropdown-item ${activeBrandId === b.id ? 'active' : ''}`}
+                                            onMouseEnter={() => setActiveBrandId(b.id)}
                                             onClick={() => onClickBrand(b.name)}
                                         >
-                                            {b.name}
+                                            {b.name} <span className="arrow">›</span>
                                         </button>
-                                    ))}
-                                </div>
+                                    ))
+                                ) : (
+                                    <div className="empty-state">Trống</div>
+                                )}
+                            </div>
+
+                            {/* CỘT 3: SERIES (MỚI) */}
+                            <div className="category-dropdown__col category-dropdown__series">
+                                <h4 className="dropdown-col-title">Dòng sản phẩm</h4>
+                                {loadingBrands ? (
+                                    <div className="loading-state">...</div>
+                                ) : activeSeriesList.length > 0 ? (
+                                    activeSeriesList.map((s: Series) => (
+                                        <button
+                                            key={s.id}
+                                            className="dropdown-item"
+                                            onClick={() => onClickSeries(s.name)}
+                                        >
+                                            {s.name}
+                                        </button>
+                                    ))
+                                ) : (
+                                    <div className="empty-state">
+                                        {brands.length > 0 ? 'Chưa có dòng sản phẩm' : ''}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}
@@ -168,9 +233,21 @@ export const Header = () => {
                         placement="bottomRight"
                         arrow
                     >
-                        <div style={{ cursor: 'pointer' }}>
+                        <div
+                            style={{
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 8,
+                            }}
+                        >
                             <Avatar src={user?.avatar || defaultAvatar} />
-                            <span className="header__user-name">{user?.full_name || 'User'}</span>
+                            <span
+                                className="header__user-name"
+                                style={{ color: 'white', fontWeight: 500 }}
+                            >
+                                {user?.full_name || 'User'}
+                            </span>
                         </div>
                     </Dropdown>
                 ) : (

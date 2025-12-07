@@ -112,11 +112,11 @@ export const OrderClient = () => {
             const itemOrder: ItemHandleOrder = {
                 product_id: item.productId,
                 product_variant_id: item.variantId,
-                quantity: item.quantity
-            } 
-            items.push(itemOrder)
+                quantity: item.quantity,
+            };
+            items.push(itemOrder);
         });
-        order.items = items
+        order.items = items;
         const res = await orderAPI.createOrder(order);
         if (res) {
             if (!selectedAddress) {
@@ -140,7 +140,9 @@ export const OrderClient = () => {
             <div className="client-order-detail__main">
                 {/* Products Card */}
                 <div className="client-order-detail__card">
-                    <h2 className="client-order-detail__card-title">Sản phẩm trong đơn (2)</h2>
+                    <h2 className="client-order-detail__card-title">
+                        Sản phẩm trong đơn ({cartOrder?.length || 0})
+                    </h2>
                     <div className="client-order-detail__product-list">
                         {cartOrder.map((item, index) => (
                             <Fragment key={index}>
@@ -154,7 +156,6 @@ export const OrderClient = () => {
                                                 {item?.name}
                                             </h3>
                                             <div className="client-order-detail__product-attrs">
-                                               
                                                 <span>Số lượng: {item?.quantity}</span>
                                             </div>
                                         </div>

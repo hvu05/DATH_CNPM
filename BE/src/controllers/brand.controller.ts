@@ -112,10 +112,13 @@ export const getAllBrandsHandler = async (
   next: NextFunction,
 ) => {
   try {
-    const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : 100; // Tăng limit lên hoặc bỏ limit nếu muốn lấy hết cho menu
     const offset = req.query.offset ? parseInt(req.query.offset as string) : 0;
+    
+    const categoryId = req.query.category_id as string; 
 
-    const { results } = await brandService.getAllBrands(limit, offset);
+    const { results } = await brandService.getAllBrands(limit, offset, categoryId);
+    
     const validated = BrandResponseSchema.array().parse(results);
 
     return res.status(200).json({

@@ -29,6 +29,7 @@ export const AdminLayout = () => {
     const isDesktop = !!screens.lg;
 
     const profileMenu: MenuProps['items'] = [
+        { key: 'home', label: 'Trang chủ' },
         ...(!isLoggedIn ? [{ key: 'login', label: 'Đăng nhập' }] : []),
         { type: 'divider' },
         { key: 'logout', danger: true, label: 'Đăng xuất' },
@@ -38,13 +39,18 @@ export const AdminLayout = () => {
         return location.pathname.slice(7);
     }, [location.pathname]);
 
+    const profileMapping: Record<string, string> = {
+        login: '/login',
+        home: '/',
+    };
+
     const onMenuClick: MenuProps['onClick'] = ({ key }) => {
         navigate(`/admin/${key}`);
     };
 
     const onProfileClick: MenuProps['onClick'] = ({ key }) => {
-        if (key === 'login') navigate('/login');
         if (key === 'logout') logout();
+        navigate(profileMapping[key]);
     };
 
     const menuItems: MenuProps['items'] = [

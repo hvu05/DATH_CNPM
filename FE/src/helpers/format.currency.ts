@@ -1,8 +1,7 @@
-export const formatVNCurrency = new Intl.NumberFormat('vi-VN', {
-    maximumFractionDigits: 1,
-});
-
 export const formatCurrencyCompactVN = (value: number): string => {
+    const formatVNCurrency = new Intl.NumberFormat('vi-VN', {
+        maximumFractionDigits: 1,
+    });
     if (value >= 1_000_000_000) {
         return `${formatVNCurrency.format(value / 1_000_000_000)} tỷ ₫`;
     } else if (value >= 1_000_000) {
@@ -17,5 +16,11 @@ export const formatCurrencyCompactVN = (value: number): string => {
 export const currencyFormatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
+    maximumFractionDigits: 0,
+});
+
+export const VNCurrencyFormatter = new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
     maximumFractionDigits: 0,
 });

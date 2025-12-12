@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getProductById, getProducts } from '@/services/productsApi';
 import type { Product, BackendVariant } from '@/types/product';
 import { useCart } from '@/contexts/CartContext';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { Button, message, Rate, Tabs, Avatar, Divider, Tag, Skeleton, Form, Input } from 'antd';
 import {
     UserOutlined,
@@ -48,7 +49,9 @@ const MOCK_REVIEWS: LocalReview[] = [
 const ProductDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { addToCart } = useCart();
+    const { addToCart, cartItems } = useCart();
+    const { isLoggedIn } = useAuthContext(); // <--- 2. Lấy biến isLoggedIn
+
     const [reviewForm] = Form.useForm();
 
     const [product, setProduct] = useState<Product | null>(null);
@@ -87,7 +90,6 @@ const ProductDetailPage: React.FC = () => {
         message.success('Cảm ơn bạn đã đánh giá sản phẩm!');
     };
 
-    // --- LOGIC SẢN PHẨM: API ---
     useEffect(() => {
         if (id) {
             getProductById(id).then(data => {
@@ -108,12 +110,10 @@ const ProductDetailPage: React.FC = () => {
         }
     }, [id]);
 
-    // Tính toán hiển thị
     const displayPrice = selectedVariant ? Number(selectedVariant.price) : product?.price || 0;
     const stock = selectedVariant ? selectedVariant.quantity : product?.quantity || 0;
     const isOutOfStock = stock <= 0;
 
-    // Tính trung bình sao dựa trên Review Local
     const avgRating =
         reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 5;
 
@@ -130,21 +130,56 @@ const ProductDetailPage: React.FC = () => {
             return;
         }
 
-        const finalQty = quantity > stock ? stock : quantity;
         const finalVariantId = selectedVariant?.id || product.id;
+        const finalQty = quantity;
 
-        await addToCart({
+        const images = product.originalImages?.length
+            ? product.originalImages.map(i => i.image_url)
+            : [product.imageUrl];
+        const currentImage = images[selectedImageIndex] || product.imageUrl;
+
+        const itemData = {
             productId: Number(product.id),
             variantId: finalVariantId,
-            name: `${product.name} ${selectedVariant ? `(${selectedVariant.color})` : ''}`,
+            name: `${product.name} ${selectedVariant ? `(${selectedVariant.color} - ${selectedVariant.storage})` : ''}`,
             price: displayPrice,
-            imageUrl: product.imageUrl,
+            imageUrl: currentImage,
             quantity: finalQty,
-        });
+        };
 
         if (isBuyNow) {
-            navigate('/cart');
+            // --- 3. LOGIC MỚI CHO NÚT MUA NGAY ---
+            if (isLoggedIn) {
+                const total = displayPrice * finalQty;
+                navigate('/client/order', {
+                    state: {
+                        orderItems: [itemData],
+                        total: total,
+                    },
+                });
+            } else {
+                await addToCart(itemData);
+                message.info(
+                    'Vui lòng đăng nhập để thanh toán. Sản phẩm đã được thêm vào giỏ hàng.'
+                );
+                navigate('/cart');
+            }
         } else {
+            // === LOGIC THÊM VÀO GIỎ THƯỜNG ===
+            const cartItem = cartItems.find(
+                i => i.variantId === finalVariantId && i.productId === Number(product.id)
+            );
+
+            const existingQty = cartItem ? cartItem.quantity : 0;
+
+            if (existingQty + finalQty > stock) {
+                message.error(
+                    `Bạn đã có ${existingQty} sản phẩm trong giỏ. Tồn kho chỉ còn ${stock}.`
+                );
+                return;
+            }
+
+            await addToCart(itemData);
             message.success('Đã thêm vào giỏ hàng thành công!');
         }
     };

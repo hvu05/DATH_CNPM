@@ -119,6 +119,14 @@ router.patch(
   productController.updateProductStatus,
 );
 
+// delete product
+router.delete(
+  '/products/:id',
+  authenticateHandler,
+  checkRole(['ADMIN']),
+  productController.deleteProductByIdHandler,
+);
+
 // POST to create new category
 router.post(
   '/categories',

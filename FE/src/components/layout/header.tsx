@@ -5,151 +5,37 @@ import searchIcon from '@/assets/search-icon.svg';
 import cartIcon from '@/assets/cart-icon.svg';
 import defaultAvatar from '@/assets/default-avatar-icon.svg';
 import { Link, useNavigate } from 'react-router-dom';
-import { Dropdown, Avatar, Badge, Button, message } from 'antd';
+import { Dropdown, Avatar, Badge, message, Spin } from 'antd';
 import type { MenuProps } from 'antd';
-import {
-    UserOutlined,
-    LogoutOutlined,
-    SettingOutlined,
-    MobileOutlined,
-    LaptopOutlined,
-    TabletOutlined,
-    CustomerServiceOutlined,
-    ClockCircleOutlined,
-} from '@ant-design/icons';
-
+import { UserOutlined, LogoutOutlined, SettingOutlined } from '@ant-design/icons';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { removeTokens } from '@/services/auth/auth.service';
 import { useCart } from '@/contexts/CartContext';
 import React, { useState, useEffect, useRef } from 'react';
-
-// --- DATA HARDCODE (CỐ ĐỊNH) ---
-const megaMenuData = [
-    {
-        id: 'phones',
-        name: 'Điện thoại',
-        icon: <MobileOutlined />,
-        content: {
-            columns: [
-                {
-                    title: 'Thương hiệu',
-                    items: [
-                        { name: 'iPhone', link: '/search?q=iPhone' },
-                        { name: 'Samsung', link: '/search?q=Samsung' },
-                        { name: 'Xiaomi', link: '/search?q=Xiaomi' },
-                        { name: 'OPPO', link: '/search?q=OPPO' },
-                    ],
-                },
-                {
-                    title: 'Mức giá',
-                    items: [
-                        { name: 'Dưới 5 triệu', link: '/search?q=phone&max_price=5000000' },
-                        {
-                            name: 'Từ 5 - 10 triệu',
-                            link: '/search?q=phone&min_price=5000000&max_price=10000000',
-                        },
-                        { name: 'Trên 20 triệu', link: '/search?q=phone&min_price=20000000' },
-                    ],
-                },
-            ],
-        },
-    },
-    {
-        id: 'laptops',
-        name: 'Laptop',
-        icon: <LaptopOutlined />,
-        content: {
-            columns: [
-                {
-                    title: 'Thương hiệu',
-                    items: [
-                        { name: 'MacBook', link: '/search?q=MacBook' },
-                        { name: 'Dell', link: '/search?q=Dell' },
-                        { name: 'Asus', link: '/search?q=Asus' },
-                        { name: 'HP', link: '/search?q=HP' },
-                    ],
-                },
-                {
-                    title: 'Nhu cầu',
-                    items: [
-                        { name: 'Gaming', link: '/search?q=Gaming' },
-                        { name: 'Văn phòng', link: '/search?q=Office' },
-                        { name: 'Đồ họa', link: '/search?q=Graphic' },
-                    ],
-                },
-            ],
-        },
-    },
-    {
-        id: 'tablets',
-        name: 'Máy tính bảng',
-        icon: <TabletOutlined />,
-        content: {
-            columns: [
-                {
-                    title: 'Gợi ý',
-                    items: [
-                        { name: 'iPad', link: '/search?q=iPad' },
-                        { name: 'Samsung Tab', link: '/search?q=Samsung+Tab' },
-                    ],
-                },
-            ],
-        },
-    },
-    {
-        id: 'watches',
-        name: 'Đồng hồ',
-        icon: <ClockCircleOutlined />,
-        content: {
-            columns: [
-                {
-                    title: 'Loại đồng hồ',
-                    items: [
-                        { name: 'Apple Watch', link: '/search?q=Apple+Watch' },
-                        { name: 'Samsung Watch', link: '/search?q=Galaxy+Watch' },
-                        { name: 'Đồng hồ thông minh', link: '/search?q=Smartwatch' },
-                    ],
-                },
-            ],
-        },
-    },
-    {
-        id: 'accessories',
-        name: 'Phụ kiện',
-        icon: <CustomerServiceOutlined />,
-        content: {
-            columns: [
-                {
-                    title: 'Âm thanh',
-                    items: [
-                        { name: 'Tai nghe', link: '/search?q=Tai+nghe' },
-                        { name: 'Loa', link: '/search?q=Loa' },
-                    ],
-                },
-                {
-                    title: 'Khác',
-                    items: [
-                        { name: 'Sạc dự phòng', link: '/search?q=Sạc' },
-                        { name: 'Cáp sạc', link: '/search?q=Cáp' },
-                    ],
-                },
-            ],
-        },
-    },
-];
+import { getCategories } from '@/services/categoryApi';
+import { getBrands } from '@/services/brandApi';
+import type { BrandResponse, Series } from '@/services/brandApi';
 
 export const Header = () => {
     const navigate = useNavigate();
     const { user, setUser, isLoggedIn, setIsLoggedIn } = useAuthContext();
     const { cartItems } = useCart();
 
+    const [categories, setCategories] = useState<any[]>([]);
+    const [brands, setBrands] = useState<any[]>([]);
     const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
-    const [activeCategory, setActiveCategory] = useState<string>('phones');
-    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    // State theo dõi danh mục đang được hover
+    const [activeCategory, setActiveCategory] = useState<string>('');
+    const [activeBrandId, setActiveBrandId] = useState<string | number>('');
+    const [loadingBrands, setLoadingBrands] = useState(false);
+
+    const dropdownRef = useRef<HTMLDivElement | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
 
-    const totalCartItems = cartItems.reduce((total, item) => total + item.quantity, 0);
+    const totalCartItems = cartItems.reduce((t, i) => t + i.quantity, 0);
 
+    // --- Logout & Menu Logic ---
     const logout = () => {
         removeTokens();
         setUser(null);
@@ -173,11 +59,8 @@ export const Header = () => {
         ...(user?.role === 'ADMIN'
             ? [{ key: 'adminpage', label: 'Trang quản trị', icon: <SettingOutlined /> }]
             : []),
-        ...(user?.role === 'STAFF'
-            ? [{ key: 'sellerpage', label: 'Kênh nhân viên', icon: <SettingOutlined /> }]
-            : []),
         { type: 'divider' },
-        { key: 'logout', label: 'Đăng xuất', icon: <LogoutOutlined />, danger: true },
+        { key: 'logout', label: 'Đăng xuất', danger: true, icon: <LogoutOutlined /> },
     ];
 
     const handleSearch = (e: React.FormEvent) => {
@@ -189,75 +72,133 @@ export const Header = () => {
     };
 
     useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        const onClickOutside = (ev: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(ev.target as Node)) {
                 setIsCategoryDropdownOpen(false);
             }
         };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
+        document.addEventListener('mousedown', onClickOutside);
+        return () => document.removeEventListener('mousedown', onClickOutside);
     }, []);
 
-    const activeCategoryData = megaMenuData.find(cat => cat.id === activeCategory);
+    useEffect(() => {
+        const loadCategories = async () => {
+            const cats = await getCategories();
+            setCategories(cats || []);
+            if (cats && cats.length > 0) {
+                setActiveCategory(String(cats[0].id));
+            }
+        };
+        loadCategories();
+    }, []);
+
+    useEffect(() => {
+        const loadBrandsByCategory = async () => {
+            if (!activeCategory) {
+                setBrands([]);
+                return;
+            }
+
+            setLoadingBrands(true);
+            const brs = await getBrands(activeCategory);
+            setBrands(brs || []);
+            if (brs && brs.length > 0) {
+                setActiveBrandId(brs[0].id);
+            } else {
+                setActiveBrandId('');
+            }
+
+            setLoadingBrands(false);
+        };
+        loadBrandsByCategory();
+    }, [activeCategory]);
+
+    const activeSeriesList = brands.find(b => b.id === activeBrandId)?.series || [];
+
+    const onClickBrand = (brandName: string) => {
+        setIsCategoryDropdownOpen(false);
+        navigate(`/search?brand=${encodeURIComponent(brandName)}`);
+    };
+
+    const onClickSeries = (seriesName: string) => {
+        setIsCategoryDropdownOpen(false);
+        navigate(`/search?q=${encodeURIComponent(seriesName)}`);
+    };
 
     return (
         <header className="header">
             <div className="header__left">
-                <Link to={'/'} className="header__home-link">
+                <Link to="/" className="header__home-link">
                     <img src={homeIcon} alt="Home" />
                 </Link>
 
-                {/* CATEGORY DROPDOWN */}
                 <div className="category-dropdown" ref={dropdownRef}>
                     <button
                         className="header__button"
-                        onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+                        onClick={() => setIsCategoryDropdownOpen(v => !v)}
+                        type="button"
                     >
-                        <img src={menuIcon} alt="Menu" className="header__button-icon" />
+                        {/* ... Icon Menu ... */}
                         <span className="header__button-text">Danh mục</span>
                     </button>
 
                     {isCategoryDropdownOpen && (
                         <div className="category-dropdown__menu">
-                            <div className="category-dropdown__categories">
-                                {megaMenuData.map(category => (
+                            {/* CỘT 1: CATEGORIES */}
+                            <div className="category-dropdown__col category-dropdown__categories">
+                                <h4 className="dropdown-col-title">Danh mục</h4>
+                                {categories.map(cat => (
                                     <button
-                                        key={category.id}
-                                        className={`category-dropdown__category-item ${activeCategory === category.id ? 'active' : ''}`}
-                                        onMouseEnter={() => setActiveCategory(category.id)}
+                                        key={cat.id}
+                                        className={`dropdown-item ${String(activeCategory) === String(cat.id) ? 'active' : ''}`}
+                                        onMouseEnter={() => setActiveCategory(String(cat.id))}
                                     >
-                                        <span className="category-dropdown__icon">
-                                            {category.icon}
-                                        </span>
-                                        {category.name}
+                                        {cat.name} <span className="arrow">›</span>
                                     </button>
                                 ))}
                             </div>
 
-                            <div className="category-dropdown__content-wrapper">
-                                {activeCategoryData && (
-                                    <div className="category-dropdown__content">
-                                        {activeCategoryData.content.columns.map((column, index) => (
-                                            <div key={index} className="category-dropdown__column">
-                                                <h4 className="category-dropdown__column-title">
-                                                    {column.title}
-                                                </h4>
-                                                <ul className="category-dropdown__column-list">
-                                                    {column.items.map((item, itemIndex) => (
-                                                        <li key={itemIndex}>
-                                                            <Link
-                                                                to={item.link}
-                                                                onClick={() =>
-                                                                    setIsCategoryDropdownOpen(false)
-                                                                }
-                                                            >
-                                                                {item.name}
-                                                            </Link>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        ))}
+                            {/* CỘT 2: BRANDS */}
+                            <div className="category-dropdown__col category-dropdown__brands">
+                                <h4 className="dropdown-col-title">Thương hiệu</h4>
+                                {loadingBrands ? (
+                                    <div className="loading-state">
+                                        <Spin />
+                                    </div>
+                                ) : brands.length > 0 ? (
+                                    brands.map(b => (
+                                        <button
+                                            key={b.id}
+                                            className={`dropdown-item ${activeBrandId === b.id ? 'active' : ''}`}
+                                            onMouseEnter={() => setActiveBrandId(b.id)}
+                                            onClick={() => onClickBrand(b.name)}
+                                        >
+                                            {b.name} <span className="arrow">›</span>
+                                        </button>
+                                    ))
+                                ) : (
+                                    <div className="empty-state">Trống</div>
+                                )}
+                            </div>
+
+                            {/* CỘT 3: SERIES (MỚI) */}
+                            <div className="category-dropdown__col category-dropdown__series">
+                                <h4 className="dropdown-col-title">Dòng sản phẩm</h4>
+                                {loadingBrands ? (
+                                    <div className="loading-state">...</div>
+                                ) : activeSeriesList.length > 0 ? (
+                                    activeSeriesList.map((s: Series) => (
+                                        <button
+                                            key={s.id}
+                                            className="dropdown-item"
+                                            onClick={() => onClickSeries(s.name)}
+                                        >
+                                            {s.name}
+                                        </button>
+                                    ))
+                                ) : (
+                                    <div className="empty-state">
+                                        {brands.length > 0 ? 'Chưa có dòng sản phẩm' : ''}
                                     </div>
                                 )}
                             </div>
@@ -268,21 +209,20 @@ export const Header = () => {
 
             <form className="header__search" onSubmit={handleSearch}>
                 <input
-                    type="text"
                     className="header__search-input"
-                    placeholder="Bạn tìm gì hôm nay?"
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
+                    placeholder="Bạn tìm gì hôm nay?"
                 />
                 <button type="submit" className="header__search-icon">
-                    <img src={searchIcon} alt="Search" />
+                    <img src={searchIcon} alt="search" />
                 </button>
             </form>
 
             <div className="header__right">
                 <Link to="/cart" className="header__button">
-                    <Badge count={totalCartItems} size="small" offset={[0, -2]} showZero={false}>
-                        <img src={cartIcon} alt="Cart" className="header__button-icon" />
+                    <Badge count={totalCartItems} size="small" offset={[0, -2]}>
+                        <img src={cartIcon} className="header__button-icon" alt="cart" />
                     </Badge>
                     <span className="header__button-text">Giỏ hàng</span>
                 </Link>
@@ -294,7 +234,6 @@ export const Header = () => {
                         arrow
                     >
                         <div
-                            className="header__user-info"
                             style={{
                                 cursor: 'pointer',
                                 display: 'flex',
@@ -302,16 +241,10 @@ export const Header = () => {
                                 gap: 8,
                             }}
                         >
-                            <Avatar src={user?.avatar || defaultAvatar} icon={<UserOutlined />} />
+                            <Avatar src={user?.avatar || defaultAvatar} />
                             <span
                                 className="header__user-name"
-                                style={{
-                                    color: 'white',
-                                    maxWidth: 100,
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    whiteSpace: 'nowrap',
-                                }}
+                                style={{ color: 'white', fontWeight: 500 }}
                             >
                                 {user?.full_name || 'User'}
                             </span>
@@ -319,7 +252,11 @@ export const Header = () => {
                     </Dropdown>
                 ) : (
                     <div className="header__auth-buttons">
-                        <button onClick={() => navigate('/login')} className="header__button">
+                        <button
+                            onClick={() => navigate('/login')}
+                            className="header__button"
+                            type="button"
+                        >
                             <span className="header__button-text">Đăng nhập</span>
                         </button>
                     </div>

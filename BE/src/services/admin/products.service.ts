@@ -1,5 +1,7 @@
 import { prisma } from '../../config/prisma.config';
 import * as adminDto from '../../dtos/admin';
+import { AppError, ErrorCode } from '../../exeptions';
+import { deleteFile } from '../cloudinary.service';
 
 //Hades - Product management functions for admin
 
@@ -27,7 +29,9 @@ export const getAllProducts = async (
 
   // Filter by category
   if (categoryId) {
-    where.category_id = categoryId;
+    where.category_id = {
+      in: categoryId.split(',').map((item) => Number(item)),
+    };
   }
 
   // Filter by is_active status
@@ -218,4 +222,56 @@ export const createSeries = async (data: {
     },
   });
   return series;
+};
+
+export const deleteProduct = async (id: number): Promise<{ id: number }> => {
+  const product = await prisma.product.findUnique({
+    where: { id },
+    include: {
+      product_image: true,
+      product_specs: true,
+      product_variants: {
+        include: {
+          order_items: true,
+        },
+      },
+      order_items: true,
+      reviews: true,
+    },
+  });
+
+  if (!product) {
+    throw new AppError(ErrorCode.NOT_FOUND, 'Product not found');
+  }
+
+  const hasOrderItems =
+    (product.order_items.length ?? 0) > 0 ||
+    product.product_variants.some((v) => (v.order_items.length ?? 0) > 0);
+
+  if (hasOrderItems) {
+    throw new AppError(
+      ErrorCode.CONFLICT,
+      'Không thể xóa sản phẩm vì nó nằm trong đơn hàng của người dùng',
+    );
+  }
+
+  await Promise.all(
+    product.product_image.map((img) =>
+      deleteFile(img.image_url).catch(() => undefined),
+    ),
+  );
+
+  await prisma.$transaction(async (tx) => {
+    await tx.review.deleteMany({ where: { product_id: id } });
+    await tx.cartItem.deleteMany({ where: { product_id: id } });
+    await tx.inventoryLog.deleteMany({ where: { product_id: id } });
+    await tx.productSpec.deleteMany({ where: { product_id: id } });
+    await tx.productImage.deleteMany({ where: { product_id: id } });
+    await tx.productVariant.deleteMany({ where: { product_id: id } });
+    await tx.product.delete({ where: { id } });
+  });
+
+  return {
+    id: product.id,
+  };
 };

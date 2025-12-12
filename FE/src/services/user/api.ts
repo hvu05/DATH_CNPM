@@ -37,7 +37,6 @@ export const getAllUsersAPI = async (params: IGetUsersParams = {}) => {
     if (isActive && isActive.length === 1)
         queryParams.append('isActive', isActive[0] ? 'true' : 'false');
     if (search) queryParams.append('search', search);
-    console.log({ queryParams });
     const result = await axios.get<ApiResponse<IPagination<IUser[]>>>(
         `${import.meta.env.VITE_BACKEND_URL}/admin/users?${queryParams.toString()}`
     );

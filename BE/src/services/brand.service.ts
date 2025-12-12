@@ -49,15 +49,26 @@ export const brandService = {
     return brand;
   },
 
-  async getAllBrands(limit?: number, offset: number = 0) {
+  async getAllBrands(limit?: number, offset: number = 0, categoryId?: number | string) {
+    const where: any = {};
+    if (categoryId) {
+        const catId = typeof categoryId === 'string' ? parseInt(categoryId) : categoryId;
+        where.category_id = catId;
+    }
+
     const [results, count] = await Promise.all([
       prisma.brand.findMany({
+        where: where,
         skip: offset * (limit || 0),
         take: limit,
         orderBy: { id: 'asc' },
-        include: { category: true },
+        // --- BẮT BUỘC PHẢI CÓ DÒNG NÀY ---
+        include: { 
+            category: true, 
+            series: true // <--- Đảm bảo bạn đã thêm dòng này
+        }, 
       }),
-      prisma.brand.count(),
+      prisma.brand.count({ where: where }),
     ]);
 
     return { results, count };

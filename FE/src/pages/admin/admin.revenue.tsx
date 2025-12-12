@@ -1,12 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Button, Card, Col, DatePicker, Row, Space, Statistic, Tag, Typography } from 'antd';
-import {
-    BarChartOutlined,
-    DollarOutlined,
-    DownloadOutlined,
-    ReloadOutlined,
-    RiseOutlined,
-} from '@ant-design/icons';
+import { Card, Col, DatePicker, Row, Space, Statistic, Tag, Typography } from 'antd';
+import { RiseOutlined } from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import quarterOfYear from 'dayjs/plugin/quarterOfYear';
@@ -14,14 +8,14 @@ import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import type { DatePickerProps } from 'antd/lib';
 import { ChartRevenue } from '@/components/admin/chart/chart.revenue';
-import { formatVNCurrency } from '@/helpers/format.currency';
+import { VNCurrencyFormatter } from '@/helpers/format.currency';
 
 dayjs.extend(isoWeek);
 dayjs.extend(quarterOfYear);
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 const { RangePicker } = DatePicker;
 
 const fakeData = {
@@ -43,15 +37,9 @@ const fakeData = {
                 13_200_000,
             ],
         },
-        { name: 'Đơn hàng', data: [10, 8, 9, 12, 15, 11, 13, 14] },
+        { name: 'Đơn hàng', data: [100, 80, 90, 120, 150, 110, 130, 140] },
     ],
 };
-
-const currencyFormatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0,
-});
 
 export const RevenuePage = () => {
     const [range, setRange] = useState<[Dayjs, Dayjs] | null>(() => {
@@ -130,13 +118,13 @@ export const RevenuePage = () => {
                 <Col xs={24} md={8}>
                     <Card className="shadow-sm" title="Tổng doanh thu">
                         <Statistic
-                            value={100}
-                            formatter={value => formatVNCurrency.format(Number(value))}
+                            value={3_900_000_000}
+                            formatter={value => VNCurrencyFormatter.format(Number(value))}
                         />
                         <div className="mt-3 flex items-center gap-2">
                             <Tag color={100 >= 0 ? 'green' : 'red'}>
                                 {23 >= 0 ? '+' : ''}
-                                {(2.3 * 100).toFixed(1)}%
+                                {(23).toFixed(1)}%
                             </Tag>
                             <Text type="secondary">so với tuần trước</Text>
                         </div>
@@ -145,14 +133,14 @@ export const RevenuePage = () => {
                 <Col xs={24} md={8}>
                     <Card className="shadow-sm" title="Giá trị trung bình trên mỗi đơn hàng">
                         <Statistic
-                            value={10000}
+                            value={19_000_000}
                             precision={0}
-                            formatter={value => formatVNCurrency.format(Number(value))}
+                            formatter={value => VNCurrencyFormatter.format(Number(value))}
                         />
                         <div className="mt-3 flex items-center gap-2">
                             <Tag color={12 >= 0 ? 'blue' : 'orange'}>
                                 {12 >= 0 ? '+' : ''}
-                                {(12 * 100).toFixed(1)}% orders
+                                {(800_000).toFixed(1)}
                             </Tag>
                             <Text type="secondary">So với tuần trước</Text>
                         </div>
@@ -160,8 +148,12 @@ export const RevenuePage = () => {
                 </Col>
                 <Col xs={24} md={8}>
                     <Card className="shadow-sm" title="Tỉ lệ trả hàng">
-                        <Statistic value={12 * 100} precision={2} suffix="%" />
+                        <Statistic value={2} precision={2} suffix="%" />
                         <div className="mt-3 flex items-center gap-2">
+                            <Tag color={-2 >= 0 ? 'blue' : 'orange'}>
+                                {-2 >= 0 ? '+' : '-'}
+                                {(3).toFixed(1)}%
+                            </Tag>
                             <Text type="secondary">So với tuần trước</Text>
                         </div>
                     </Card>
@@ -175,7 +167,6 @@ export const RevenuePage = () => {
                             format={customFormat}
                             value={range ?? null}
                             onChange={values => {
-                                console.log(values);
                                 setRange(values as [Dayjs, Dayjs] | null);
                             }}
                             allowClear

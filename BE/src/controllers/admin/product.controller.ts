@@ -562,3 +562,33 @@ export const createSeries = async (
     next(error);
   }
 };
+
+export const deleteProductByIdHandler = async (
+  req: Request,
+  res: Response<ApiResponse<{ id: number }>>,
+  next: NextFunction,
+) => {
+  const productId = parseInt(req.params.id, 10);
+  if (Number.isNaN(productId)) {
+    res.status(400).json({
+      success: true,
+      error: 'ID sản phẩm không hợp lệ',
+    });
+  }
+  try {
+    const result = await adminService.deleteProduct(productId);
+    return res.status(200).json({
+      success: true,
+      message: 'Xóa sản phẩm thành công ',
+      data: result,
+    });
+  } catch (error: any) {
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({
+        success: false,
+        error: error.message,
+      });
+    }
+    next(error);
+  }
+};

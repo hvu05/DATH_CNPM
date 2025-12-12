@@ -63,46 +63,38 @@ router.get('/', authenticateHandler, cartController.getCartHandler);
 
 registry.registerPath({
   tags: ['Cart'],
-  path: '/carts/{id}',
-  method: 'patch',
+  path: '/carts',
+  method: 'put',
   security: [
     {
       bearerAuth: [],
-    },
-  ],
-  parameters: [
-    {
-      name: 'id',
-      in: 'path',
-      required: true,
-      schema: { type: 'string' },
     },
   ],
   request: {
     body: {
       content: {
         'application/json': {
-          schema: CartCreateSchema.pick({ quantity: true }),
+          schema: CartCreateSchema, // Tái sử dụng schema
         },
       },
     },
   },
   responses: {
     '200': {
-      description: 'OK',
+      description: 'Cập nhật OK',
       content: {
         'application/json': {
-          schema: ApiResponseSchema(CartResponseSchema.array()),
+          schema: CartResponseSchema,
         },
       },
     },
   },
 });
-router.patch('/:id', authenticateHandler, cartController.updateCartHandler);
+router.put('/', authenticateHandler, cartController.updateCartHandler);
 
 registry.registerPath({
   tags: ['Cart'],
-  path: '/carts/{id}',
+  path: '/carts/{variantId}',
   method: 'delete',
   security: [
     {
@@ -111,22 +103,26 @@ registry.registerPath({
   ],
   parameters: [
     {
-      name: 'id',
+      name: 'variantId',
       in: 'path',
       required: true,
-      schema: { type: 'string' },
+      schema: {
+        type: 'number',
+      },
+      description: 'ID của Product Variant cần xóa khỏi giỏ hàng',
     },
   ],
   responses: {
     '200': {
-      description: 'OK',
+      description: 'Xóa OK',
       content: {
         'application/json': {
-          schema: ApiResponseSchema(CartResponseSchema.array()),
+          schema: CartResponseSchema.array(), // Trả về giỏ hàng mới
         },
       },
     },
   },
 });
-router.delete('/:id', authenticateHandler, cartController.deleteCartHandler);
+router.delete('/:variantId', authenticateHandler, cartController.deleteCartHandler);
+
 export default router;

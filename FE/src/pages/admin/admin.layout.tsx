@@ -102,6 +102,7 @@ export const AdminLayout = () => {
                         selectedKeys={[selectedKey]}
                         items={menuItems}
                         onClick={onMenuClick}
+                        defaultOpenKeys={['inventory']}
                     />
                 </Sider>
             )}
@@ -169,6 +170,7 @@ export const AdminLayout = () => {
                             onMenuClick(info);
                             setMobileOpen(false);
                         }}
+                        defaultOpenKeys={['inventory']}
                     />
                 </Drawer>
             )}

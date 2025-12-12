@@ -6,6 +6,8 @@ import {
     CheckCircleOutlined,
     CloseCircleOutlined,
     ReloadOutlined,
+    CheckOutlined,
+    ExclamationOutlined,
 } from '@ant-design/icons';
 import {
     Card,
@@ -22,6 +24,8 @@ import {
     Avatar,
     Empty,
     type TablePaginationConfig,
+    Popconfirm,
+    message,
 } from 'antd';
 import { useEffect, useState, useCallback } from 'react';
 import dayjs from 'dayjs';
@@ -30,10 +34,12 @@ import {
     getAllUsersAPI,
     getUserRoles,
     getUserStaticsAPI,
+    updateUserAPI,
     type IGetUsersParams,
     type IUserStatics,
 } from '@/services/user/api';
 import type { FilterValue, TableCurrentDataSource } from 'antd/es/table/interface';
+import { color } from 'echarts';
 
 const USER_STATUS = {
     ACTIVE: { color: 'success', text: 'Hoạt động' },
@@ -313,6 +319,50 @@ export const UsersPage = () => {
                             className="text-blue-500 hover:text-blue-600 hover:bg-blue-50"
                             onClick={() => onEdit(record)}
                         />
+                    </Tooltip>
+                    <Tooltip title={record.is_active ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}>
+                        <Popconfirm
+                            title={record.is_active ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}
+                            description={
+                                record.is_active
+                                    ? 'Bạn có muốn khóa tài khoản này'
+                                    : 'Bạn có muốn mở khóa tài khoản này'
+                            }
+                            onConfirm={async () => {
+                                try {
+                                    const current_role_index = userRole.findIndex(
+                                        value => value.name === record.role
+                                    );
+                                    await updateUserAPI(record.id, {
+                                        avatar: record.avatar ?? '',
+                                        full_name: record.full_name,
+                                        is_active: !record.is_active,
+                                        role_id:
+                                            userRole[
+                                                current_role_index == -1 ? 0 : current_role_index
+                                            ].id,
+                                    });
+                                    message.success('Cập nhật thành công');
+                                    refreshUsers();
+                                } catch {
+                                    console.error('Error');
+                                    message.error('Error');
+                                }
+                            }}
+                            okText="Xác nhận"
+                            cancelText="Đóng"
+                        >
+                            <Button
+                                type="text"
+                                icon={
+                                    record.is_active ? (
+                                        <CheckOutlined style={{ color: 'green' }} />
+                                    ) : (
+                                        <ExclamationOutlined style={{ color: 'red' }} />
+                                    )
+                                }
+                            />
+                        </Popconfirm>
                     </Tooltip>
                 </Space>
             ),

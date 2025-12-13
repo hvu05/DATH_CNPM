@@ -8,8 +8,14 @@ export const OtpPage = () => {
     const [otp, setOtp] = useState<string>('');
     const onSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        // TODO: verify OTP
         console.log(otp);
-        navigate('/reset-pass');
+
+        if(true) // TODO: verify success
+        {
+            navigate('/reset-pass');
+            
+        }
     };
     return (
         <>

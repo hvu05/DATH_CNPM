@@ -22,6 +22,7 @@ export const ConfirmPage = () => {
 
         const obj: SendOtpRequest = {
             email,
+            isRegister: false,
         };
 
         try {

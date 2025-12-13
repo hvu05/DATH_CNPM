@@ -34,9 +34,9 @@ export const sendOtpForRegisterHandler = async (
   res: Response<ApiResponse<string>>,
   next: NextFunction,
 ) => {
-  const { email } = req.body;
+  const { email, isRegister } = req.body;
   try {
-    await authService.sendOtpForRegister(email);
+    await authService.sendOtpForRegister(email, isRegister);
     res.json({
       success: true,
       message: 'OTP sent successfully',

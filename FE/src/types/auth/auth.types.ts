@@ -37,3 +37,12 @@ export interface SendOtpRequest {
     email: string;
     isRegister?: boolean;
 }
+
+export interface VerifyOtpRequest {
+    email: string;
+    otp_code: string;
+}
+
+export interface ChangePasswordRequest extends VerifyOtpRequest {
+    new_password: string;
+}

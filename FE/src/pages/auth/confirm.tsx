@@ -28,9 +28,13 @@ export const ConfirmPage = () => {
         try {
             const res = await authAPI.sendOtp(obj);
             if (res.success) {
-                navigate('/otp');
+                navigate('/otp', {
+                    state: {
+                        email,
+                    },
+                });
             } else {
-                console.log('err otp', res)
+                console.log('err otp', res);
                 setError(res.message || 'Có lỗi xảy ra');
             }
         } catch (error) {

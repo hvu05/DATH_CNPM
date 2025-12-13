@@ -20,6 +20,7 @@ declare global {
         avatar: string | null;
         create_at: Date;
         update_at: Date;
+        password?: string
     }
 
     interface IPagination<T> {

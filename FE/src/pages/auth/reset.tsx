@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './auth.scss';
+import { userAPI } from '@/services/user/profiles/user.profiles.api';
+import { message } from 'antd';
+import axios from 'axios';
 
 export const ResetPasswordPage = () => {
     const navigate = useNavigate();
@@ -8,7 +11,7 @@ export const ResetPasswordPage = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
 
-    const onSubmit = (e: React.FormEvent) => {
+    const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (password.length < 6) {
@@ -21,8 +24,19 @@ export const ResetPasswordPage = () => {
         }
 
         setError(null); // Xóa lỗi nếu mọi thứ hợp lệ
-        navigate('/'); // Điều hướng đến trang chính
-        console.log(password);
+        //TODO: gọi api thay đổi mật khẩu
+        const obj: Partial<IUser> = {
+            password: password
+        }
+        try {
+            const res = await axios.put<ApiResponse<IUser>>('/users/profile', obj);
+
+            if(res.data.success) message.success('Thay đổi mật khẩu thành công')
+            navigate('/'); // Điều hướng đến trang chính
+        } catch (error) {
+            message.error('Thay đổi mật khẩu thất bại')
+            console.log('Thay đổi mật khẩu thất bại', error)
+        }
     };
 
     return (

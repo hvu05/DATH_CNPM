@@ -21,6 +21,7 @@ export const useClientProfile = () => {
         try {
             const res = await userAPI.updateProfile(data);
             if (res.success) setProfile(res.data!);
+            console.log('updateProfile 2', res)
             return res;
         } finally {
             setUpdating(false);

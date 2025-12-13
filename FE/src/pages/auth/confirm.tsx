@@ -30,6 +30,7 @@ export const ConfirmPage = () => {
             if (res.success) {
                 navigate('/otp');
             } else {
+                console.log('err otp', res)
                 setError(res.message || 'Có lỗi xảy ra');
             }
         } catch (error) {

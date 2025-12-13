@@ -13,12 +13,8 @@ export const EditProfileClient = () => {
     const cloudinary = import.meta.env.VITE_CLOUDINARY_NAME;
     const [form, setForm] = useState({
         full_name: '',
-        gender: 'male',
-        birth_day: '',
-        birth_month: '',
-        birth_year: '',
-        email: '',
         phone: '',
+        // avatar: ''
     });
     const [fileList, setFileList] = useState<any[]>([]); // Dùng để lưu trữ ảnh đã chọn
 
@@ -26,12 +22,8 @@ export const EditProfileClient = () => {
         if (profile) {
             setForm({
                 full_name: profile.full_name ?? '',
-                gender: 'male', // giả sử chưa có field gender thì default male
-                birth_day: '',
-                birth_month: '',
-                birth_year: '',
-                email: profile.email ?? '',
                 phone: profile.phone ?? '',
+                // avatar: profile.avatar ??''
             });
             if (profile.avatar) {
                 setFileList([
@@ -72,11 +64,11 @@ export const EditProfileClient = () => {
             }
 
             // Cập nhật thông tin profile với dữ liệu mới và avatar (nếu có)
+
             const updatedProfile = {
                 ...form,
-                avatar: avatarUrl, // Gửi avatar mới nếu có
+                ...(avatarUrl && { avatar: avatarUrl }),
             };
-
             console.log('updatedProfile', updatedProfile);
             await updateProfile(updatedProfile); // Cập nhật dữ liệu profile
             message.success('Cập nhật thành công!');
@@ -124,7 +116,7 @@ export const EditProfileClient = () => {
                         />
                     </div>
 
-                    <div className="client-edit-profile__row">
+                    {/* <div className="client-edit-profile__row">
                         <label className="client-edit-profile__label">Giới tính</label>
                         <div className="client-edit-profile__gender-options">
                             <div className="client-edit-profile__gender-option">
@@ -150,14 +142,14 @@ export const EditProfileClient = () => {
                                 <label htmlFor="gender-female">Nữ</label>
                             </div>
                         </div>
-                    </div>
+                    </div> */}
 
                     <div className="client-edit-profile__row">
                         <label className="client-edit-profile__label">Email</label>
                         <input
                             name="email"
                             type="email"
-                            value={form.email}
+                            value={profile?.email ?? ''}
                             onChange={handleChange}
                             className="client-edit-profile__input disabled"
                         />

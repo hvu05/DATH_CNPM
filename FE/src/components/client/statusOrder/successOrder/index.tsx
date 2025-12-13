@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import '@/styles/client/clientOrderList.scss';
 import type { DataInOrder, OrdersInOrder } from '@/types/clients/client.order.types';
 import { handleRebuy } from '@/helpers/client/rebuy';
+import { message } from 'antd';
 
 type Props = {
     orders: DataInOrder | null;
@@ -13,8 +14,12 @@ export const SuccessOrder = ({ orders }: Props) => {
     // Filter orders that are in "SUCCEEDED" status
     const successOrders = orders?.orders?.filter(item => item?.status === 'COMPLETED');
 
-    const handleEvaluate = (id: string) => {};
-
+    const handleEvaluate = (id: string) => {
+        navigate(`/product/${id}`)
+    };
+    const handleReturn = (order: OrdersInOrder) => {
+        console.log('Bạn đang bấm hủy đơn hàng có id: ', order.id)
+    }
     return (
         <div className="client-order__list">
             {successOrders?.map(order => (
@@ -38,6 +43,7 @@ export const SuccessOrder = ({ orders }: Props) => {
                                 <div className="client-order__quantity">
                                     Số lượng: {item?.quantity}
                                 </div>
+                               
                             </div>
                         </div>
                     ))}
@@ -47,15 +53,15 @@ export const SuccessOrder = ({ orders }: Props) => {
                             Giá: {order?.total?.toLocaleString()}đ
                         </div>
                         <div className="client-order__status--dflex">
-                            <div className="btn-evaluate" onClick={() => handleEvaluate(order?.id)}>
+                            <div className="btn-evaluate" onClick={() => handleEvaluate(order.order_items[0].id)}>
                                 Đánh giá
                             </div>
                             <div className="btn-rebuy" onClick={() => handleRebuy(order, navigate)}>
                                 Mua lại
                             </div>
                         </div>
-                        <button className="client-order__return">
-                            Đơn hàng đã được giao đến bạn
+                        <button className="client-order__return" onClick={() => handleReturn(order)}>
+                            Trả hàng
                         </button>
                         <button
                             onClick={() =>

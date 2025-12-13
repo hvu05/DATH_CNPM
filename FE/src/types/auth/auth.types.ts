@@ -35,4 +35,5 @@ export interface RegisterResponse {
 
 export interface SendOtpRequest {
     email: string;
+    isRegister?: boolean;
 }

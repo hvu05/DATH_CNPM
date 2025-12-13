@@ -42,14 +42,14 @@ export const OrderFilter = (props: IProps) => {
                             }}
                             options={
                                 [
-                                    { value: 'PENDING', label: 'Chờ xác nhận' },
-                                    { value: 'REFUNDED', label: 'Đã hoàn tiền' },
+                                    { value: 'PENDING', label: 'Chờ thanh toán' },
+                                    // { value: 'REFUNDED', label: 'Đã hoàn tiền' },
                                     { value: 'PROCESSING', label: 'Đang xử lý' },
                                     { value: 'DELIVERING', label: 'Đang giao' },
-                                    { value: 'COMPLETED', label: 'Hoàn thành' },
-                                    { value: 'CANCELLED', label: 'Đã hủy' },
+                                    { value: 'COMPLETED', label: 'Giao hàng thành công' },
                                     { value: 'RETURN_REQUEST', label: 'Yêu cầu trả hàng' },
                                     { value: 'RETURNED', label: 'Đã trả hàng' },
+                                    { value: 'CANCELLED', label: 'Đã hủy' },
                                 ] as { value: OrderStatus; label: string }[]
                             }
                         />

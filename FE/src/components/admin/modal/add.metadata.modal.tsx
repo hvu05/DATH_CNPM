@@ -97,7 +97,7 @@ export const AddMetadataModal = ({
                         >
                             <Input placeholder="VD: Laptop, Điện thoại, Tablet..." />
                         </Form.Item>
-                        <Form.Item name="parent_id" label="Danh mục cha (tùy chọn)">
+                        {/* <Form.Item name="parent_id" label="Danh mục cha (tùy chọn)">
                             <Select
                                 showSearch
                                 placeholder="Chọn danh mục cha"
@@ -110,7 +110,7 @@ export const AddMetadataModal = ({
                                 }
                                 options={categories}
                             />
-                        </Form.Item>
+                        </Form.Item> */}
                     </>
                 );
 

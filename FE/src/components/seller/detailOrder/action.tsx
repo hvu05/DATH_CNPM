@@ -42,38 +42,12 @@ export const ActionComponent = ({ orderData }: { orderData: IOrder }) => {
                                 style={{ backgroundColor: '#1677ff', marginBottom: '12px' }}
                                 onClick={async () => {
                                     try {
-                                        // Handle multiple items in the order
-                                        const returnPromises =
-                                            orderData.order_items?.map(item =>
-                                                acceptReturnRqAPI(orderData.id, item.id)
-                                            ) || [];
-
-                                        if (returnPromises.length === 0) {
-                                            message.warning('Không có sản phẩm nào để trả hàng');
-                                            return;
-                                        }
-
                                         message.loading('Đang xử lý trả hàng...', 0);
 
-                                        // Execute all return requests in parallel
-                                        const results = await Promise.allSettled(returnPromises);
-
-                                        // Check if all were successful
-                                        const successful = results.filter(
-                                            result => result.status === 'fulfilled'
-                                        ).length;
+                                        await acceptReturnRqAPI(orderData.id);
 
                                         message.destroy();
-
-                                        if (successful === returnPromises.length) {
-                                            message.success(
-                                                `Xác nhận trả hàng thành công cho ${successful} sản phẩm`
-                                            );
-                                        } else {
-                                            message.warning(
-                                                `Xác nhận trả hàng thành công cho ${successful}/${returnPromises.length} sản phẩm`
-                                            );
-                                        }
+                                        message.success('Xác nhận trả hàng thành công');
 
                                         // await delay(1000);
                                         // window.location.reload();

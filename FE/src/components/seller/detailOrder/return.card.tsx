@@ -35,10 +35,11 @@ export const ReturnCard = ({
                             <p>
                                 <span className="seller-order-detail__info-label">Sản phẩm:</span>{' '}
                                 <span className="seller-order-detail__info-value">
-                                    {returnItem.order_item.product_variant.name || 'Không xác định'}
+                                    {returnItem.order_item?.product_variant?.name ||
+                                        'Không xác định'}
                                 </span>
                             </p>
-                            {returnItem.order_item.product_variant.color && (
+                            {returnItem.order_item?.product_variant?.color && (
                                 <p>
                                     <span className="seller-order-detail__info-label">
                                         Màu sắc:
@@ -48,7 +49,7 @@ export const ReturnCard = ({
                                     </span>
                                 </p>
                             )}
-                            {returnItem.order_item.product_variant.storage && (
+                            {returnItem.order_item?.product_variant?.storage && (
                                 <p>
                                     <span className="seller-order-detail__info-label">
                                         Dung lượng:

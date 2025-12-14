@@ -52,7 +52,7 @@ export const createOrderReturn = async (
       }),
     );
   }
-  const [ orders, items, request ] = await prisma.$transaction([
+  const [orders, items, request] = await prisma.$transaction([
     prisma.order.update({
       where: {
         id: orderId,
@@ -90,7 +90,7 @@ export const createOrderReturn = async (
                   },
                 },
               },
-            }
+            },
           },
         },
         images: true,
@@ -111,21 +111,32 @@ export const createOrderReturn = async (
  * @param staff
  * @returns
  */
-export const confirmReturned = async (
-  orderId: string,
-  staff: AuthPayload,
-) => {
+export const confirmReturned = async (orderId: string, staff: AuthPayload) => {
   const order = await prisma.returnOrderRequest.findFirst({
     where: {
       order_id: orderId,
     },
     include: {
-      order: true,
+      order: {
+        include: {
+          order_items: true,
+        },
+      },
     },
   });
   if (!order) {
     throw new AppError(ErrorCode.NOT_FOUND, 'Không tìm thấy Order');
   }
+
+  // Tạo inventory logs cho hàng trả về với type RETURNED
+  const inventoryLogData = order.order.order_items.map((item) => ({
+    product_id: item.product_id,
+    product_variant_id: item.product_variant_id,
+    type: 'RETURNED',
+    quantity: item.quantity,
+    reason: `Khách trả hàng từ đơn ${orderId}`,
+  }));
+
   await prisma.$transaction([
     prisma.returnOrderRequest.updateMany({
       where: {
@@ -151,6 +162,26 @@ export const confirmReturned = async (
         status: orderDto.OrderItemStatus.RETURNED,
       },
     }),
+    // Tạo inventory log ghi nhận hàng trả về
+    prisma.inventoryLog.createMany({
+      data: inventoryLogData,
+    }),
+    // Cập nhật lại số lượng tồn kho cho các variant
+    ...order.order.order_items.map((item) =>
+      prisma.productVariant.update({
+        where: {
+          variant_id: {
+            id: item.product_variant_id,
+            product_id: item.product_id,
+          },
+        },
+        data: {
+          quantity: {
+            increment: item.quantity,
+          },
+        },
+      }),
+    ),
   ]);
 
   console.log(
@@ -158,9 +189,7 @@ export const confirmReturned = async (
   );
 };
 
-export const getOrderReturnDetail = async (
-  orderId: string,
-) => {
+export const getOrderReturnDetail = async (orderId: string) => {
   const order = await prisma.returnOrderRequest.findFirst({
     where: {
       order_id: orderId,
@@ -176,8 +205,8 @@ export const getOrderReturnDetail = async (
                 },
               },
             },
-          }
-        }
+          },
+        },
       },
       images: true,
     },

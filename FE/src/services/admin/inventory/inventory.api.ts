@@ -2,7 +2,7 @@ import axios from '@/services/axios.customize';
 
 export interface IInventoryLog {
     id: number;
-    type: 'IN' | 'OUT';
+    type: 'IN' | 'OUT' | 'RETURNED';
     quantity: number;
     reason: string;
     product_id: number;
@@ -27,13 +27,14 @@ export interface IInventoryLogResponse {
 export interface IInventorySummary {
     totalIn: number;
     totalOut: number;
+    totalReturned: number;
     totalLogs: number;
 }
 
 export interface IInventoryLogParams {
     page?: number;
     limit?: number;
-    type?: 'IN' | 'OUT';
+    type?: 'IN' | 'OUT' | 'RETURNED';
     search?: string;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';

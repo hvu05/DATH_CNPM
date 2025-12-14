@@ -5,6 +5,7 @@ import {
     ArrowUpOutlined,
     ArrowDownOutlined,
     SwapOutlined,
+    RollbackOutlined,
 } from '@ant-design/icons';
 import { Card, Table, Tag, Input, Select, Button, Statistic, Row, Col, App } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
@@ -78,10 +79,10 @@ export const InventoryHistoryPage = () => {
         setFilters(prev => ({ ...prev, search: value, page: 1 }));
     };
 
-    const handleTypeFilter = (value: string | undefined) => {
+    const handleTypeFilter = (value: string | null) => {
         setFilters(prev => ({
             ...prev,
-            type: value as 'IN' | 'OUT' | undefined,
+            type: value ? (value as 'IN' | 'OUT' | 'RETURNED') : undefined,
             page: 1,
         }));
     };
@@ -96,16 +97,21 @@ export const InventoryHistoryPage = () => {
         {
             title: 'Loại',
             dataIndex: 'type',
-            width: 100,
+            width: 120,
             align: 'center',
-            render: (type: 'IN' | 'OUT') => (
-                <Tag
-                    color={type === 'IN' ? 'green' : 'red'}
-                    icon={type === 'IN' ? <ArrowDownOutlined /> : <ArrowUpOutlined />}
-                >
-                    {type === 'IN' ? 'NHẬP' : 'XUẤT'}
-                </Tag>
-            ),
+            render: (type: 'IN' | 'OUT' | 'RETURNED') => {
+                const config = {
+                    IN: { color: 'green', icon: <ArrowDownOutlined />, label: 'NHẬP' },
+                    OUT: { color: 'red', icon: <ArrowUpOutlined />, label: 'XUẤT' },
+                    RETURNED: { color: 'orange', icon: <RollbackOutlined />, label: 'TRẢ HÀNG' },
+                };
+                const { color, icon, label } = config[type] || config.IN;
+                return (
+                    <Tag color={color} icon={icon}>
+                        {label}
+                    </Tag>
+                );
+            },
         },
         {
             title: 'Sản phẩm',
@@ -134,18 +140,21 @@ export const InventoryHistoryPage = () => {
             dataIndex: 'quantity',
             width: 100,
             align: 'right',
-            render: (qty, record) => (
-                <span
-                    className={
-                        record.type === 'IN'
-                            ? 'text-green-600 font-semibold'
-                            : 'text-red-600 font-semibold'
-                    }
-                >
-                    {record.type === 'IN' ? '+' : '-'}
-                    {qty}
-                </span>
-            ),
+            render: (qty, record) => {
+                const colorClass =
+                    {
+                        IN: 'text-green-600',
+                        OUT: 'text-red-600',
+                        RETURNED: 'text-orange-600',
+                    }[record.type] || 'text-gray-600';
+                const prefix = record.type === 'OUT' ? '-' : '+';
+                return (
+                    <span className={`${colorClass} font-semibold`}>
+                        {prefix}
+                        {qty}
+                    </span>
+                );
+            },
         },
         {
             title: 'Đơn giá',
@@ -187,7 +196,7 @@ export const InventoryHistoryPage = () => {
 
             {/* Summary Cards */}
             <Row gutter={16}>
-                <Col xs={24} sm={8}>
+                <Col xs={24} sm={6}>
                     <Card>
                         <Statistic
                             title="Tổng nhập kho"
@@ -198,7 +207,7 @@ export const InventoryHistoryPage = () => {
                         />
                     </Card>
                 </Col>
-                <Col xs={24} sm={8}>
+                <Col xs={24} sm={6}>
                     <Card>
                         <Statistic
                             title="Tổng xuất kho"
@@ -209,7 +218,18 @@ export const InventoryHistoryPage = () => {
                         />
                     </Card>
                 </Col>
-                <Col xs={24} sm={8}>
+                <Col xs={24} sm={6}>
+                    <Card>
+                        <Statistic
+                            title="Tổng trả hàng"
+                            value={summary?.totalReturned || 0}
+                            prefix={<RollbackOutlined className="text-orange-500" />}
+                            valueStyle={{ color: '#f97316' }}
+                            suffix="sản phẩm"
+                        />
+                    </Card>
+                </Col>
+                <Col xs={24} sm={6}>
                     <Card>
                         <Statistic
                             title="Tổng giao dịch"
@@ -238,9 +258,9 @@ export const InventoryHistoryPage = () => {
                         style={{ width: 150 }}
                         onChange={handleTypeFilter}
                         options={[
-                            { label: 'Tất cả', value: undefined },
                             { label: 'Nhập kho', value: 'IN' },
                             { label: 'Xuất kho', value: 'OUT' },
+                            { label: 'Trả hàng', value: 'RETURNED' },
                         ]}
                     />
                 </div>

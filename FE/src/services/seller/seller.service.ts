@@ -181,16 +181,16 @@ export const completeDeliverAPI = async (order_id: string) => {
     return result.data;
 };
 
-export const acceptReturnRqAPI = async (order_id: string, order_item_id: string) => {
+export const acceptReturnRqAPI = async (order_id: string) => {
     const result = await axios.patch(
-        `${import.meta.env.VITE_BACKEND_URL}/orders/${order_id}/return-confirm/${order_item_id}`
+        `${import.meta.env.VITE_BACKEND_URL}/orders/${order_id}/return-confirm`
     );
     return result.data;
 };
 
-export const getInforOrderReq = async (order_id: string, order_item_id: string) => {
+export const getInforOrderReq = async (order_id: string) => {
     const result = await axios.get<ApiResponse<IOrderReturnRequest>>(
-        `${import.meta.env.VITE_BACKEND_URL}/orders/${order_id}/return/${order_item_id}/detail`
+        `${import.meta.env.VITE_BACKEND_URL}/orders/${order_id}/return/detail`
     );
     return result.data;
 };

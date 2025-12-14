@@ -63,24 +63,13 @@ export const DetailPage = () => {
 
                 setLoadingReturn(true);
                 try {
-                    // Fetch return info for all order items
-                    const returnPromises = orderData.order_items.map(item =>
-                        getInforOrderReq(orderData.id, item.id)
-                    );
-
-                    const results = await Promise.allSettled(returnPromises);
-
-                    const successfulReturns = results
-                        .filter(
-                            (result): result is PromiseFulfilledResult<any> =>
-                                result.status === 'fulfilled'
-                        )
-                        .map(result => result.value.data);
-
-                    setReturnData(successfulReturns);
-
-                    if (successfulReturns.length === 0) {
+                    // Fetch return info for the order
+                    const result = await getInforOrderReq(orderData.id);
+                    if (result.data) {
+                        setReturnData([result.data]);
+                    } else {
                         message.warning('Không tìm thấy thông tin trả hàng nào');
+                        setReturnData([]);
                     }
                 } catch (error) {
                     console.error('Failed to fetch return info:', error);

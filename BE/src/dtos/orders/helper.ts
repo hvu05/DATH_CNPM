@@ -82,7 +82,7 @@ const mapProductVariantToDTO = (
 };
 
 const mapProductVariantToDTOForReturn = (
-  variant: OrderReturnWithItemPrisma['order_item']['variant'],
+  variant: OrderReturnWithItemPrisma['order']['order_items'][number]['variant'],
 ) => {
   return {
     id: variant.id,
@@ -98,19 +98,22 @@ const mapProductVariantToDTOForReturn = (
 type OrderReturnWithItemPrisma = Prisma.ReturnOrderRequestGetPayload<{
   include: {
     images: true;
-    order: true;
-    order_item: {
+    order: {
       include: {
-        variant: {
+        order_items: {
           include: {
-            product: {
+            variant: {
               include: {
-                product_image: {
-                  where: {
-                    is_thumbnail: true;
-                  };
-                  select: {
-                    image_url: true;
+                product: {
+                  include: {
+                    product_image: {
+                      where: {
+                        is_thumbnail: true;
+                      };
+                      select: {
+                        image_url: true;
+                      };
+                    };
                   };
                 };
               };
@@ -138,14 +141,14 @@ export const mapOrderReturnToDTO = (
         ? request.order.deliver_at
         : undefined,
     },
-    order_item: {
-      id: request.order_item.id,
-      price_per_item: request.order_item.price_per_item,
-      quantity: request.order_item.quantity,
+    order_items: request.order.order_items.map((item) => ({
+      id: item.id,
+      price_per_item: item.price_per_item,
+      quantity: item.quantity,
       product_variant: mapProductVariantToDTOForReturn(
-        request.order_item.variant,
+        item.variant,
       ),
-    },
+    })),
     reason: request.reason,
     images: request.images.map((image) => image.image_url),
   };

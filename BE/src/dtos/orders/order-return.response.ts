@@ -16,7 +16,7 @@ export const OrderReturnResponseSchema = z.object({
     }),
     deliver_at: z.date().optional(),
   }),
-  order_item: z.object({
+  order_items: z.object({
     id: z.number(),
     price_per_item: z.number(),
     quantity: z.number(),
@@ -29,7 +29,7 @@ export const OrderReturnResponseSchema = z.object({
       name: z.string(),
       price: z.number(),
     }),
-  }),
+  }).array(),
   reason: z.string(),
   images: z.array(z.string()),
   create_at: z.date(),

@@ -3,7 +3,6 @@ import { ApiResponse } from '../dtos/common/api-response';
 import { CartResponse } from '../dtos/cart/cart-list-response';
 import { CartCreateSchema } from '../dtos/cart/cart-create.reques';
 import { createCart, getCart, updateCart, removeCartItem } from '../services/cart.service';
-import { success } from 'zod';
 
 export const createCartHandler = async (
   req: Request,

@@ -4,6 +4,7 @@ import { authenticateHandler } from '../middlewares/authenticate.middleware';
 import { registry } from '../config/openapi.config';
 import { CartCreateSchema } from '../dtos/cart/cart-create.reques';
 import { CartResponseSchema } from '../dtos/cart/cart-list-response';
+import { ApiResponseSchema } from '../dtos/common/api-response';
 
 const router = Router();
 
@@ -30,7 +31,7 @@ registry.registerPath({
       description: 'OK',
       content: {
         'application/json': {
-          schema: CartResponseSchema,
+          schema: ApiResponseSchema(CartResponseSchema.array()),
         },
       },
     },
@@ -52,7 +53,7 @@ registry.registerPath({
       description: 'OK',
       content: {
         'application/json': {
-          schema: CartResponseSchema.array(),
+          schema: ApiResponseSchema(CartResponseSchema.array()),
         },
       },
     },

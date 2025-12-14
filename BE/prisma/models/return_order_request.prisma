@@ -1,14 +1,11 @@
 model ReturnOrderRequest {
-  order_id String
-  order_item_id Int
+  order_id String @id
   reason String
   approved_by String?
   create_at DateTime @default(now())
   update_at DateTime @updatedAt
 
-  @@id([order_item_id, order_id])
   order Order @relation(fields: [order_id], references: [id])
-  order_item OrderItem @relation(fields: [order_item_id, order_id], references: [id, order_id])
   staff User? @relation(fields: [approved_by], references: [id])
   images ReturnOrderImage[]
 }
@@ -17,7 +14,6 @@ model ReturnOrderImage{
   public_id String @id
   image_url String
   order_id String
-  order_item_id Int
 
-  request ReturnOrderRequest @relation(fields: [order_item_id, order_id], references: [order_item_id,order_id])
+  request ReturnOrderRequest @relation(fields: [order_id], references: [order_id])
 }

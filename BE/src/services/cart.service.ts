@@ -1,4 +1,3 @@
-import { ca } from 'zod/v4/locales';
 import { prisma } from '../config/prisma.config';
 import { CartCreateRequest } from '../dtos/cart/cart-create.reques';
 import { CartResponse } from '../dtos/cart/cart-list-response';

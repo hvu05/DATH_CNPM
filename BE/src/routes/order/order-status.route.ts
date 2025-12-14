@@ -192,7 +192,7 @@ router.patch(
 
 registry.registerPath({
   tags: ['Order - Status'],
-  path: '/orders/{order_id}/return-confirm/{order_item_id}',
+  path: '/orders/{order_id}/return-confirm',
   description: 'Staff chấp nhận yêu cầu hoàn trả',
   method: 'patch',
   security: [
@@ -206,13 +206,7 @@ registry.registerPath({
       in: 'path',
       required: true,
       schema: { type: 'string' },
-    },
-    {
-      name: 'order_item_id',
-      in: 'path',
-      required: true,
-      schema: { type: 'string' },
-    },
+    }
   ],
   responses: {
     '200': {
@@ -226,14 +220,14 @@ registry.registerPath({
   },
 });
 router.patch(
-  '/return-confirm/:order_item_id',
+  '/return-confirm',
   authenticateHandler,
   orderReturnController.staffReturnOrderHandler,
 );
 
 registry.registerPath({
   tags: ['Order - Status'],
-  path: '/orders/{order_id}/return-request/{order_item_id}',
+  path: '/orders/{order_id}/return-request',
   description:
     'Khách hàng tạo yêu cầu hoàn trả, hoặc Staff tạo yêu cầu hoàn trả trên hệ thống',
   method: 'post',
@@ -245,12 +239,6 @@ registry.registerPath({
   parameters: [
     {
       name: 'order_id',
-      in: 'path',
-      required: true,
-      schema: { type: 'string' },
-    },
-    {
-      name: 'order_item_id',
       in: 'path',
       required: true,
       schema: { type: 'string' },
@@ -277,14 +265,14 @@ registry.registerPath({
   },
 });
 router.post(
-  '/return-request/:order_item_id',
+  '/return-request',
   authenticateHandler,
   multerConfig.array('images', 5),
   orderReturnController.createReturnOrderRequestHandler,
 );
 registry.registerPath({
   tags: ['Order - Status'],
-  path: '/orders/{order_id}/return/{order_item_id}/detail',
+  path: '/orders/{order_id}/return/detail',
   description: 'Staff xem chi tiết yêu cầu hoàn trả',
   method: 'get',
   security: [
@@ -318,7 +306,7 @@ registry.registerPath({
   },
 });
 router.get(
-  '/return/:order_item_id/detail',
+  '/return/detail',
   authenticateHandler,
   checkRole(['ADMIN', 'STAFF']),
   orderReturnController.getReturnOrderDetailHandler,

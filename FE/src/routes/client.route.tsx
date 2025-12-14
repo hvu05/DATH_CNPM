@@ -11,6 +11,7 @@ import { OrderSuccess } from '@/pages/client/order-success';
 import { ProtectedRoute } from './protected.route';
 import { AppLayout } from '@/layout';
 import { ReOrderClient } from '@/pages/client/reOrder/reOrder';
+import { ChangePass } from '@/pages/auth/change-pass';
 
 export const clientRoutes: RouteObject[] = [
     {
@@ -36,6 +37,10 @@ export const clientRoutes: RouteObject[] = [
             {
                 path: 'address',
                 element: <ClientAddress />,
+            },
+             {
+                path: 'change-pass',
+                element: <ChangePass />,
             },
         ],
     },

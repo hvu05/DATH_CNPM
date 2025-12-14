@@ -66,7 +66,7 @@ export const PendingPay = ({ orders, setRefresh }: Props) => {
 
     return (
         <div className="client-order__list">
-            {orderPending?.map(ord => (
+            {orderPending && orderPending?.length > 0 ? (orderPending?.map(ord => (
                 <div key={ord.id} className="client-order__item">
                     {ord?.order_items?.map((item, index) => (
                         <div key={item.id || index} className="client-order__product-info">
@@ -114,7 +114,7 @@ export const PendingPay = ({ orders, setRefresh }: Props) => {
                         </button>
                     </div>
                 </div>
-            ))}
+            ))) : (<div>Chưa có đơn hàng</div>)}
 
             {/* Modal hủy đơn hàng */}
             {showCancelModal && (

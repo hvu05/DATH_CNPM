@@ -12,7 +12,7 @@ export const ShippingOrder = ({ orders }: Props) => {
     // const navigate = useNavigate();
     return (
         <div className="client-order__list">
-            {orderPending?.map(ord => (
+            {orderPending && orderPending.length > 0 ? (orderPending?.map(ord => (
                 <div className="client-order__item" key={ord?.id}>
                     {ord?.order_items?.map(item => (
                         <div className="client-order__product-info" key={item?.id}>
@@ -55,7 +55,7 @@ export const ShippingOrder = ({ orders }: Props) => {
                         </button>
                     </div>
                 </div>
-            ))}
+            ))) : (<div>Chưa có đơn hàng</div>)}
         </div>
     );
 };

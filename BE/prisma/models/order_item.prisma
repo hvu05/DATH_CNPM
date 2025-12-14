@@ -12,5 +12,4 @@ model OrderItem{
 
   variant ProductVariant @relation(fields: [product_variant_id,product_id], references: [id, product_id])
 
-  return_request ReturnOrderRequest?
 }

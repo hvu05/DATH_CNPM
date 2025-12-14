@@ -17,7 +17,6 @@ export const createOrderReturn = async (
   data: orderDto.OrderReturnRequest,
   user: AuthPayload,
   orderId: string,
-  orderItemId: number,
 ): Promise<orderDto.OrderReturnResponse> => {
   const { reason, images } = data;
   const order = await prisma.order.findFirst({
@@ -53,11 +52,26 @@ export const createOrderReturn = async (
       }),
     );
   }
-  const [request, orderItem] = await prisma.$transaction([
+  const [ orders, items, request ] = await prisma.$transaction([
+    prisma.order.update({
+      where: {
+        id: orderId,
+      },
+      data: {
+        status: orderDto.OrderStatus.RETURN_REQUEST,
+      },
+    }),
+    prisma.orderItem.updateMany({
+      where: {
+        order_id: orderId,
+      },
+      data: {
+        status: orderDto.OrderItemStatus.RETURN_REQUEST,
+      },
+    }),
     prisma.returnOrderRequest.create({
       data: {
         order_id: orderId,
-        order_item_id: orderItemId,
         reason: reason,
         images: {
           createMany: {
@@ -66,33 +80,25 @@ export const createOrderReturn = async (
         },
       },
       include: {
-        order: true,
-        order_item: {
+        order: {
           include: {
-            variant: {
+            order_items: {
               include: {
-                product: true,
+                variant: {
+                  include: {
+                    product: true,
+                  },
+                },
               },
-            },
+            }
           },
         },
         images: true,
       },
     }),
-    prisma.orderItem.update({
-      where: {
-        item_id: {
-          id: orderItemId,
-          order_id: orderId,
-        },
-      },
-      data: {
-        status: orderDto.OrderItemStatus.RETURN_REQUEST,
-      },
-    }),
   ]);
   if (user.role === 'ADMIN' || user.role === 'STAFF') {
-    await confirmReturned(orderId, orderItemId, user);
+    await confirmReturned(orderId, user);
   }
 
   return orderDto.mapOrderReturnToDTO(request);
@@ -107,13 +113,11 @@ export const createOrderReturn = async (
  */
 export const confirmReturned = async (
   orderId: string,
-  orderItemId: number,
   staff: AuthPayload,
 ) => {
   const order = await prisma.returnOrderRequest.findFirst({
     where: {
       order_id: orderId,
-      order_item_id: orderItemId,
     },
     include: {
       order: true,
@@ -123,23 +127,25 @@ export const confirmReturned = async (
     throw new AppError(ErrorCode.NOT_FOUND, 'Không tìm thấy Order');
   }
   await prisma.$transaction([
-    prisma.returnOrderRequest.update({
+    prisma.returnOrderRequest.updateMany({
       where: {
-        order_item_id_order_id: {
-          order_item_id: orderItemId,
-          order_id: orderId,
-        },
+        order_id: orderId,
       },
       data: {
         approved_by: staff.id,
       },
     }),
-    prisma.orderItem.update({
+    prisma.order.update({
       where: {
-        item_id: {
-          id: orderItemId,
-          order_id: orderId,
-        },
+        id: orderId,
+      },
+      data: {
+        status: orderDto.OrderStatus.RETURNED,
+      },
+    }),
+    prisma.orderItem.updateMany({
+      where: {
+        order_id: orderId,
       },
       data: {
         status: orderDto.OrderItemStatus.RETURNED,
@@ -154,23 +160,24 @@ export const confirmReturned = async (
 
 export const getOrderReturnDetail = async (
   orderId: string,
-  orderItemId: number,
 ) => {
   const order = await prisma.returnOrderRequest.findFirst({
     where: {
       order_id: orderId,
-      order_item_id: orderItemId,
     },
     include: {
-      order: true,
-      order_item: {
+      order: {
         include: {
-          variant: {
+          order_items: {
             include: {
-              product: true,
+              variant: {
+                include: {
+                  product: true,
+                },
+              },
             },
-          },
-        },
+          }
+        }
       },
       images: true,
     },

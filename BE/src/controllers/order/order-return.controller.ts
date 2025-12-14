@@ -12,7 +12,6 @@ export const staffReturnOrderHandler = async (
 ) => {
   try {
     const orderId = req.params.order_id;
-    const orderItemId = Number(req.params.order_item_id);
     const user = req.user;
     if (!user) {
       throw new AppError(
@@ -20,9 +19,14 @@ export const staffReturnOrderHandler = async (
         'Lỗi!!!! Chưa xác thực người dùng',
       );
     }
+    if (user.role !== 'STAFF') {
+      throw new AppError(
+        ErrorCode.FORBIDDEN,
+        'Với quyen nguoi dung nay khong the thuc hien thao tac nay',
+      );
+    }
     const order = await orderReturnSerivce.confirmReturned(
       orderId,
-      orderItemId,
       user,
     );
     res.json({
@@ -57,13 +61,11 @@ export const createReturnOrderRequestHandler = async (
         'Lỗi!!!! Chưa xác thực người dùng',
       );
     const order_id = req.params.order_id;
-    const order_item_id = Number(req.params.order_item_id);
     const data: orderDto.OrderReturnRequest = parsed.data;
     const order = await orderReturnSerivce.createOrderReturn(
       data,
       user,
       order_id,
-      order_item_id,
     );
     res.json({
       success: true,
@@ -81,10 +83,8 @@ export const getReturnOrderDetailHandler = async (
 ) => {
   try {
     const orderId = req.params.order_id;
-    const orderItemId = Number(req.params.order_item_id);
     const order = await orderReturnSerivce.getOrderReturnDetail(
       orderId,
-      orderItemId,
     );
     res.json({
       success: true,

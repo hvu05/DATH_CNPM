@@ -3,7 +3,7 @@ import { prisma } from '../config/prisma.config';
 export interface InventoryLogFilters {
   page?: number;
   limit?: number;
-  type?: 'IN' | 'OUT';
+  type?: 'IN' | 'OUT' | 'RETURNED';
   productId?: number;
   search?: string;
   sortBy?: string;
@@ -117,7 +117,7 @@ export const getInventoryLogs = async (filters: InventoryLogFilters = {}) => {
 
 // Get summary stats
 export const getInventorySummary = async () => {
-  const [totalIn, totalOut, recentLogs] = await Promise.all([
+  const [totalIn, totalOut, totalReturned, recentLogs] = await Promise.all([
     prisma.inventoryLog.aggregate({
       where: { type: 'IN' },
       _sum: { quantity: true },
@@ -126,12 +126,17 @@ export const getInventorySummary = async () => {
       where: { type: 'OUT' },
       _sum: { quantity: true },
     }),
+    prisma.inventoryLog.aggregate({
+      where: { type: 'RETURNED' },
+      _sum: { quantity: true },
+    }),
     prisma.inventoryLog.count(),
   ]);
 
   return {
     totalIn: totalIn._sum.quantity || 0,
     totalOut: totalOut._sum.quantity || 0,
+    totalReturned: totalReturned._sum.quantity || 0,
     totalLogs: recentLogs,
   };
 };

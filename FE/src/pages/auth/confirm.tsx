@@ -22,13 +22,19 @@ export const ConfirmPage = () => {
 
         const obj: SendOtpRequest = {
             email,
+            isRegister: false,
         };
 
         try {
             const res = await authAPI.sendOtp(obj);
             if (res.success) {
-                navigate('/otp');
+                navigate('/otp', {
+                    state: {
+                        email,
+                    },
+                });
             } else {
+                console.log('err otp', res);
                 setError(res.message || 'Có lỗi xảy ra');
             }
         } catch (error) {

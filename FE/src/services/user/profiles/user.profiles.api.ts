@@ -10,6 +10,7 @@ export const userAPI = {
 
     /** Cập nhật thông tin profile */
     updateProfile: async (data: Partial<IUser>) => {
+        console.log('user', data)
         const res = await axios.put<ApiResponse<IUser>>('/users/profile', data);
         return res.data;
     },

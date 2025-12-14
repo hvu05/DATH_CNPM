@@ -137,3 +137,9 @@ registry.registerPath({
 });
 router.post('/refresh-token', authController.refreshTokenHandler);
 export default router;
+
+// Xác thực OTP (kiểm tra OTP đúng chưa)
+router.post('/verify-otp', authController.verifyOtpHandler);
+
+// Đặt lại mật khẩu với OTP
+router.post('/reset-password', authController.resetPasswordHandler);

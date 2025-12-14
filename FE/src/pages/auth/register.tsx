@@ -4,6 +4,7 @@ import { authAPI } from '@/services/auth/auth.service';
 import { StepOneForm } from '@/components/auth/register/step.one';
 import { StepTwoForm } from '@/components/auth/register/step.two';
 import { type RegisterRequest } from '@/types/auth/auth.types';
+import { message } from 'antd';
 
 export const RegisterPage = () => {
     const navigate = useNavigate();
@@ -98,6 +99,7 @@ export const RegisterPage = () => {
             await authAPI.register(registerData);
             setSuccess('Đăng ký thành công! Đang chuyển hướng đến trang đăng nhập...');
             setTimeout(() => navigate('/login'), 1000);
+            message.success('Đăng ký thành công')
         } catch (err: any) {
             setError(err.response.data.message || 'Đăng ký thất bại');
         } finally {
@@ -130,7 +132,7 @@ export const RegisterPage = () => {
         <div className="min-h-screen bg-[#F3F4F6] flex items-center justify-center p-4">
             <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md border border-red-200">
                 <h1 className="text-3xl font-bold text-gray-800 mb-6 text-left">
-                    {step === 1 ? 'Đăng ký tài khoản' : 'Xác minh email'}
+                    {step === 1 ? 'Đăng ký' : 'Xác minh email'}
                 </h1>
 
                 {error && (

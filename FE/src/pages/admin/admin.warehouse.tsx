@@ -218,8 +218,8 @@ export const WarehousePage = () => {
                         title="Xóa sản phẩm"
                         description="Bạn có muốn xóa sản phẩm này ?"
                         onConfirm={() => handleDeleteProduct(record.id)}
-                        okText="Yes"
-                        cancelText="No"
+                        okText="Xác nhận"
+                        cancelText="Đóng"
                     >
                         <Tooltip title="Xóa sản phẩm">
                             <Button

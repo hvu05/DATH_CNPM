@@ -2,8 +2,8 @@ import { NextFunction, Request, Response } from 'express';
 
 import * as authService from '../services/auth.service';
 import * as authDto from '../dtos/auth';
-import { ApiResponse } from '../types/api-response';
 import { UserResponse } from '../dtos/users';
+import { ApiResponse } from '../dtos/common/api-response';
 
 export const loginHandler = async (
   req: Request,
@@ -34,9 +34,9 @@ export const sendOtpForRegisterHandler = async (
   res: Response<ApiResponse<string>>,
   next: NextFunction,
 ) => {
-  const { email } = req.body;
+  const { email, isRegister } = req.body;
   try {
-    await authService.sendOtpForRegister(email);
+    await authService.sendOtpForRegister(email, isRegister);
     res.json({
       success: true,
       message: 'OTP sent successfully',
@@ -90,6 +90,66 @@ export const refreshTokenHandler = async (
     res.json({
       success: true,
       data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * POST /auth/verify-otp
+ * Body: { email, otp_code }
+ */
+export const verifyOtpHandler = async (
+  req: Request,
+  res: Response<ApiResponse<string>>,
+  next: NextFunction,
+) => {
+  try {
+    const { email, otp_code } = req.body;
+    if (!email || !otp_code) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email và OTP là bắt buộc',
+      });
+    }
+    await authService.verifyOtp(email, otp_code);
+    return res.status(200).json({
+      success: true,
+      message: 'OTP hợp lệ',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * POST /auth/reset-password
+ * Body: { email, otp_code, new_password }
+ */
+export const resetPasswordHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { email, otp_code, new_password } = req.body;
+    if (!email || !otp_code || !new_password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email, OTP và mật khẩu mới là bắt buộc',
+      });
+    }
+    if (new_password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Mật khẩu phải có ít nhất 6 ký tự',
+      });
+    }
+    await authService.resetPasswordWithOtp(email, otp_code, new_password);
+    return res.status(200).json({
+      success: true,
+      message: 'Đặt lại mật khẩu thành công',
     });
   } catch (error) {
     next(error);

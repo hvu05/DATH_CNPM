@@ -1,10 +1,12 @@
 import axios from '@/services/axios.customize';
 import {
+    type ChangePasswordRequest,
     type LoginRequest,
     type LoginResponse,
     type RegisterRequest,
     type RegisterResponse,
     type SendOtpRequest,
+    type VerifyOtpRequest,
 } from '@/types/auth/auth.types';
 
 export const authAPI = {
@@ -23,8 +25,18 @@ export const authAPI = {
     },
 
     sendOtp: async (data: SendOtpRequest) => {
-        console.log('data', data.email);
+        console.log('data', data.email, data?.isRegister);
         const result = await axios.post<ApiResponse<any>>('/auth/send-otp', data);
+        return result.data;
+    },
+
+    verifyOtp: async (data: VerifyOtpRequest) => {
+        const result = await axios.post<ApiResponse<any>>('/auth/verify-otp', data);
+        return result.data;
+    },
+
+    changePassword: async (data: ChangePasswordRequest) => {
+        const result = await axios.post<ApiResponse<any>>('auth/reset-password', data);
         return result.data;
     },
 };

@@ -1,5 +1,4 @@
 import { prisma } from '../config/prisma.config';
-import { compareSync } from 'bcrypt-ts';
 import { JwtPayload } from 'jsonwebtoken';
 
 import * as authDto from '../dtos/auth';
@@ -12,6 +11,7 @@ import { createUser } from './user.service';
 import { UserResponse } from '../dtos/users';
 import { StringValue } from 'ms';
 import { AuthPayload } from '../types/auth-payload';
+import { genSalt, hashSync, compareSync } from 'bcrypt-ts';
 
 /**
  * Đăng nhập với email và password
@@ -105,18 +105,40 @@ export const register = async (
 };
 
 /**
- *
- * @param email
+ * Gửi OTP tới email
+ * @param email Email cần gửi OTP
+ * @param isRegister true = đăng ký (user phải chưa tồn tại), false = quên mật khẩu (user phải tồn tại)
  */
-export const sendOtpForRegister = async (email: string): Promise<void> => {
+export const sendOtpForRegister = async (
+  email: string,
+  isRegister: boolean = true,
+): Promise<void> => {
   const user = await prisma.user.findUnique({
     where: {
       email: email,
     },
   });
-  if (user) throw new AppError(ErrorCode.CONFLICT, 'User already exists');
+
+  // Đăng ký: user không được tồn tại
+  if (user && isRegister) {
+    throw new AppError(ErrorCode.CONFLICT, 'Email đã được sử dụng');
+  }
+
+  // Quên mật khẩu: user phải tồn tại
+  if (!user && !isRegister) {
+    throw new AppError(
+      ErrorCode.NOT_FOUND,
+      'Email không tồn tại trong hệ thống',
+    );
+  }
+
+  // Xóa OTP cũ nếu có
+  await prisma.otp.deleteMany({
+    where: { email: email },
+  });
+
   const otpCode = generateOTP();
-  const otp = await prisma.otp.create({
+  await prisma.otp.create({
     data: {
       email: email,
       code: otpCode,
@@ -124,17 +146,16 @@ export const sendOtpForRegister = async (email: string): Promise<void> => {
     },
   });
 
-  //? Có thể sẽ tách ra làm 1 service riêng
   const mailOptions = {
-    to: email, //? Có thể sẽ kiểm tra xem email có tồn tại không
-    subject: 'OTP Verification',
-    text: `Your OTP for verification is ${otpCode}`,
+    to: email,
+    subject: isRegister ? 'OTP Xác thực đăng ký' : 'OTP Đặt lại mật khẩu',
+    text: `Mã OTP của bạn là: ${otpCode}. Mã có hiệu lực trong 5 phút.`,
   };
+
   console.log(
-    `[OTP] OTP sẽ được gửi tới email ${email} với mã : [ ${otpCode} ]`,
+    `[OTP] OTP sẽ được gửi tới email ${email} với mã: [ ${otpCode} ]`,
   );
 
-  //? Không chờ gửi mail thành công / Gửi mail bất đồng bộ
   transporter
     .sendMail(mailOptions)
     .then(() => {
@@ -174,4 +195,84 @@ export const refreshToken = async (
     access_token: access_token,
     refresh_token: refresh_token,
   };
+};
+
+/**
+ * Xác thực OTP (dùng cho quên mật khẩu)
+ * @param email Email đã nhận OTP
+ * @param otpCode Mã OTP người dùng nhập
+ * @returns true nếu OTP hợp lệ
+ */
+export const verifyOtp = async (
+  email: string,
+  otpCode: string,
+): Promise<boolean> => {
+  const otpEntity = await prisma.otp.findUnique({
+    where: { email },
+  });
+
+  if (!otpEntity) {
+    throw new AppError(ErrorCode.NOT_FOUND, 'Không tìm thấy OTP');
+  }
+
+  if (otpEntity.expire_at.getTime() < Date.now()) {
+    await prisma.otp.delete({ where: { id: otpEntity.id } });
+    throw new AppError(ErrorCode.BAD_REQUEST, 'OTP đã hết hạn');
+  }
+
+  if (otpEntity.code !== otpCode) {
+    const newLimit = otpEntity.limit - 1;
+    if (newLimit <= 0) {
+      await prisma.otp.delete({ where: { id: otpEntity.id } });
+      throw new AppError(ErrorCode.BAD_REQUEST, 'OTP đã hết lượt sử dụng');
+    }
+    await prisma.otp.update({
+      where: { id: otpEntity.id },
+      data: { limit: newLimit },
+    });
+    throw new AppError(ErrorCode.BAD_REQUEST, 'OTP không đúng');
+  }
+
+  return true;
+};
+
+/**
+ * Đặt lại mật khẩu với OTP
+ * @param email Email người dùng
+ * @param otpCode Mã OTP
+ * @param newPassword Mật khẩu mới
+ */
+export const resetPasswordWithOtp = async (
+  email: string,
+  otpCode: string,
+  newPassword: string,
+): Promise<void> => {
+  // Verify OTP trước
+  await verifyOtp(email, otpCode);
+
+  // Kiểm tra user tồn tại
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) {
+    throw new AppError(ErrorCode.NOT_FOUND, 'Người dùng không tồn tại');
+  }
+
+  // Hash mật khẩu mới và cập nhật
+  const hashedPassword = await hashPassword(newPassword);
+  await prisma.user.update({
+    where: { email },
+    data: { password: hashedPassword },
+  });
+
+  // Xóa OTP sau khi dùng xong
+  await prisma.otp.delete({ where: { email } });
+};
+
+/**
+ * Hash password sử dụng thuật toán bcrypt
+ * @param password
+ * @returns
+ */
+const hashPassword = async (password: string): Promise<string> => {
+  const salt = await genSalt(10);
+  return hashSync(password, salt);
 };

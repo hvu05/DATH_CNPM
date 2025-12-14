@@ -107,6 +107,21 @@ export interface OrderAllResponse {
     success: boolean;
     data: DataInOrder;
 }
+// ==================return order =========================
+export interface RequestReturnOrder {
+    reason: string,
+}
+export interface ResponseReturnOrder {
+    order: {
+      id: string,
+      user_id: string,
+      total: number,
+      status: string,
+      address: Partial<Address>,
+      deliver_at: string,
+    },
+    //! Chưa hoàn thành cái này
+}
 
 //=======================PAYMENT========================
 type payment_method = 'VNPAY' | 'MOMO';

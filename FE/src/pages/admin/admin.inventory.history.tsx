@@ -79,10 +79,10 @@ export const InventoryHistoryPage = () => {
         setFilters(prev => ({ ...prev, search: value, page: 1 }));
     };
 
-    const handleTypeFilter = (value: string | undefined) => {
+    const handleTypeFilter = (value: string | null) => {
         setFilters(prev => ({
             ...prev,
-            type: value as 'IN' | 'OUT' | 'RETURNED' | undefined,
+            type: value ? (value as 'IN' | 'OUT' | 'RETURNED') : undefined,
             page: 1,
         }));
     };
@@ -258,7 +258,6 @@ export const InventoryHistoryPage = () => {
                         style={{ width: 150 }}
                         onChange={handleTypeFilter}
                         options={[
-                            { label: 'Tất cả', value: undefined },
                             { label: 'Nhập kho', value: 'IN' },
                             { label: 'Xuất kho', value: 'OUT' },
                             { label: 'Trả hàng', value: 'RETURNED' },

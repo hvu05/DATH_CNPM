@@ -944,13 +944,13 @@ INSERT INTO `Otp`
 VALUES
 ('OTP-001', '123456', NOW(), DATE_ADD(NOW(), INTERVAL 10 MINUTE), 'binh.tran@example.com', 5);
 
--- Returns --------------------------------------------------------------------
-INSERT INTO `ReturnOrderRequest`
-(`order_id`, `order_item_id`, `reason`, `approved_by`, `create_at`, `update_at`)
-VALUES
-('ORD-001', 1, 'Customer reported minor scratch on frame.', 'USR-018', NOW(), NOW());
+-- -- Returns --------------------------------------------------------------------
+-- INSERT INTO `ReturnOrderRequest`
+-- (`order_id`, `order_item_id`, `reason`, `approved_by`, `create_at`, `update_at`)
+-- VALUES
+-- ('ORD-001', 1, 'Customer reported minor scratch on frame.', 'USR-018', NOW(), NOW());
 
-INSERT INTO `ReturnOrderImage`
-(`public_id`, `image_url`, `order_id`, `order_item_id`)
-VALUES
-('return-img-1', 'https://res.cloudinary.com/dazdwbzdw/image/upload/v1764415276/iphone_16_pro_max_desert_titan_3552a28ae0_prbta8.webp', 'ORD-001', 1);
+-- INSERT INTO `ReturnOrderImage`
+-- (`public_id`, `image_url`, `order_id`, `order_item_id`)
+-- VALUES
+-- ('return-img-1', 'https://res.cloudinary.com/dazdwbzdw/image/upload/v1764415276/iphone_16_pro_max_desert_titan_3552a28ae0_prbta8.webp', 'ORD-001', 1);

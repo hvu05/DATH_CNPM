@@ -36,6 +36,7 @@ export const authRoutes: RouteObject[] = [
                 path: 'reset-pass',
                 element: <ResetPasswordPage />,
             },
+           
         ],
     },
 ];

@@ -61,7 +61,7 @@ export const ProcessingOrder = ({ orders, setRefresh }: Props) => {
 
     return (
         <div className="client-order__list">
-            {processingOrders?.map(order => (
+            {processingOrders && processingOrders.length > 0 ? (processingOrders?.map(order => (
                 <div className="client-order__item" key={order?.id}>
                     {order?.order_items?.map(item => (
                         <div className="client-order__product-info" key={item?.id}>
@@ -110,7 +110,7 @@ export const ProcessingOrder = ({ orders, setRefresh }: Props) => {
                         </button>
                     </div>
                 </div>
-            ))}
+            ))) : (<div>Chưa có đơn hàng</div>)}
 
             {/* Cancel Order Modal */}
             {showCancelModal && (

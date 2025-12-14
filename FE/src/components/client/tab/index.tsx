@@ -10,7 +10,7 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 // End import Image
-type PathName = 'orders' | 'history' | 'address' | 'profile' | 'client';
+type PathName = 'orders' | 'history' | 'address' | 'profile' | 'client' | 'change-pass';
 export const TabClient = () => {
     const { logout } = useAuthContext();
     const location = useLocation();
@@ -64,6 +64,20 @@ export const TabClient = () => {
                         </span>
                         <span>Địa chỉ nhận hàng</span>
                     </li>
+
+
+                    {/* <li
+                        className={`${isActiveLink('change-pass') ? 'tab--active' : ''}`}
+                        onClick={() => navigate('/client/change-pass')}
+                    >
+                        <span>
+                            <img src={AddressImage} alt="client address logo" />
+                        </span>
+                        <span>Thay đổi mật khẩu</span>
+                    </li> */}
+
+
+
                     <li onClick={logout}>
                         <span>
                             <img src={LogoutImage} alt="client logout logo" />

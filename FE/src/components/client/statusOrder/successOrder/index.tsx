@@ -45,13 +45,12 @@ export const SuccessOrder = ({ orders }: Props) => {
         try{
             const res = await orderAPI.returnOrder(selectedOrder?.id || '', reason)
 
-            message.success('Trả đơn hàng thành công')
+            message.success('Trả đơn hàng thành công, chờ nhân viên xác nhận')
         } catch (error){
             message.error('Trả đơn hàng thất bại, vui lòng thực hiện lại')
             console.log('Trả đơn thất bại' ,error)
         }
 
-        message.success('Yêu cầu trả hàng đã được gửi!');
         setIsModalOpen(false);
         setReturnReason('');
         setSelectedOrder(null);
@@ -66,7 +65,7 @@ export const SuccessOrder = ({ orders }: Props) => {
     return (
         <>
             <div className="client-order__list">
-                {successOrders?.map(order => (
+                {successOrders && successOrders.length > 0 ? (successOrders?.map(order => (
                     <div className="client-order__item" key={order?.id}>
                         {order?.order_items?.map(item => (
                             <div className="client-order__product-info" key={item?.id}>
@@ -116,7 +115,7 @@ export const SuccessOrder = ({ orders }: Props) => {
                             </button>
                         </div>
                     </div>
-                ))}
+                ))) : (<div>Chưa có đơn hàng</div>)}
             </div>
 
             <Modal

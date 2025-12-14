@@ -28,7 +28,7 @@ export const ReturnOrder = ({ orders }: Props) => {
     };
     return (
         <div className="client-order__list">
-            {returnedOrders?.map(order => (
+            {returnedOrders && returnedOrders.length > 0 ? (returnedOrders?.map(order => (
                 <div className="client-order__item" key={order?.id}>
                     {order?.order_items?.map(item => (
                         <div className="client-order__product-info" key={item?.id}>
@@ -73,7 +73,7 @@ export const ReturnOrder = ({ orders }: Props) => {
                         </button>
                     </div>
                 </div>
-            ))}
+            ))) : (<div>Chưa có đơn hàng</div>)}
         </div>
     );
 };
